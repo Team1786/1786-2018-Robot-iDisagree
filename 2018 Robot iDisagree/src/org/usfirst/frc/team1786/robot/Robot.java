@@ -10,7 +10,10 @@ package org.usfirst.frc.team1786.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import com.ctre.phoenix.motorcontrol.can.*;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.drive.*;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -29,11 +32,29 @@ public class Robot extends IterativeRobot {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
+	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
+	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
+	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
+	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	
+	Joystick joystickLeft = new Joystick(0);
+	Joystick joystickRight = new Joystick(1);
+	
+	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
+	
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		
+		talonL2.follow(talonL1);
+		talonL3.follow(talonL1);
+		talonR5.follow(talonR4);
+		talonR6.follow(talonR4);
+		
 	}
 
 	/**
@@ -76,6 +97,15 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		
+		Double yValueLeft = joystickLeft.getY(null);
+		Double xValueLeft = joystickLeft.getX(null);
+		SmartDashboard.putNumber("Y value", yValueLeft); //displays y value on computer
+		SmartDashboard.putNumber("X value", xValueLeft); //displays x value on computer
+		
+		
+		myRobot.arcadeDrive(MAIN_THREAD_ID, MAIN_THREAD_ID, false);
+		
 	}
 
 	/**
