@@ -44,6 +44,8 @@ public class Robot extends IterativeRobot {
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
+	
+	
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
@@ -54,6 +56,10 @@ public class Robot extends IterativeRobot {
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
+		
+		Double deadband = .05;
+		
+		myRobot.setDeadband(deadband);
 		
 	}
 
@@ -100,11 +106,13 @@ public class Robot extends IterativeRobot {
 		
 		Double yValueLeft = joystickLeft.getY(null);
 		Double xValueLeft = joystickLeft.getX(null);
+		Double zValueLeft = joystickLeft.getZ();
 		SmartDashboard.putNumber("Y value", yValueLeft); //displays y value on computer
 		SmartDashboard.putNumber("X value", xValueLeft); //displays x value on computer
 		
 		
-		myRobot.arcadeDrive(MAIN_THREAD_ID, MAIN_THREAD_ID, false);
+		
+		myRobot.arcadeDrive(xValueLeft, zValueLeft, true);
 		
 	}
 
