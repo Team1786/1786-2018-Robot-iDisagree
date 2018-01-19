@@ -57,9 +57,9 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
-		Double deadband = .05;
+		Double deadband = .05; //defines the deadzone
 		
-		myRobot.setDeadband(deadband);
+		myRobot.setDeadband(deadband); //sets the deadzone
 		
 	}
 
