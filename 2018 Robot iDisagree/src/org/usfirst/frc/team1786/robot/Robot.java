@@ -5,7 +5,15 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
+// Will
 package org.usfirst.frc.team1786.robot;
+ 
+
+import com.ctre.phoenix.motorcontrol.can.*;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.drive.*;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
+import java.lang.Math;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -19,10 +27,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends IterativeRobot {
+	
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
+	
+	Joystick stick1 = new Joystick(1);
+	Joystick stick2 = new Joystick(2);
+	
+	//Current limit 120 amps
+	WPI_TalonSRX robotLeft = new WPI_TalonSRX(1);
+	WPI_TalonSRX robotLeftSlave1 = new WPI_TalonSRX(2);
+	WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
+	
+	WPI_TalonSRX robotRight = new WPI_TalonSRX(4);
+	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(5);
+	WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -33,6 +54,13 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		
+		robotLeftSlave1.follow(robotLeft);
+		robotLeftSlave2.follow(robotLeft);
+		
+		robotRightSlave1.follow(robotRight);
+		robotRightSlave2.follow(robotRight);
+		
 	}
 
 	/**
@@ -75,6 +103,54 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		double x = stick1.getX();
+		double y = stick1.getY();
+		double z = stick1.getZ();
+		
+		if(z < -0.1)
+		{
+			//twist right
+			
+			robotLeft.set(z);
+			robotRight.set(-z);
+		}
+		else if(z > 0.1)
+		{
+			//twist left
+			
+			robotLeft.set(-z);
+			robotRight.set(z);
+		}
+		else
+		{
+			double power = Math.sqrt((x*x)+(y*y));
+			if (power > 1)
+				power=1;
+			if (y > 0)
+				power=-power;
+			double scale = 1-Math.abs(x);
+			if(x>0)
+			{
+				//left
+				
+				robotLeft.set(power*scale);
+				robotRight.set(power);
+			}
+			else if(x<0)
+			{
+				//right
+				
+				robotLeft.set(power);
+				robotRight.set(power*scale);
+			}
+			//nothing 
+		}
+		
+		
+		
+		
+		
+		
 	}
 
 	/**
