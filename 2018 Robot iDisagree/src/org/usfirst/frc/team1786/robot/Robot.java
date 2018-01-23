@@ -44,6 +44,10 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX robotRight = new WPI_TalonSRX(4);
 	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(5);
 	WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
+	
+	//current limiting
+	
+	
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -60,6 +64,10 @@ public class Robot extends IterativeRobot {
 		
 		robotRightSlave1.follow(robotRight);
 		robotRightSlave2.follow(robotRight);
+		
+		//current limiting
+		robotLeft.configContinuousCurrentLimit(120, 1);
+		robotRight.configContinuousCurrentLimit(120, 1);
 		
 	}
 
@@ -106,6 +114,14 @@ public class Robot extends IterativeRobot {
 		double x = stick1.getX();
 		double y = stick1.getY();
 		double z = stick1.getZ();
+		
+		//get current & display current;
+		
+		SmartDashboard.putNumber("Left Voltage: ", robotLeft.getOutputCurrent());
+		SmartDashboard.putNumber("Right Voltage: ", robotRight.getOutputCurrent());
+		SmartDashboard.putNumber("Left Temperature: ", robotLeft.getTemperature());
+		SmartDashboard.putNumber("Right Temperature: ", robotRight.getTemperature());
+		
 		
 		if(z < -0.1)
 		{
