@@ -44,8 +44,9 @@ public class Robot extends IterativeRobot {
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
-	private int maxPeakAmp = 60;
-	private int maxCountAmp = 40;
+	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
+	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
+	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds
 	
 	
 	@Override
@@ -55,7 +56,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
 		
-		talonL2.follow(talonL1);
+		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
@@ -66,11 +67,11 @@ public class Robot extends IterativeRobot {
 		
 		
 		
-		talonL1.configPeakCurrentDuration(10000, 0); //sets the duration of the peak
+		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); //sets the duration of the peak
 		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
 		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
 		
-		talonR4.configPeakCurrentDuration(10000, 0); //same as the other one
+		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
 		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
 		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
 		
@@ -119,15 +120,32 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		Double yValueLeft = joystickLeft.getY(null);
-		Double xValueLeft = joystickLeft.getX(null);
-		Double zValueLeft = joystickLeft.getZ();
-		SmartDashboard.putNumber("Y value", yValueLeft); //displays y value on computer
-		SmartDashboard.putNumber("X value", xValueLeft); //displays x value on computer
+		Double yValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
+		Double xValueLeft = joystickLeft.getX();//puts the left joysticks X value into a variable
+		Double zValueLeft = joystickLeft.getZ();//puts the left joysticks Z value into a variable
+		SmartDashboard.putNumber("Y value", yValueLeft); //displays the y value on computer
+		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
+		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
 		
 		
 		
-		myRobot.arcadeDrive(xValueLeft, zValueLeft, true);
+		double talon1 = talonL1.getOutputCurrent(); //defines the talons AMP values
+		double talon2 = talonL2.getOutputCurrent();
+		double talon3 = talonL3.getOutputCurrent();
+		double talon4 = talonR4.getOutputCurrent();
+		double talon5 = talonR5.getOutputCurrent();
+		double talon6 = talonR6.getOutputCurrent();
+		SmartDashboard.putNumber("Talon1", talon1); //displays all the talon AMP values
+		SmartDashboard.putNumber("Talon2", talon2);
+		SmartDashboard.putNumber("Talon3", talon3);
+		SmartDashboard.putNumber("Talon4", talon4);
+		SmartDashboard.putNumber("Talon5", talon5);
+		SmartDashboard.putNumber("Talon6", talon6);
+		
+		
+		
+		
+		myRobot.arcadeDrive(yValueLeft, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
 		
 	}
 
