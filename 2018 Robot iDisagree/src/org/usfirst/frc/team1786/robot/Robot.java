@@ -67,15 +67,30 @@ public class Robot extends IterativeRobot {
 		
 		//Current Limiter
 		
+		int contCurrent = 40;
+		int peakDuration = 10000;
+		int peakCurrent = 60;
 		
-		talonL1.configContinuousCurrentLimit(40, 0);
-		talonR4.configContinuousCurrentLimit(40, 0);
-		talonL2.configContinuousCurrentLimit(40, 0);
-		talonL3.configContinuousCurrentLimit(40, 0);
-		talonR5.configContinuousCurrentLimit(40, 0);
-		talonR6.configContinuousCurrentLimit(40, 0);
+		talonL1.configContinuousCurrentLimit(contCurrent, 0);
+		talonR4.configContinuousCurrentLimit(contCurrent, 0);
+		talonL2.configContinuousCurrentLimit(contCurrent, 0);
+		talonL3.configContinuousCurrentLimit(contCurrent, 0);
+		talonR5.configContinuousCurrentLimit(contCurrent, 0);
+		talonR6.configContinuousCurrentLimit(contCurrent, 0);
 		
+		talonL1.configPeakCurrentLimit(peakCurrent, 0);
+		talonR4.configPeakCurrentLimit(peakCurrent, 0);
+		talonL2.configPeakCurrentLimit(peakCurrent, 0);
+		talonL3.configPeakCurrentLimit(peakCurrent, 0);
+		talonR5.configPeakCurrentLimit(peakCurrent, 0);
+		talonR5.configPeakCurrentLimit(peakCurrent, 0);
 		
+		talonL1.configPeakCurrentDuration(peakDuration, 0);
+		talonR4.configPeakCurrentDuration(peakDuration, 0);
+		talonL2.configPeakCurrentDuration(peakDuration, 0);
+		talonL3.configPeakCurrentDuration(peakDuration, 0);
+		talonR5.configPeakCurrentDuration(peakDuration, 0);
+		talonR5.configPeakCurrentDuration(peakDuration, 0);
 		
 		talonL1.enableCurrentLimit(true);
 		talonR4.enableCurrentLimit(true);
