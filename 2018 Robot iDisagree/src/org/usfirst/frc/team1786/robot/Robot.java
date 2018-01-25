@@ -44,6 +44,8 @@ public class Robot extends IterativeRobot {
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
+	private int maxPeakAmp = 60;
+	private int maxCountAmp = 40;
 	
 	
 	@Override
@@ -51,6 +53,7 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		
 		
 		talonL2.follow(talonL1);
 		talonL3.follow(talonL1);
@@ -60,6 +63,18 @@ public class Robot extends IterativeRobot {
 		Double deadband = .05; //defines the deadzone
 		
 		myRobot.setDeadband(deadband); //sets the deadzone
+		
+		
+		
+		talonL1.configPeakCurrentDuration(10000, 0); //sets the duration of the peak
+		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
+		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
+		
+		talonR4.configPeakCurrentDuration(10000, 0); //same as the other one
+		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
+		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
+		
+		
 		
 	}
 
