@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import com.ctre.phoenix.ErrorCode;;
 
 
 /**
@@ -30,10 +31,11 @@ public class Robot extends IterativeRobot {
 
 
 	
-	
+	//Declare Joysticks
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
 	
+	//Declaring Talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
 	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
@@ -53,15 +55,34 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
+		//Talon follows
 		talonL2.follow(talonL1);
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
+		//Set and apply deadband
 		double deadband = 0.05;
-		
 		myRobot.setDeadband(deadband);
-
+		
+		//Current Limiter
+		
+		
+		talonL1.configContinuousCurrentLimit(40, 0);
+		talonR4.configContinuousCurrentLimit(40, 0);
+		talonL2.configContinuousCurrentLimit(40, 0);
+		talonL3.configContinuousCurrentLimit(40, 0);
+		talonR5.configContinuousCurrentLimit(40, 0);
+		talonR6.configContinuousCurrentLimit(40, 0);
+		
+		
+		
+		talonL1.enableCurrentLimit(true);
+		talonR4.enableCurrentLimit(true);
+		talonL2.enableCurrentLimit(true);
+		talonL3.enableCurrentLimit(true);
+		talonR5.enableCurrentLimit(true);
+		talonR5.enableCurrentLimit(true);
 		
 		
 	}
