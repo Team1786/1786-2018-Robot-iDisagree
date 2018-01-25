@@ -45,6 +45,8 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
 	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
 	
+	double speed;
+	
 	//current limiting
 	
 	
@@ -58,8 +60,13 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		//change speed here
+		speed = 0.5;
 		
 		//initialize current limiting
+		robotLeft.enableCurrentLimit(true);
+		robotRight.enableCurrentLimit(true);
+		
 		
 		
 		
@@ -121,42 +128,45 @@ public class Robot extends IterativeRobot {
 		double y = stick1.getY();
 		double z = stick1.getZ();
 		
-		//get current & display current;
+		//display Data;
 		
 		Robot.displayTalon(robotLeft, "robotLeft");
 		Robot.displayTalon(robotRight, "robotRight");
 		Robot.displayTalon(robotLeftSlave1, "robotLeftSlave1");
 		Robot.displayTalon(robotRightSlave1, "robotRightSave1");
+		
+		//limit current
+		
 		Robot.limitCurrent(robotLeft);
 		Robot.limitCurrent(robotRight);
 		
 		
 		
 		
-		if(z < -0.1 || z > 0.1)
+		if(z < -0.2 || z > 0.2)
 		{
 			//twist
 			
-			robotLeft.set(z);
-			robotRight.set(z);
+			robotLeft.set(z*speed);
+			robotRight.set(z*speed);
 		}
 		else
 		{
-			double power = Math.sqrt((x*x)+(y*y));
+			double power = Math.sqrt((x*x)+(y*y))*speed;
 			if (power > 1)
 				power=1;
 			if(y<0)
 				power=-power;
 				
 			double scale = 1-Math.abs(x);
-			if(x<-0.1)
+			if(x<-0.2)
 			{
 				//left
 				
 				robotLeft.set(-power*scale);
 				robotRight.set(power);
 			}
-			else if(x>0.1)
+			else if(x>0.2)
 			{
 				//right
 				
@@ -174,7 +184,6 @@ public class Robot extends IterativeRobot {
 	}
 	private static void limitCurrent(WPI_TalonSRX talon)
 	{
-		talon.enableCurrentLimit(true);
 		talon.configPeakCurrentLimit(60, 0);
 		talon.configPeakCurrentDuration(10000,0);
 		talon.configContinuousCurrentLimit(40, 0);
