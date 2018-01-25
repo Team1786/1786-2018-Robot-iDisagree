@@ -160,7 +160,7 @@ public class Robot extends IterativeRobot {
 					power=-power;
 					
 				double scale = 1-Math.abs(x);
-				if(x<-0)
+				if(x<0)
 				{
 					//left
 					
