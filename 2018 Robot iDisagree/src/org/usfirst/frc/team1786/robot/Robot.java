@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import com.ctre.phoenix.ErrorCode;;
+
 
 
 /**
@@ -62,24 +62,18 @@ public class Robot extends IterativeRobot {
 		
 	}
 	
+	//Talon Display
+	private void displayTalon(WPI_TalonSRX talon, String label) {
+		
+		SmartDashboard.putNumber(label + " Current", talon.getOutputCurrent());
+		SmartDashboard.putNumber(label + " Temperature", talon.getTemperature());
+		
+	}
 	
-	public void sdDisplay() {
-		
-		SmartDashboard.putNumber("JoystickLeftY", joystickLeft.getY());
-		SmartDashboard.putNumber("JoystickLeftZ", joystickLeft.getZ());
-		SmartDashboard.putNumber("TalonL1Current", talonL1.getOutputCurrent());
-		SmartDashboard.putNumber("TalonL2Current", talonL2.getOutputCurrent());
-		SmartDashboard.putNumber("TalonL3Current", talonL3.getOutputCurrent());
-		SmartDashboard.putNumber("TalonR4Current", talonR4.getOutputCurrent());
-		SmartDashboard.putNumber("TalonR5Current", talonR5.getOutputCurrent());
-		SmartDashboard.putNumber("TalonR6Current", talonR6.getOutputCurrent());
-		
-		
-		
-		
-		
-		
-		
+	//Joystick Display
+	private void displayJoystick(Joystick joystick, String label) {
+		SmartDashboard.putNumber(label + "Y", joystick.getY());
+		SmartDashboard.putNumber(label + "Z", joystick.getZ());
 	}
 	
 	/**
@@ -155,8 +149,14 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		sdDisplay();
+		displayTalon(talonL1, "TalonL1");
+		displayTalon(talonL2, "TalonL2");
+		displayTalon(talonL3, "TalonL3");
+		displayTalon(talonR4, "TalonR4");
+		displayTalon(talonR5, "TalonR5");
+		displayTalon(talonR6, "TalonR6");
 		
+		displayJoystick(joystickLeft, "LeftJoystick");
 		
 		
 		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), true);
