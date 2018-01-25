@@ -39,11 +39,11 @@ public class Robot extends IterativeRobot {
 	//Current limit 120 amps
 	WPI_TalonSRX robotLeft = new WPI_TalonSRX(1);
 	WPI_TalonSRX robotLeftSlave1 = new WPI_TalonSRX(2);
-	WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
+	//WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
 	
-	WPI_TalonSRX robotRight = new WPI_TalonSRX(4);
-	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(5);
-	WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
+	WPI_TalonSRX robotRight = new WPI_TalonSRX(3);
+	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
+	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
 	
 	//current limiting
 	
@@ -59,11 +59,17 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
+		//initialize current limiting
+		
+		
+		
+		
+		
 		robotLeftSlave1.follow(robotLeft);
-		robotLeftSlave2.follow(robotLeft);
+		//robotLeftSlave2.follow(robotLeft);
 		
 		robotRightSlave1.follow(robotRight);
-		robotRightSlave2.follow(robotRight);
+		//robotRightSlave2.follow(robotRight);
 		
 		//current limiting
 		robotLeft.configContinuousCurrentLimit(120, 1);
@@ -117,24 +123,21 @@ public class Robot extends IterativeRobot {
 		
 		//get current & display current;
 		
-		SmartDashboard.putNumber("Left Voltage: ", robotLeft.getOutputCurrent());
-		SmartDashboard.putNumber("Right Voltage: ", robotRight.getOutputCurrent());
-		SmartDashboard.putNumber("Left Temperature: ", robotLeft.getTemperature());
-		SmartDashboard.putNumber("Right Temperature: ", robotRight.getTemperature());
+		Robot.displayTalon(robotLeft, "robotLeft");
+		Robot.displayTalon(robotRight, "robotRight");
+		Robot.displayTalon(robotLeftSlave1, "robotLeftSlave1");
+		Robot.displayTalon(robotRightSlave1, "robotRightSave1");
+		Robot.limitCurrent(robotLeft);
+		Robot.limitCurrent(robotRight);
 		
 		
-		if(z < -0.1)
+		
+		
+		if(z < -0.1 || z > 0.1)
 		{
-			//twist right
+			//twist
 			
 			robotLeft.set(z);
-			robotRight.set(-z);
-		}
-		else if(z > 0.1)
-		{
-			//twist left
-			
-			robotLeft.set(-z);
 			robotRight.set(z);
 		}
 		else
@@ -142,21 +145,22 @@ public class Robot extends IterativeRobot {
 			double power = Math.sqrt((x*x)+(y*y));
 			if (power > 1)
 				power=1;
-			if (y > 0)
+			if(y<0)
 				power=-power;
+				
 			double scale = 1-Math.abs(x);
-			if(x>0)
+			if(x<-0.1)
 			{
 				//left
 				
-				robotLeft.set(power*scale);
+				robotLeft.set(-power*scale);
 				robotRight.set(power);
 			}
-			else if(x<0)
+			else if(x>0.1)
 			{
 				//right
 				
-				robotLeft.set(power);
+				robotLeft.set(-power);
 				robotRight.set(power*scale);
 			}
 			//nothing 
@@ -166,6 +170,20 @@ public class Robot extends IterativeRobot {
 		
 		
 		
+		
+	}
+	private static void limitCurrent(WPI_TalonSRX talon)
+	{
+		talon.enableCurrentLimit(true);
+		talon.configPeakCurrentLimit(60, 0);
+		talon.configPeakCurrentDuration(10000,0);
+		talon.configContinuousCurrentLimit(40, 0);
+	}
+	private static void displayTalon(WPI_TalonSRX talon, String label)
+	{
+		
+		SmartDashboard.putNumber(label+" Output Current: ", talon.getOutputCurrent());
+		SmartDashboard.putNumber(label+" Output Temperature: ", talon.getTemperature());
 		
 	}
 
