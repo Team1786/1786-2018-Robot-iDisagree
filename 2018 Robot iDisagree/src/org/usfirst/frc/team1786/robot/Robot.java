@@ -152,28 +152,31 @@ public class Robot extends IterativeRobot {
 		}
 		else
 		{
-			double power = Math.sqrt((x*x)+(y*y))*speed;
-			if (power > 1)
-				power=1;
-			if(y<0)
-				power=-power;
-				
-			double scale = 1-Math.abs(x);
-			if(x<-0.2)
+			double power = Math.sqrt((x*x)+(y*y));
+			if(power > 0.2)
 			{
-				//left
+				power *= speed;
+				if(y<0)
+					power=-power;
+					
+				double scale = 1-Math.abs(x);
+				if(x<-0)
+				{
+					//left
+					
+					robotLeft.set(-power*scale);
+					robotRight.set(power);
+				}
+				else
+				{
+					//right
+					
+					robotLeft.set(-power);
+					robotRight.set(power*scale);
+				}
 				
-				robotLeft.set(-power*scale);
-				robotRight.set(power);
+				//nothing 
 			}
-			else if(x>0.2)
-			{
-				//right
-				
-				robotLeft.set(-power);
-				robotRight.set(power*scale);
-			}
-			//nothing 
 		}
 		
 		
