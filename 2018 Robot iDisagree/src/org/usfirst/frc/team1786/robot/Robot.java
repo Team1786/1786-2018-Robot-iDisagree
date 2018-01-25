@@ -10,7 +10,10 @@ package org.usfirst.frc.team1786.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj.Joystick;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -24,6 +27,18 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 
+	Joystick joystickLeft = new Joystick(0);
+	Joystick joystickRight = new  Joystick(1);
+	
+	
+	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
+	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
+	//WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
+	//WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	
+	DifferentialDrive myRobot = new DifferentialDrive (talonL1, talonR4);
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -33,8 +48,12 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+	talonL2.follow(talonL1);
+	//talonL3.follow(talonL1);
+	talonR5.follow(talonR4);
+	//talonR6.follow(talonR4);
 	}
-
+	
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
 	 * between different autonomous modes using the dashboard. The sendable
@@ -75,7 +94,12 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		SmartDashboard.putNumber("joystickY", joystickLeft.getY());
+		SmartDashboard.putNumber("joystickZ", joystickLeft.getZ());
+		myRobot.arcadeDrive(-joystickLeft.getY(), -joystickLeft.getZ(), false);
 	}
+	
+	
 
 	/**
 	 * This function is called periodically during test mode.
