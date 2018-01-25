@@ -29,6 +29,10 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 
+	private int contCurrent = 40;
+	private int peakDuration = 10000;
+	private int peakCurrent = 60;
+	private double joystickDeadband = 0.05;
 
 	
 	//Declare Joysticks
@@ -43,7 +47,40 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
+	
+	
+	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
+	
+	
+	//Current Limiting
+	private void currentLimiting(WPI_TalonSRX talon) {
+		talon.configContinuousCurrentLimit(contCurrent, 0);
+		talon.configPeakCurrentLimit(peakCurrent, 0);
+		talon.configPeakCurrentDuration(peakDuration, 0);
+		talon.enableCurrentLimit(true);
+		
+	}
+	
+	
+	public void sdDisplay() {
+		
+		SmartDashboard.putNumber("JoystickLeftY", joystickLeft.getY());
+		SmartDashboard.putNumber("JoystickLeftZ", joystickLeft.getZ());
+		SmartDashboard.putNumber("TalonL1Current", talonL1.getOutputCurrent());
+		SmartDashboard.putNumber("TalonL2Current", talonL2.getOutputCurrent());
+		SmartDashboard.putNumber("TalonL3Current", talonL3.getOutputCurrent());
+		SmartDashboard.putNumber("TalonR4Current", talonR4.getOutputCurrent());
+		SmartDashboard.putNumber("TalonR5Current", talonR5.getOutputCurrent());
+		SmartDashboard.putNumber("TalonR6Current", talonR6.getOutputCurrent());
+		
+		
+		
+		
+		
+		
+		
+	}
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -61,43 +98,18 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
-		//Set and apply deadband
-		double deadband = 0.05;
-		myRobot.setDeadband(deadband);
+		//apply deadband
+		myRobot.setDeadband(joystickDeadband);
 		
 		//Current Limiter
+		currentLimiting(talonL1);
+		currentLimiting(talonL2);
+		currentLimiting(talonL3);
+		currentLimiting(talonR4);
+		currentLimiting(talonR5);
+		currentLimiting(talonR6);
 		
-		int contCurrent = 40;
-		int peakDuration = 10000;
-		int peakCurrent = 60;
 		
-		talonL1.configContinuousCurrentLimit(contCurrent, 0);
-		talonR4.configContinuousCurrentLimit(contCurrent, 0);
-		talonL2.configContinuousCurrentLimit(contCurrent, 0);
-		talonL3.configContinuousCurrentLimit(contCurrent, 0);
-		talonR5.configContinuousCurrentLimit(contCurrent, 0);
-		talonR6.configContinuousCurrentLimit(contCurrent, 0);
-		
-		talonL1.configPeakCurrentLimit(peakCurrent, 0);
-		talonR4.configPeakCurrentLimit(peakCurrent, 0);
-		talonL2.configPeakCurrentLimit(peakCurrent, 0);
-		talonL3.configPeakCurrentLimit(peakCurrent, 0);
-		talonR5.configPeakCurrentLimit(peakCurrent, 0);
-		talonR5.configPeakCurrentLimit(peakCurrent, 0);
-		
-		talonL1.configPeakCurrentDuration(peakDuration, 0);
-		talonR4.configPeakCurrentDuration(peakDuration, 0);
-		talonL2.configPeakCurrentDuration(peakDuration, 0);
-		talonL3.configPeakCurrentDuration(peakDuration, 0);
-		talonR5.configPeakCurrentDuration(peakDuration, 0);
-		talonR5.configPeakCurrentDuration(peakDuration, 0);
-		
-		talonL1.enableCurrentLimit(true);
-		talonR4.enableCurrentLimit(true);
-		talonL2.enableCurrentLimit(true);
-		talonL3.enableCurrentLimit(true);
-		talonR5.enableCurrentLimit(true);
-		talonR5.enableCurrentLimit(true);
 		
 		
 	}
@@ -142,6 +154,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		
+		sdDisplay();
 		
 		
 		
