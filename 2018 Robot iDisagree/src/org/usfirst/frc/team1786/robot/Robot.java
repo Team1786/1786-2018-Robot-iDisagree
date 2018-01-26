@@ -127,7 +127,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
 		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
 		
-		Double driveYValue = -(joystickLeft.getY());
+		Double driveYValue = -(joystickLeft.getY()); //inverts the y value so that foward is foward
 		
 		double talon1 = talonL1.getOutputCurrent(); //defines the talons AMP values
 		double talon2 = talonL2.getOutputCurrent();
