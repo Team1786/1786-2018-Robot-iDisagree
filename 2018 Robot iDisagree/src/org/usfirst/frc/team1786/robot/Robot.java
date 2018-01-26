@@ -34,10 +34,10 @@ public class Robot extends IterativeRobot {
 	 */
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
-	//WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
-	//WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
+	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
@@ -57,9 +57,9 @@ public class Robot extends IterativeRobot {
 		
 		
 		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
-		//talonL3.follow(talonL1);
+		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
-		//talonR6.follow(talonR4);
+		talonR6.follow(talonR4);
 		
 		Double deadband = .05; //defines the deadzone
 		
@@ -120,32 +120,32 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		Double yValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
+		Double dispYValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
 		Double xValueLeft = joystickLeft.getX();//puts the left joysticks X value into a variable
 		Double zValueLeft = joystickLeft.getZ();//puts the left joysticks Z value into a variable
-		SmartDashboard.putNumber("Y value", yValueLeft); //displays the y value on computer
+		SmartDashboard.putNumber("Y value", dispYValueLeft); //displays the y value on computer
 		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
 		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
 		
-		
+		Double driveYValue = -(joystickLeft.getY());
 		
 		double talon1 = talonL1.getOutputCurrent(); //defines the talons AMP values
 		double talon2 = talonL2.getOutputCurrent();
-		//double talon3 = talonL3.getOutputCurrent();
+		double talon3 = talonL3.getOutputCurrent();
 		double talon4 = talonR4.getOutputCurrent();
 		double talon5 = talonR5.getOutputCurrent();
-		//double talon6 = talonR6.getOutputCurrent();
+		double talon6 = talonR6.getOutputCurrent();
 		SmartDashboard.putNumber("Talon1", talon1); //displays all the talon AMP values
 		SmartDashboard.putNumber("Talon2", talon2);
-		//SmartDashboard.putNumber("Talon3", talon3);
+		SmartDashboard.putNumber("Talon3", talon3);
 		SmartDashboard.putNumber("Talon4", talon4);
 		SmartDashboard.putNumber("Talon5", talon5);
-		//SmartDashboard.putNumber("Talon6", talon6);
+		SmartDashboard.putNumber("Talon6", talon6);
 		
 		
 		
 		
-		myRobot.arcadeDrive(yValueLeft, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
+		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
 		
 	}
 
