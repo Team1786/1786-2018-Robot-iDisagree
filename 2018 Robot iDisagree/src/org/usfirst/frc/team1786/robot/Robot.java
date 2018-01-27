@@ -124,23 +124,30 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		
 		double x = stick1.getX();
 		double y = stick1.getY();
 		double z = stick1.getZ();
 		
 		//display Data;
 		
-		Robot.displayTalon(robotLeft, "robotLeft");
-		Robot.displayTalon(robotRight, "robotRight");
-		Robot.displayTalon(robotLeftSlave1, "robotLeftSlave1");
-		Robot.displayTalon(robotRightSlave1, "robotRightSave1");
+		this.displayTalon(robotLeft, "robotLeft");
+		this.displayTalon(robotRight, "robotRight");
+		this.displayTalon(robotLeftSlave1, "robotLeftSlave1");
+		this.displayTalon(robotRightSlave1, "robotRightSave1");
 		
 		//limit current
 		
-		Robot.limitCurrent(robotLeft);
-		Robot.limitCurrent(robotRight);
+		this.limitCurrent(robotLeft);
+		this.limitCurrent(robotRight);
 		
+		//drive
 		
+		this.drive(x,y,z);
+		
+	}
+	private void drive(double x, double y, double z)
+	{
 		
 		
 		if(z < -0.2 || z > 0.2)
@@ -153,10 +160,10 @@ public class Robot extends IterativeRobot {
 		else
 		{
 			double power = Math.sqrt((x*x)+(y*y));
-			if(power > 0.2)
+			if(power > 0.25)
 			{
 				power *= speed;
-				if(y<0)
+				if(y<-0.25)
 					power=-power;
 					
 				double scale = 1-Math.abs(x);
@@ -178,20 +185,14 @@ public class Robot extends IterativeRobot {
 				//nothing 
 			}
 		}
-		
-		
-		
-		
-		
-		
 	}
-	private static void limitCurrent(WPI_TalonSRX talon)
+	private void limitCurrent(WPI_TalonSRX talon)
 	{
 		talon.configPeakCurrentLimit(60, 0);
 		talon.configPeakCurrentDuration(10000,0);
 		talon.configContinuousCurrentLimit(40, 0);
 	}
-	private static void displayTalon(WPI_TalonSRX talon, String label)
+	private void displayTalon(WPI_TalonSRX talon, String label)
 	{
 		
 		SmartDashboard.putNumber(label+" Output Current: ", talon.getOutputCurrent());
