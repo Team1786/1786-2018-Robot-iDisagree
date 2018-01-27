@@ -13,6 +13,8 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
+import edu.wpi.first.wpilibj.Spark;
+
 import java.lang.Math;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -33,22 +35,9 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
-	Joystick stick1 = new Joystick(1);
-	Joystick stick2 = new Joystick(2);
-	
-	//Current limit 120 amps
-	WPI_TalonSRX robotLeft = new WPI_TalonSRX(1);
-	WPI_TalonSRX robotLeftSlave1 = new WPI_TalonSRX(2);
-	//WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
-	
-	WPI_TalonSRX robotRight = new WPI_TalonSRX(3);
-	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
-	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
-	
-	double speed;
-	
-	//current limiting
-	
+	Spark spark1;
+	Spark spark2;
+	Joystick stick1;
 	
 
 	/**
@@ -60,27 +49,12 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
-		//change speed here
-		speed = 0.5;
-		
-		//initialize current limiting
-		robotLeft.enableCurrentLimit(true);
-		robotRight.enableCurrentLimit(true);
 		
 		
+		spark1 = new Spark(0);
+		spark2 = new Spark(1);
+		stick1 = new Joystick(1);
 		
-		
-		
-		
-		robotLeftSlave1.follow(robotLeft);
-		//robotLeftSlave2.follow(robotLeft);
-		
-		robotRightSlave1.follow(robotRight);
-		//robotRightSlave2.follow(robotRight);
-		
-		//current limiting
-		robotLeft.configContinuousCurrentLimit(120, 1);
-		robotRight.configContinuousCurrentLimit(120, 1);
 		
 	}
 
@@ -124,81 +98,14 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		double x = stick1.getX();
-		double y = stick1.getY();
-		double z = stick1.getZ();
-		
-		//display Data;
-		
-		Robot.displayTalon(robotLeft, "robotLeft");
-		Robot.displayTalon(robotRight, "robotRight");
-		Robot.displayTalon(robotLeftSlave1, "robotLeftSlave1");
-		Robot.displayTalon(robotRightSlave1, "robotRightSave1");
-		
-		//limit current
-		
-		Robot.limitCurrent(robotLeft);
-		Robot.limitCurrent(robotRight);
-		
-		
-		
-		
-		if(z < -0.2 || z > 0.2)
-		{
-			//twist
-			
-			robotLeft.set(z*speed);
-			robotRight.set(z*speed);
-		}
-		else
-		{
-			double power = Math.sqrt((x*x)+(y*y));
-			if(power > 0.2)
-			{
-				power *= speed;
-				if(y<0)
-					power=-power;
-					
-				double scale = 1-Math.abs(x);
-				if(x<0)
-				{
-					//left
-					
-					robotLeft.set(-power*scale);
-					robotRight.set(power);
-				}
-				else
-				{
-					//right
-					
-					robotLeft.set(-power);
-					robotRight.set(power*scale);
-				}
-				
-				//nothing 
-			}
-		}
-		
-		
-		
-		
+		double throttle =  stick1.getY();
+		SmartDashboard.putNumber("Throttle: ", throttle);
+		spark1.set(throttle);
+		spark2.set(-throttle);
 		
 		
 	}
-	private static void limitCurrent(WPI_TalonSRX talon)
-	{
-		talon.configPeakCurrentLimit(60, 0);
-		talon.configPeakCurrentDuration(10000,0);
-		talon.configContinuousCurrentLimit(40, 0);
-	}
-	private static void displayTalon(WPI_TalonSRX talon, String label)
-	{
-		
-		SmartDashboard.putNumber(label+" Output Current: ", talon.getOutputCurrent());
-		SmartDashboard.putNumber(label+" Output Temperature: ", talon.getTemperature());
-		
-	}
-
+	
 	/**
 	 * This function is called periodically during test mode.
 	 */
