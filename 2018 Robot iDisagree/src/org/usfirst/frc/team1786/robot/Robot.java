@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -38,9 +39,13 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
 	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
+	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
 	
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
+	
+	JoystickButton firstButton = new JoystickButton(joystickRight, 1);
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
@@ -123,6 +128,8 @@ public class Robot extends IterativeRobot {
 		Double dispYValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
 		Double xValueLeft = joystickLeft.getX();//puts the left joysticks X value into a variable
 		Double zValueLeft = joystickLeft.getZ();//puts the left joysticks Z value into a variable
+		Double yValueRight = joystickRight.getY();
+		Double zValueRight = joystickRight.getZ();
 		SmartDashboard.putNumber("Y value", dispYValueLeft); //displays the y value on computer
 		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
 		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
@@ -142,7 +149,28 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Talon5", talon5);
 		SmartDashboard.putNumber("Talon6", talon6);
 		
+		double armWheelSpeed = Math.pow(zValueRight, 2);
 		
+		if (zValueRight < 0) 
+		{
+			
+			rightArmTalon.set(-armWheelSpeed);
+			leftArmTalon.set(-armWheelSpeed);
+		}
+		else if (zValue > 0) 
+		{
+			
+			rightArmTalon.set(armWheelSpeed);
+			leftArmTalon.set(armWheelSpeed);
+			
+		}
+		else 
+		{
+			
+			rightArmTalon.set(0);
+			leftArmTalon.set(0);
+			
+		}
 		
 		
 		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
