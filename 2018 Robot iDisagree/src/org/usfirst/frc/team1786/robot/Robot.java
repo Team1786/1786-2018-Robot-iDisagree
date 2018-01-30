@@ -170,6 +170,7 @@ public class Robot extends IterativeRobot {
 			rightArmTalon.set(0);
 			leftArmTalon.set(0);
 			
+			
 		}
 		
 		
