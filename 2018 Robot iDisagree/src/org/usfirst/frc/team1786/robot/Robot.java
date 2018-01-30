@@ -11,8 +11,11 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Compressor;
 
 
 
@@ -38,16 +41,22 @@ public class Robot extends IterativeRobot {
 	//Declare Joysticks
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
+	JoystickButton placeholder = new JoystickButton(joystickLeft, 4);
+	
+	//Declaring Buttons
+	
 	
 	//Declaring Talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
 	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
-	
+	//Declaring Solenoids & Compressors
+	Solenoid solenGear = new Solenoid(1);
+	Compressor compressor = new Compressor(1);
 	
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
@@ -75,6 +84,26 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber(label + "Y", joystick.getY());
 		SmartDashboard.putNumber(label + "Z", joystick.getZ());
 	}
+	
+	//Gearbox Toggle
+	private void gearboxToggle() {
+		@SuppressWarnings("unused")
+		boolean solenBool = solenGear.get();
+		
+		if (solenBool = true) {
+			solenGear.set(false);
+		}	else {
+			solenGear.set(true);
+		}		
+		
+		
+		
+	}
+	
+	/*Z-Drive Exponential
+	private double sqrZ(Joystick joystick) {
+		return joystick.getZ()/Math.abs(joystick.getZ())* Math.sqrt(Math.abs(joystick.getZ()));
+	}*/
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -159,7 +188,7 @@ public class Robot extends IterativeRobot {
 		displayJoystick(joystickLeft, "LeftJoystick");
 		
 		
-		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), true);
+		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), true);
 		
 		
 		
