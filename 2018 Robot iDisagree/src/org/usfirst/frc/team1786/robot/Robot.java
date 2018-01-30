@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.*;
+import edu.wpi.first.wpilibj.buttons.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,12 +28,17 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
+	private int continuousAmps = 40;
+	private int peakCurrent = 60;
+	private int timeMs = 0;
+	private int currentDuration = 10000;
+	
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
-	//WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
-	//WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
+	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 
@@ -49,13 +55,44 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
+		//talonL2 and L3 slave energy off talonL1
+		//talonR5 and R6 slave energy off talonR4
 		talonL2.follow(talonL1);
-		//talonL3.follow(talonL1);
+		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
-		//talonR6.follow(talonR4);
+		talonR6.follow(talonR4);
 		
+		//this code tells each talon to use a certain amount of enrgy and no timeout time
+		talonL1.configContinuousCurrentLimit(continuousAmps, timeMs);
+		talonR4.configContinuousCurrentLimit(continuousAmps, timeMs);
+		talonL2.configContinuousCurrentLimit(continuousAmps, timeMs);
+		talonL3.configContinuousCurrentLimit(continuousAmps, timeMs);
+		talonR5.configContinuousCurrentLimit(continuousAmps, timeMs);
+		talonR6.configContinuousCurrentLimit(continuousAmps, timeMs);
 		
+		//the peak current states the maximum amount of energy that can be drawn from each talon with no timeout
+		talonL1.configPeakCurrentLimit(peakCurrent,timeMs);
+		talonR4.configPeakCurrentLimit(peakCurrent,timeMs);
+		talonL3.configPeakCurrentLimit(peakCurrent,timeMs);
+		talonL2.configPeakCurrentLimit(peakCurrent,timeMs);
+		talonR5.configPeakCurrentLimit(peakCurrent,timeMs);
+		talonR6.configPeakCurrentLimit(peakCurrent,timeMs);
 		
+		//this code states how long each talon can stay at peak current(amps) in milliseconds with no timeout
+		talonL1.configPeakCurrentDuration(currentDuration, timeMs);
+		talonL2.configPeakCurrentDuration(currentDuration, timeMs);
+		talonL3.configPeakCurrentDuration(currentDuration, timeMs);
+		talonR4.configPeakCurrentDuration(currentDuration, timeMs);
+		talonR5.configPeakCurrentDuration(currentDuration, timeMs);
+		talonR6.configPeakCurrentDuration(currentDuration, timeMs);
+		
+		//States that each talon can draw amps from the energy source
+		talonL1.enableCurrentLimit(true);
+		talonL2.enableCurrentLimit(true);
+		talonL3.enableCurrentLimit(true);
+		talonR4.enableCurrentLimit(true);
+		talonR5.enableCurrentLimit(true);
+		talonR6.enableCurrentLimit(true);
 		
 	}
 
@@ -101,6 +138,10 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), true);
+		
+		//SmartDashboard.putNumber("". );
+		
+		
 		
 	}
 
