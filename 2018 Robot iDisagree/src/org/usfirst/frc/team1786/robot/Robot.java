@@ -41,6 +41,8 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
 	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
+	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
+	WPI_TalonSRX elevatorTalon2 = new WPI_TalonSRX(10);
 	
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
@@ -65,6 +67,7 @@ public class Robot extends IterativeRobot {
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
+		elevatorTalon2.follow(elevatorTalon1);
 		
 		Double deadband = .05; //defines the deadzone
 		
@@ -149,18 +152,21 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Talon5", talon5);
 		SmartDashboard.putNumber("Talon6", talon6);
 		
+		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
+		
 		double armWheelSpeed = Math.pow(zValueRight, 2);
+		double elevatorSpeed = yValueRight;
 		
 		if (zValueRight < 0) 
 		{
 			
 			rightArmTalon.set(-armWheelSpeed);
-			leftArmTalon.set(-armWheelSpeed);
+			leftArmTalon.set(armWheelSpeed);
 		}
-		else if (zValue > 0) 
+		else if (zValueRight > 0) 
 		{
 			
-			rightArmTalon.set(armWheelSpeed);
+			rightArmTalon.set(-armWheelSpeed);
 			leftArmTalon.set(armWheelSpeed);
 			
 		}
@@ -174,7 +180,20 @@ public class Robot extends IterativeRobot {
 		}
 		
 		
-		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
+		if (yValueRight < 0) 
+		{
+			elevatorTalon1.set(elevatorSpeed);
+		}
+		else if (yValueRight > 0)
+		{
+			elevatorTalon1.set(-elevatorSpeed);
+		}
+		else 
+		{
+			elevatorTalon1.set(0);	
+		}
+		
+		
 		
 	}
 
