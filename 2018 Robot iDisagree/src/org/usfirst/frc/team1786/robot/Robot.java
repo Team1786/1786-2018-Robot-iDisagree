@@ -152,18 +152,19 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Talon5", talon5);
 		SmartDashboard.putNumber("Talon6", talon6);
 		
-		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
+		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //allows the robot to drive with scaling using the y and z values from the left joystick
 		
 		double armWheelSpeed = Math.pow(zValueRight, 2);
 		double elevatorSpeed = yValueRight;
-		
-		if (zValueRight < 0) 
+		double armDeadband = .15;
+		double elevatorDeadband = .15;
+		if (zValueRight < armDeadband) 
 		{
 			
 			rightArmTalon.set(-armWheelSpeed);
 			leftArmTalon.set(armWheelSpeed);
 		}
-		else if (zValueRight > 0) 
+		else if (zValueRight > armDeadband) 
 		{
 			
 			rightArmTalon.set(-armWheelSpeed);
@@ -180,11 +181,11 @@ public class Robot extends IterativeRobot {
 		}
 		
 		
-		if (yValueRight < 0) 
+		if (yValueRight < elevatorDeadband) 
 		{
 			elevatorTalon1.set(elevatorSpeed);
 		}
-		else if (yValueRight > 0)
+		else if (yValueRight > elevatorDeadband)
 		{
 			elevatorTalon1.set(-elevatorSpeed);
 		}
