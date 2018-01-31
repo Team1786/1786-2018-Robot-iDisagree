@@ -41,10 +41,21 @@ public class Robot extends IterativeRobot {
 	//Declare Joysticks
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
-	JoystickButton placeholder = new JoystickButton(joystickLeft, 4);
+
 	
 	//Declaring Buttons
-	
+	JoystickButton leftJoyTrigger = new JoystickButton(joystickLeft, 1);
+	JoystickButton leftJoySideTrigger = new JoystickButton(joystickLeft, 2);
+	JoystickButton leftJoyThumbBottomLeft = new JoystickButton(joystickLeft, 3);
+	JoystickButton leftJoyThumbBottomRight = new JoystickButton(joystickLeft, 4);
+	JoystickButton leftJoyThumbTopLeft = new JoystickButton(joystickLeft, 5);
+	JoystickButton leftJoyThumbTopRight = new JoystickButton(joystickLeft, 6);
+	JoystickButton leftJoyBase1 = new JoystickButton(joystickLeft, 7);
+	JoystickButton leftJoyBase2 = new JoystickButton(joystickLeft, 8);
+	JoystickButton leftJoyBase3 = new JoystickButton(joystickLeft, 9);
+	JoystickButton leftJoyBase4 = new JoystickButton(joystickLeft, 10);
+	JoystickButton leftJoyBase5 = new JoystickButton(joystickLeft, 11);
+	JoystickButton leftJoyBase6 = new JoystickButton(joystickLeft, 12);
 	
 	//Declaring Talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
@@ -95,8 +106,6 @@ public class Robot extends IterativeRobot {
 		}	else {
 			solenGear.set(true);
 		}		
-		
-		
 		
 	}
 	
