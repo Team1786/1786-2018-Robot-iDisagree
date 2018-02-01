@@ -71,13 +71,11 @@ public class Robot extends IterativeRobot {
 		speed = 0.5;
 		
 		//initialize current limiting
+		
 		robotLeft.enableCurrentLimit(true);
 		robotRight.enableCurrentLimit(true);
 		
-		
-		
-		
-		
+		//create slaves
 		
 		robotLeftSlave1.follow(robotLeft);
 		//robotLeftSlave2.follow(robotLeft);
@@ -195,7 +193,6 @@ public class Robot extends IterativeRobot {
 				power *= speed;
 				if(power>1)
 					power=1;
-				
 				if(y<-0.25)
 					power=-power;
 					
