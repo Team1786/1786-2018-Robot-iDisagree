@@ -7,13 +7,16 @@
 
 package org.usfirst.frc.team1786.robot;
 
+import edu.wpi.first.wpilibj.AnalogTrigger;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.*;
-import edu.wpi.first.wpilibj.buttons.*;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.buttons.Trigger;
+import edu.wpi.first.wpilibj.Solenoid;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -22,16 +25,21 @@ import edu.wpi.first.wpilibj.buttons.*;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
+
 public class Robot extends IterativeRobot {
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
+	//Declaring the current power
+	
 	private int continuousAmps = 40;
 	private int peakCurrent = 60;
 	private int timeMs = 0;
 	private int currentDuration = 10000;
+	
+	//Declaring the talons
 	
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
@@ -40,15 +48,30 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
+	//Declaring the drive, joysticks, and solenoids
+	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 
 	Joystick joystickRight = new Joystick(1); //set ID 1 in DriverStation
 	Joystick joystickLeft = new Joystick(0); //set ID 2 in Driver Station
 	
-	/**
+	Solenoid solenoid = new Solenoid(1);
+	
+	//Declaring buttons
+	
+	boolean buttonstate = false;
+	//boolean button1 = true;
+	AnalogTrigger trigger0 = new AnalogTrigger(0);
+	
+	/*
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
+	
+	
+	
+	
+	
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
@@ -107,6 +130,12 @@ public class Robot extends IterativeRobot {
 	 * the switch structure below with additional strings. If using the
 	 * SendableChooser make sure to add them to the chooser code above as well.
 	 */
+	
+	
+	
+	
+	
+	
 	@Override
 	public void autonomousInit() {
 		m_autoSelected = m_chooser.getSelected();
@@ -138,17 +167,30 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), true);
+			//SmartDashboard.putNumber("". );
 		
-		//SmartDashboard.putNumber("". );
+		/*if( joystickRight.getTrigger())
+		{
+			solenoid.set(true);
+		}*/
 		
+		buttonstate = trigger0.getTriggerState();
 		
+		if (buttonstate)
+		{
+			solenoid.set(true);
+		}
+
 		
 	}
 
 	/**
 	 * This function is called periodically during test mode.
 	 */
+	
+
 	@Override
 	public void testPeriodic() {
 	}
 }
+
