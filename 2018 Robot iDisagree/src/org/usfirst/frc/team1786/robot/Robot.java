@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import edu.wpi.first.wpilibj.Spark;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -44,6 +46,9 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX robotRight = new WPI_TalonSRX(3);
 	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
 	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
+	
+	Spark spark1 = new Spark(0);
+	Spark spark2= new Spark(1);
 	
 	double speed;
 	
@@ -81,6 +86,8 @@ public class Robot extends IterativeRobot {
 		//current limiting
 		robotLeft.configContinuousCurrentLimit(120, 1);
 		robotRight.configContinuousCurrentLimit(120, 1);
+		
+		
 		
 	}
 
@@ -125,10 +132,6 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		double x = stick1.getX();
-		double y = stick1.getY();
-		double z = stick1.getZ();
-		
 		//display Data;
 		
 		this.displayTalon(robotLeft, "robotLeft");
@@ -143,12 +146,30 @@ public class Robot extends IterativeRobot {
 		
 		//drive
 		
-		this.drive(x,y,z);
+		this.drive();
+		
+		//pickup
+		
+		this.pickup();
 		
 	}
-	private void drive(double x, double y, double z)
+	private void pickup()
 	{
+		double y = stick2.getY();
 		
+		if(y!=0)
+		{
+			SmartDashboard.putNumber("ThrottleForPickup: ", y);
+			spark1.set(y);
+			spark2.set(-y);
+		}
+		
+	}
+	private void drive()
+	{
+		double x = stick1.getX();
+		double y = stick1.getY();
+		double z = stick1.getZ();
 		
 		if(z < -0.2 || z > 0.2)
 		{
