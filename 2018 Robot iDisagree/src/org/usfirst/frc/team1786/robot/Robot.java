@@ -97,22 +97,37 @@ public class Robot extends IterativeRobot {
 	}
 	
 	//Gearbox Toggle
-	private void gearboxToggle() {
-		@SuppressWarnings("unused")
-		boolean solenBool = solenGear.get();
+	
+	//Shift down
+	private void DownShift(JoystickButton button) {
+		boolean btnState = button.get();
 		
-		if (solenBool = true) {
+		if (btnState = true) {
 			solenGear.set(false);
-		}	else {
-			solenGear.set(true);
-		}		
+		} else {
+			
+		}
 		
 	}
+		
+	//Shift up
+		private void UpShift(JoystickButton button) {
+			@SuppressWarnings("unused")
+			boolean btnState = button.get();
+			
+			if (btnState = false) {
+				solenGear.set(true);
+			} else {
+				
+			}
+			
+		}
 	
 	/*Z-Drive Exponential
 	private double sqrZ(Joystick joystick) {
 		return joystick.getZ()/Math.abs(joystick.getZ())* Math.sqrt(Math.abs(joystick.getZ()));
 	}*/
+	
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -196,8 +211,11 @@ public class Robot extends IterativeRobot {
 		
 		displayJoystick(joystickLeft, "LeftJoystick");
 		
-		
+		//driving thingy
 		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), true);
+		
+		DownShift(leftJoyThumbBottomRight);
+		UpShift(leftJoyThumbBottomLeft);
 		
 		
 		
