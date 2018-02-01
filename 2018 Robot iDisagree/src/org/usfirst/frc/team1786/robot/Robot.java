@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -30,8 +29,9 @@ public class Robot extends IterativeRobot {
 	private int currentLimit1 = 40;
 	private int currentLimit2 = 60;
 	private int currentDur = 10000;
-	private int upShiftButtonNum = 5;
-	private int downShiftButtonNum = 6;
+	private int upShiftButtonNum = 6;
+	private int downShiftButtonNum = 5;
+
 	
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
@@ -40,8 +40,8 @@ public class Robot extends IterativeRobot {
 
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new  Joystick(1);
-	JoystickButton upshiftbutton = new JoystickButton(joystickLeft,upShiftButtonNum);
-	JoystickButton downshiftbutton = new JoystickButton(joystickLeft,downShiftButtonNum);
+	JoystickButton upShiftButton = new JoystickButton(joystickLeft,upShiftButtonNum);
+	JoystickButton downShiftButton = new JoystickButton(joystickLeft,downShiftButtonNum);
 	
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
@@ -51,7 +51,8 @@ public class Robot extends IterativeRobot {
 	//WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
 	Compressor compressor1 = new Compressor(1);
-	Solenoid solenoid1 = new Solenoid(1);
+	Solenoid solenoid1 = new Solenoid(0);
+	
 	
 	DifferentialDrive myRobot = new DifferentialDrive (talonL1, talonR4);
 	/**
@@ -101,6 +102,7 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		//talonR6.follow(talonR4);
 	
+		SmartDashboard.putString("upShiftButtonState", "false");
 	
 	}
 	
@@ -164,6 +166,23 @@ public class Robot extends IterativeRobot {
 		//SmartDashboard.putNumber("talonR6Current", talonR6.getOutputCurrent());
 		
 		
+		if ( upShiftButton.get() == false ){
+			
+			SmartDashboard.putString("upShiftButtonState", "True");
+		
+			solenoid1.set(true);
+		}
+		if ( downShiftButton.get() == false ){
+			
+			solenoid1.set(false);
+		}
+		
+		//while (compressor1.getPressureSwitchValue() == false)
+		///{
+			//compressor1.setClosedLoopControl(true);
+			//compressor1.start();
+		//}
+			//compressor1.setClosedLoopControl(false);
 		
 		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), false);
 		
