@@ -51,6 +51,8 @@ public class Robot extends IterativeRobot {
 	Spark spark2= new Spark(1);
 	
 	double speed;
+	boolean isTurning;
+	boolean isSteering;
 	
 	//current limiting
 	
@@ -171,19 +173,29 @@ public class Robot extends IterativeRobot {
 		double y = stick1.getY();
 		double z = stick1.getZ();
 		
-		if(z < -0.2 || z > 0.2)
+		SmartDashboard.putBoolean("is turning", isTurning);
+		SmartDashboard.putBoolean("isSteering", isSteering);
+		
+		if(z < -0.4 || z > 0.4)
 		{
 			//twist
 			
+			isTurning = true;
 			robotLeft.set(z*speed);
 			robotRight.set(z*speed);
 		}
 		else
 		{
+			isTurning = false;
 			double power = Math.sqrt((x*x)+(y*y));
-			if(power > 0.25)
+			SmartDashboard.putNumber("power", power);
+			if(power > 0.2)
 			{
+				isSteering = true;
 				power *= speed;
+				if(power>1)
+					power=1;
+				
 				if(y<-0.25)
 					power=-power;
 					
@@ -203,8 +215,14 @@ public class Robot extends IterativeRobot {
 					robotRight.set(power*scale);
 				}
 				
-				//nothing 
 			}
+			else
+			{
+				isSteering = false;
+				robotLeft.set(0);
+				robotRight.set(0);
+			}
+			//nothing
 		}
 	}
 	private void limitCurrent(WPI_TalonSRX talon)
