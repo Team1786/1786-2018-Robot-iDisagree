@@ -8,14 +8,15 @@
 package org.usfirst.frc.team1786.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.buttons.*;
-import edu.wpi.first.wpilibj.PWMTalonSRX;
+
+import javax.xml.ws.AsyncHandler;
+
 import com.ctre.phoenix.motorcontrol.can.*;
 
 public class Robot extends IterativeRobot {
@@ -33,11 +34,8 @@ public class Robot extends IterativeRobot {
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
 	
-	// buttons on top of Joystick
-	JoystickButton shiftUp = new JoystickButton(joystickLeft, 5);
-	JoystickButton shiftDown = new JoystickButton(joystickLeft, 6);
-	
-	Compressor robotCompressor = new Compressor();
+	Compressor compressor = new Compressor();
+	Solenoid shifter = new Solenoid(0);
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
@@ -46,6 +44,7 @@ public class Robot extends IterativeRobot {
 	private int peakTimeDuration = 10000; // defines how long the peak will last in milliseconds
 	
 	private Double driveDeadband = .05; // defines the deadzone
+	
 	
 	private void dashboardUpdate() {
 		
@@ -107,11 +106,29 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		boolean shiftUp = joystickLeft.getRawButton(6);
+		boolean shiftDown = joystickLeft.getRawButton(5);
+		
 		Double driveX = joystickLeft.getX();// puts the left joysticks X value into a variable
 		Double driveZ = joystickLeft.getZ();// puts the left joysticks Z value into a variable
 		Double driveY = -(joystickLeft.getY()); // inverts the y value so that foward is foward	
 		
 		myRobot.arcadeDrive(driveY, driveX, true); // allows the robot to drive with squared inputs using the y and z values from the left joystick
+		
+		//run the compressor if necessary
+		if(compressor.getPressureSwitchValue() == false) {
+			compressor.setClosedLoopControl(true);
+		} else {
+				compressor.setClosedLoopControl(false);
+		}
+		
+		//run the shifter pnuematic cylinder
+		//shifts when a shifting button is pressed and pressure is sufficient for shifting
+		if(shiftUp && compressor.getPressureSwitchValue() == false) {
+			shifter.set(true);
+		} else if (shiftDown && compressor.getPressureSwitchValue() == false) {
+			shifter.set(false);
+		}
 		
 		//put data on dashboard
 		dashboardUpdate();
@@ -124,11 +141,11 @@ public class Robot extends IterativeRobot {
 	public void testPeriodic() {
 		
 		// Fill the compressor during autonomous
-		while(robotCompressor.getPressureSwitchValue() == false)
+		while(compressor.getPressureSwitchValue() == false)
 		{
-			robotCompressor.setClosedLoopControl(true);
+			compressor.setClosedLoopControl(true);
 		}
-			robotCompressor.setClosedLoopControl(false);
+			compressor.setClosedLoopControl(false);
 		}
 			
 	
