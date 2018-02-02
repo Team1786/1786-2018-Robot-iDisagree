@@ -18,27 +18,14 @@ import edu.wpi.first.wpilibj.buttons.*;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import com.ctre.phoenix.motorcontrol.can.*;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the IterativeRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the build.properties file in the
- * project.
- */
-// welcome to my branch boys
 public class Robot extends IterativeRobot {
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
-	private String m_autoSelected;
-	private SendableChooser<String> m_chooser = new SendableChooser<>();
 
-	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
-	 */
+	// left Side
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
 	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+	
+	// right Side
 	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
 	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
@@ -46,66 +33,66 @@ public class Robot extends IterativeRobot {
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
 	
-	JoystickButton shiftUp = new JoystickButton(joystickLeft, 3);
-	JoystickButton shiftDown = new JoystickButton(joystickLeft, 4);
+	// buttons on top of Joystick
+	JoystickButton shiftUp = new JoystickButton(joystickLeft, 5);
+	JoystickButton shiftDown = new JoystickButton(joystickLeft, 6);
 	
 	Compressor robotCompressor = new Compressor();
 	
-	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
-	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
-	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
-	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds
+	private int maxPeakAmp = 60; // defines the max amp that can be given to a moter during its peak
+	private int maxCountAmp = 40; // defines the max amp that can be given to a moter after its peak
+	private int peakTimeDuration = 10000; // defines how long the peak will last in milliseconds
 	
+	private Double driveDeadband = .05; // defines the deadzone
+	
+	private void dashboardUpdate() {
+		
+		// put talon amp info on dashboard
+		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
+		double talon2Current = talonL2.getOutputCurrent();
+		double talon3Current = talonL3.getOutputCurrent();
+		double talon4Current = talonR4.getOutputCurrent();
+		double talon5Current = talonR5.getOutputCurrent();
+		double talon6Current = talonR6.getOutputCurrent();
+		SmartDashboard.putNumber("Talon1 Amps", talon1Current); // displays all the talon AMP values
+		SmartDashboard.putNumber("Talon2 Amps", talon2Current);
+		SmartDashboard.putNumber("Talon3 Amps", talon3Current);
+		SmartDashboard.putNumber("Talon4 Amps", talon4Current);
+		SmartDashboard.putNumber("Talon5 Amps", talon5Current);
+		SmartDashboard.putNumber("Talon6 Amps", talon6Current);
+		
+		// put left joystick info on dashboard
+		SmartDashboard.putNumber("drive Y value", joystickLeft.getY()); // displays the y value on computer
+		SmartDashboard.putNumber("drive X value", joystickLeft.getX()); // displays the x value on computer
+		SmartDashboard.putNumber("drive Z value", joystickLeft.getZ()); // displays the z value on computer
+	}
 	
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto choices", m_chooser);
 		
+		myRobot.setDeadband(driveDeadband); // sets the deadzone
 		
-		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
+		// configure talon slaves.
+		talonL2.follow(talonL1); 
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
-		Double deadband = .05; //defines the deadzone
+		// Configure left drive side amp limits
+		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
+		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // sets the max current of the peak
+		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); // sets the max current for the time after the peak
 		
-		myRobot.setDeadband(deadband); //sets the deadzone
-		
-		
-		
-		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); //sets the duration of the peak
-		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
-		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
-		
-		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
+		// Configure right drive side amp limits
+		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); // same as the other one
 		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
-		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
-		
-		
+		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);		
 		
 	}
-
-	/**
-	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-	 * getString line to get the auto name from the text box below the Gyro
-	 *
-	 * <p>You can add additional auto modes by adding additional comparisons to
-	 * the switch structure below with additional strings. If using the
-	 * SendableChooser make sure to add them to the chooser code above as well.
-	 */
 	@Override
 	public void autonomousInit() {
-		m_autoSelected = m_chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + m_autoSelected);
 	}
 
 	/**
@@ -113,15 +100,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
-				break;
-			case kDefaultAuto:
-			default:
-				// Put default auto code here
-				break;
-		}
 	}
 
 	/**
@@ -129,34 +107,13 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		Double driveX = joystickLeft.getX();// puts the left joysticks X value into a variable
+		Double driveZ = joystickLeft.getZ();// puts the left joysticks Z value into a variable
+		Double driveY = -(joystickLeft.getY()); // inverts the y value so that foward is foward	
 		
-		Double dispYValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
-		Double xValueLeft = joystickLeft.getX();//puts the left joysticks X value into a variable
-		Double zValueLeft = joystickLeft.getZ();//puts the left joysticks Z value into a variable
-		SmartDashboard.putNumber("Y value", dispYValueLeft); //displays the y value on computer
-		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
-		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
+		myRobot.arcadeDrive(driveY, driveX, true); // allows the robot to drive with scaling using the y and z values from the left joystick
 		
-		Double driveYValue = -(joystickLeft.getY()); //inverts the y value so that foward is foward
-		
-		double talon1 = talonL1.getOutputCurrent(); //defines the talons AMP values
-		double talon2 = talonL2.getOutputCurrent();
-		double talon3 = talonL3.getOutputCurrent();
-		double talon4 = talonR4.getOutputCurrent();
-		double talon5 = talonR5.getOutputCurrent();
-		double talon6 = talonR6.getOutputCurrent();
-		SmartDashboard.putNumber("Talon1", talon1); //displays all the talon AMP values
-		SmartDashboard.putNumber("Talon2", talon2);
-		SmartDashboard.putNumber("Talon3", talon3);
-		SmartDashboard.putNumber("Talon4", talon4);
-		SmartDashboard.putNumber("Talon5", talon5);
-		SmartDashboard.putNumber("Talon6", talon6);
-		
-		
-		
-		
-		//myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
-		
+		dashboardUpdate();
 	}
 
 	/**
@@ -164,7 +121,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
-		
+		// Fill the compressor during autonomous
 		while(robotCompressor.getPressureSwitchValue() == false)
 		{
 			robotCompressor.setClosedLoopControl(true);
