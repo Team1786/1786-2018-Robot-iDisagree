@@ -13,9 +13,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.buttons.*;
-
-import javax.xml.ws.AsyncHandler;
 
 import com.ctre.phoenix.motorcontrol.can.*;
 
@@ -79,12 +76,10 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
-		// Configure left drive side amp limits
+		// Configure talon amp limits
 		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
 		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // sets the max current of the peak
 		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); // sets the max current for the time after the peak
-		
-		// Configure right drive side amp limits
 		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); // same as the other one
 		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
 		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);		
