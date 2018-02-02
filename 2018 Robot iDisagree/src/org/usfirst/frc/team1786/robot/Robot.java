@@ -44,24 +44,31 @@ public class Robot extends IterativeRobot {
 	
 	private void dashboardUpdate() {
 		
-		// put talon amp info on dashboard
+		// put amp info on dashboard
 		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
 		double talon2Current = talonL2.getOutputCurrent();
 		double talon3Current = talonL3.getOutputCurrent();
 		double talon4Current = talonR4.getOutputCurrent();
 		double talon5Current = talonR5.getOutputCurrent();
 		double talon6Current = talonR6.getOutputCurrent();
+		double compressorCurrent = compressor.getCompressorCurrent();
 		SmartDashboard.putNumber("Talon1 Amps", talon1Current); // displays all the talon AMP values
 		SmartDashboard.putNumber("Talon2 Amps", talon2Current);
 		SmartDashboard.putNumber("Talon3 Amps", talon3Current);
 		SmartDashboard.putNumber("Talon4 Amps", talon4Current);
 		SmartDashboard.putNumber("Talon5 Amps", talon5Current);
 		SmartDashboard.putNumber("Talon6 Amps", talon6Current);
+		SmartDashboard.putNumber("compressor amps", compressorCurrent);
 		
 		// put left joystick info on dashboard
 		SmartDashboard.putNumber("drive Y value", joystickLeft.getY()); // displays the y value on computer
 		SmartDashboard.putNumber("drive X value", joystickLeft.getX()); // displays the x value on computer
 		SmartDashboard.putNumber("drive Z value", joystickLeft.getZ()); // displays the z value on computer
+		SmartDashboard.putBoolean("is downshift button 5 pressed", joystickLeft.getRawButton(5));
+		SmartDashboard.putBoolean("is upshift button 6 pressed", joystickLeft.getRawButton(6));
+		
+		// compressor and solenoid information
+		SmartDashboard.putBoolean("solenoid shifter ID 0 state", shifter.get());
 	}
 	
 	@Override
@@ -118,9 +125,10 @@ public class Robot extends IterativeRobot {
 		
 		//run the shifter pnuematic cylinder
 		//shifts when a shifting button is pressed and pressure is sufficient for shifting
-		if(shiftUp && compressor.getPressureSwitchValue() == false) {
+		if(shiftUp) {
 			shifter.set(true);
-		} else if (shiftDown && compressor.getPressureSwitchValue() == false) {
+		} else if
+		(shiftDown) {
 			shifter.set(false);
 		}
 		
