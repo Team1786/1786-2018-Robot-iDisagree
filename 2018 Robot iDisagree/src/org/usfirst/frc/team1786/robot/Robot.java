@@ -165,7 +165,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 		
-		while(robotCompressor.getPressureSwitchValue())
+		while(robotCompressor.getPressureSwitchValue() == false)
 		{
 			robotCompressor.setClosedLoopControl(true);
 		}
