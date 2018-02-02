@@ -17,16 +17,16 @@ import edu.wpi.first.wpilibj.Compressor;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 public class Robot extends IterativeRobot {
-
-	// left Side
-	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
-	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
-	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	
-	// right Side
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
-	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+//
+//	// left Side
+//	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
+//	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
+//	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+//	
+//	// right Side
+//	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
+//	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
+//	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
@@ -34,11 +34,11 @@ public class Robot extends IterativeRobot {
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
 	
-	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
+//	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
-	private int maxPeakAmp = 60; // defines the max amp that can be given to a moter during its peak
-	private int maxCountAmp = 40; // defines the max amp that can be given to a moter after its peak
-	private int peakTimeDuration = 10000; // defines how long the peak will last in milliseconds
+//	private int maxPeakAmp = 60; // defines the max amp that can be given to a moter during its peak
+//	private int maxCountAmp = 40; // defines the max amp that can be given to a moter after its peak
+//	private int peakTimeDuration = 10000; // defines how long the peak will last in milliseconds
 	
 	private Double driveDeadband = .05; // defines the deadzone
 	
@@ -46,20 +46,20 @@ public class Robot extends IterativeRobot {
 	private void dashboardUpdate() {
 		
 		// put amp info on dashboard
-		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
-		double talon2Current = talonL2.getOutputCurrent();
-		double talon3Current = talonL3.getOutputCurrent();
-		double talon4Current = talonR4.getOutputCurrent();
-		double talon5Current = talonR5.getOutputCurrent();
-		double talon6Current = talonR6.getOutputCurrent();
-		double compressorCurrent = compressor.getCompressorCurrent();
-		SmartDashboard.putNumber("Talon1 Amps", talon1Current); // displays all the talon AMP values
-		SmartDashboard.putNumber("Talon2 Amps", talon2Current);
-		SmartDashboard.putNumber("Talon3 Amps", talon3Current);
-		SmartDashboard.putNumber("Talon4 Amps", talon4Current);
-		SmartDashboard.putNumber("Talon5 Amps", talon5Current);
-		SmartDashboard.putNumber("Talon6 Amps", talon6Current);
-		SmartDashboard.putNumber("compressor amps", compressorCurrent);
+//		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
+//		double talon2Current = talonL2.getOutputCurrent();
+//		double talon3Current = talonL3.getOutputCurrent();
+//		double talon4Current = talonR4.getOutputCurrent();
+//		double talon5Current = talonR5.getOutputCurrent();
+//		double talon6Current = talonR6.getOutputCurrent();
+//		double compressorCurrent = compressor.getCompressorCurrent();
+//		SmartDashboard.putNumber("Talon1 Amps", talon1Current); // displays all the talon AMP values
+//		SmartDashboard.putNumber("Talon2 Amps", talon2Current);
+//		SmartDashboard.putNumber("Talon3 Amps", talon3Current);
+//		SmartDashboard.putNumber("Talon4 Amps", talon4Current);
+//		SmartDashboard.putNumber("Talon5 Amps", talon5Current);
+//		SmartDashboard.putNumber("Talon6 Amps", talon6Current);
+//		SmartDashboard.putNumber("compressor amps", compressorCurrent);
 		
 		// put left joystick info on dashboard
 		SmartDashboard.putNumber("drive Y value", joystickLeft.getY()); // displays the y value on computer
@@ -69,35 +69,37 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("is upshift button 6 pressed", joystickLeft.getRawButton(6));
 		
 		// compressor and solenoid information
-		SmartDashboard.putBoolean("solenoid shifter ID 0 state", shifter.get());
+		SmartDashboard.putBoolean("solenoid shifter ID 0 state", shifter.get()); // boolean
 	}
 	@Override
 	public void robotInit() {
 		
-		myRobot.setDeadband(driveDeadband); // sets the deadzone
-		// configure talon slaves.
-		talonL2.follow(talonL1); 
-		talonL3.follow(talonL1);
-		talonR5.follow(talonR4);
-		talonR6.follow(talonR4);
-		
-		//configure motor safety
-		talonL1.setSafetyEnabled(true);
-		talonL2.setSafetyEnabled(true);
-		talonL3.setSafetyEnabled(true);
-		talonR4.setSafetyEnabled(true);
-		talonR5.setSafetyEnabled(true);
-		talonR6.setSafetyEnabled(true);
-		
-		// Configure talon amp limits
-		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
-		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // "Configure the peak current limit to the threshold necessary to exceed to activate current limiting"
-		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); // sets the max current for the time after the peak
-		talonL1.enableCurrentLimit(true);
-		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); // same as the other one
-		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
-		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
-		talonR4.enableCurrentLimit(true);
+//		myRobot.setDeadband(driveDeadband); // sets the deadzone
+//		
+//		// configure talon slaves.
+//		talonL2.follow(talonL1); 
+//		talonL3.follow(talonL1);
+//		talonR5.follow(talonR4);
+//		talonR6.follow(talonR4);
+//		
+//		//configure motor safety
+//		//default value is 100ms, don't go below this.
+//		talonL1.setSafetyEnabled(true);
+//		talonL2.setSafetyEnabled(true);
+//		talonL3.setSafetyEnabled(true);
+//		talonR4.setSafetyEnabled(true);
+//		talonR5.setSafetyEnabled(true);
+//		talonR6.setSafetyEnabled(true);
+//		
+//		// Configure talon amp limits
+//		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
+//		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // "Configure the peak current limit to the threshold necessary to exceed to activate current limiting"
+//		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); // sets the max current for the time after the peak
+//		talonL1.enableCurrentLimit(true);
+//		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); // same as the other one
+//		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
+//		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
+//		talonR4.enableCurrentLimit(true);
 		
 	}
 	@Override
@@ -123,7 +125,7 @@ public class Robot extends IterativeRobot {
 		Double driveZ = joystickLeft.getZ();// puts the left joysticks Z value into a variable
 		Double driveY = -joystickLeft.getY(); // inverts the y value so that foward is foward	
 		
-		myRobot.arcadeDrive(driveY, driveZ, true); // allows the robot to drive with squared inputs using the y and z values from the left joystick
+//		myRobot.arcadeDrive(driveY, driveZ, true); // allows the robot to drive with squared inputs using the y and z values from the left joystick
 		
 		//run the compressor if necessary
 		if(compressor.getPressureSwitchValue() == false) {
