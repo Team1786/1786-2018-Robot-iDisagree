@@ -100,6 +100,7 @@ public class Robot extends IterativeRobot {
 	
 	//Shift down
 	private void DownShift(JoystickButton button) {
+		@SuppressWarnings("unused")
 		boolean btnState = button.get();
 		
 		if (btnState = true) {
