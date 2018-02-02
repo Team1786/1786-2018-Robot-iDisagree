@@ -19,10 +19,12 @@ public class Debouncer {
 		period = waitPeriod;
 	}
 	
+	//change debounce period after construction
 	public void setDebouncePeriod(double waitPeriod) {
 		period = waitPeriod;
 	}
 	
+	//get debounced state of button
 	public boolean get() {
 		now = Timer.getFPGATimestamp();
 		if(joystick.getRawButton(buttonNum)) {

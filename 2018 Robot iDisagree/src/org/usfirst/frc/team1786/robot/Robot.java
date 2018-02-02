@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
+
 import com.ctre.phoenix.motorcontrol.can.*;
 
 public class Robot extends IterativeRobot {
@@ -70,25 +71,33 @@ public class Robot extends IterativeRobot {
 		// compressor and solenoid information
 		SmartDashboard.putBoolean("solenoid shifter ID 0 state", shifter.get());
 	}
-	
 	@Override
 	public void robotInit() {
 		
 		myRobot.setDeadband(driveDeadband); // sets the deadzone
-		
 		// configure talon slaves.
 		talonL2.follow(talonL1); 
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
+		//configure motor safety
+		talonL1.setSafetyEnabled(true);
+		talonL2.setSafetyEnabled(true);
+		talonL3.setSafetyEnabled(true);
+		talonR4.setSafetyEnabled(true);
+		talonR5.setSafetyEnabled(true);
+		talonR6.setSafetyEnabled(true);
+		
 		// Configure talon amp limits
 		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
-		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // sets the max current of the peak
+		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // "Configure the peak current limit to the threshold necessary to exceed to activate current limiting"
 		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); // sets the max current for the time after the peak
+		talonL1.enableCurrentLimit(true);
 		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); // same as the other one
 		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
-		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);		
+		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
+		talonR4.enableCurrentLimit(true);
 		
 	}
 	@Override
@@ -112,9 +121,9 @@ public class Robot extends IterativeRobot {
 		
 		Double driveX = joystickLeft.getX();// puts the left joysticks X value into a variable
 		Double driveZ = joystickLeft.getZ();// puts the left joysticks Z value into a variable
-		Double driveY = -(joystickLeft.getY()); // inverts the y value so that foward is foward	
+		Double driveY = -joystickLeft.getY(); // inverts the y value so that foward is foward	
 		
-		myRobot.arcadeDrive(driveY, driveX, true); // allows the robot to drive with squared inputs using the y and z values from the left joystick
+		myRobot.arcadeDrive(driveY, driveZ, true); // allows the robot to drive with squared inputs using the y and z values from the left joystick
 		
 		//run the compressor if necessary
 		if(compressor.getPressureSwitchValue() == false) {
@@ -150,5 +159,4 @@ public class Robot extends IterativeRobot {
 			compressor.setClosedLoopControl(false);
 		}
 			
-	
 }
