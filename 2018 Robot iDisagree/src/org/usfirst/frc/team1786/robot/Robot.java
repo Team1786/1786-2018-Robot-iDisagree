@@ -111,8 +111,9 @@ public class Robot extends IterativeRobot {
 		Double driveZ = joystickLeft.getZ();// puts the left joysticks Z value into a variable
 		Double driveY = -(joystickLeft.getY()); // inverts the y value so that foward is foward	
 		
-		myRobot.arcadeDrive(driveY, driveX, true); // allows the robot to drive with scaling using the y and z values from the left joystick
+		myRobot.arcadeDrive(driveY, driveX, true); // allows the robot to drive with squared inputs using the y and z values from the left joystick
 		
+		//put data on dashboard
 		dashboardUpdate();
 	}
 
@@ -121,6 +122,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+		
 		// Fill the compressor during autonomous
 		while(robotCompressor.getPressureSwitchValue() == false)
 		{
