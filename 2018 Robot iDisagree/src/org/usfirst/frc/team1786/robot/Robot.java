@@ -45,7 +45,7 @@ public class Robot extends IterativeRobot {
 	
 	private void dashboardUpdate() {
 		
-		// put amp info on dashboard
+		// put general amp info on dashboard
 		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
 		double talon2Current = talonL2.getOutputCurrent();
 		double talon3Current = talonL3.getOutputCurrent();
@@ -81,14 +81,6 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		
-		//configure motor safety
-		talonL1.setSafetyEnabled(true);
-		talonL2.setSafetyEnabled(true);
-		talonL3.setSafetyEnabled(true);
-		talonR4.setSafetyEnabled(true);
-		talonR5.setSafetyEnabled(true);
-		talonR6.setSafetyEnabled(true);
-		
 		// Configure talon amp limits
 		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
 		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); // "Configure the peak current limit to the threshold necessary to exceed to activate current limiting"
@@ -111,6 +103,18 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 	}
 
+	@Override
+	public void teleopInit() {
+		// configure motor safety
+		// the wpilib code samples put this here so I am too
+		talonL1.setSafetyEnabled(true);
+		talonL2.setSafetyEnabled(true);
+		talonL3.setSafetyEnabled(true);
+		talonR4.setSafetyEnabled(true);
+		talonR5.setSafetyEnabled(true);
+		talonR6.setSafetyEnabled(true);
+	}
+	
 	/**
 	 * This function is called periodically during operator control.
 	 */
