@@ -45,7 +45,7 @@ public class Robot extends IterativeRobot {
 	
 	private void dashboardUpdate() {
 		
-		// put amp info on dashboard
+		// put general amp info on dashboard
 		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
 		double talon2Current = talonL2.getOutputCurrent();
 		double talon3Current = talonL3.getOutputCurrent();
