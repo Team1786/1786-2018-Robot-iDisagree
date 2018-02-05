@@ -51,8 +51,13 @@ public class Robot extends IterativeRobot {
 	
 	private void dashboardUpdate() {
 		
+<<<<<<< HEAD
 		// put amp info on dashboard
 		double talon1Current = talonL1.getOutputCurrent();
+=======
+		// put general amp info on dashboard
+		double talon1Current = talonL1.getOutputCurrent(); // defines the talons AMP values
+>>>>>>> b070d3107e9f44e927529ff08da64c6505baf7f9
 		double talon2Current = talonL2.getOutputCurrent();
 		double talon3Current = talonL3.getOutputCurrent();
 		double talon4Current = talonR4.getOutputCurrent();
@@ -87,11 +92,14 @@ public class Robot extends IterativeRobot {
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
+<<<<<<< HEAD
 
 		//we can just set motor safety for the differentialDrive object
 		myRobot.setDeadband(driveDeadband);
 		myRobot.setSafetyEnabled(true);
 		myRobot.setExpiration(100);
+=======
+>>>>>>> b070d3107e9f44e927529ff08da64c6505baf7f9
 		
 		// Configure talon amp limits
 		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); // sets the duration of the peak
@@ -117,9 +125,22 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
+<<<<<<< HEAD
 		accurateDrive = false;
 		shifted = false;
 	}
+=======
+		// configure motor safety
+		// the wpilib code samples put this here so I am too
+		talonL1.setSafetyEnabled(true);
+		talonL2.setSafetyEnabled(true);
+		talonL3.setSafetyEnabled(true);
+		talonR4.setSafetyEnabled(true);
+		talonR5.setSafetyEnabled(true);
+		talonR6.setSafetyEnabled(true);
+	}
+	
+>>>>>>> b070d3107e9f44e927529ff08da64c6505baf7f9
 	/**
 	 * This function is called periodically during operator control.
 	 */
