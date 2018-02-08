@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.Compressor;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -51,6 +53,8 @@ public class Robot extends IterativeRobot {
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
+	Compressor compressor = new Compressor();
+	
 	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
 	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
 	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds
@@ -68,6 +72,9 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 		elevatorTalon2.follow(elevatorTalon1);
+		
+		talonL1.setInverted(true);
+		talonR4.setInverted(true);
 		
 		Double deadband = .05; //defines the deadzone
 		
