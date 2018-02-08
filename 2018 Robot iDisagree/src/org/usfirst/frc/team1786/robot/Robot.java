@@ -13,9 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
-import edu.wpi.first.wpilibj.PWMTalonSRX;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Solenoid;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -48,17 +47,19 @@ public class Robot extends IterativeRobot {
 	
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
-	
-	JoystickButton firstButton = new JoystickButton(joystickRight, 1);
-	
+		
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
 	
 	Compressor compressor = new Compressor();
+	Solenoid shifter = new Solenoid(0);
 	
 	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
 	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
 	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds
 	
+	// joystick button channel 3
+	final int SHIFTER = 3;
+	boolean shifted;
 	
 	@Override
 	public void robotInit() {
@@ -80,8 +81,6 @@ public class Robot extends IterativeRobot {
 		
 		myRobot.setDeadband(deadband); //sets the deadzone
 		
-		
-		
 		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); //sets the duration of the peak
 		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
 		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
@@ -89,9 +88,6 @@ public class Robot extends IterativeRobot {
 		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
 		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
 		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
-		
-		
-		
 	}
 
 	/**
@@ -129,6 +125,11 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
+	@Override
+	public void teleopInit() {
+		boolean shifted = false;
+	}
+	
 	/**
 	 * This function is called periodically during operator control.
 	 */
@@ -165,43 +166,38 @@ public class Robot extends IterativeRobot {
 		double elevatorSpeed = yValueRight;
 		double armDeadband = .15;
 		double elevatorDeadband = .15;
-		if (zValueRight < armDeadband) 
-		{
-			
+		
+		if (zValueRight < armDeadband) {
 			rightArmTalon.set(-armWheelSpeed);
 			leftArmTalon.set(armWheelSpeed);
-		}
-		else if (zValueRight > armDeadband) 
-		{
-			
+		} else if (zValueRight > armDeadband) {
 			rightArmTalon.set(-armWheelSpeed);
-			leftArmTalon.set(armWheelSpeed);
-			
-		}
-		else 
-		{
-			
+			leftArmTalon.set(armWheelSpeed);	
+		} else {
 			rightArmTalon.set(0);
-			leftArmTalon.set(0);
-			
-			
+			leftArmTalon.set(0);	
 		}
 		
-		
-		if (yValueRight < elevatorDeadband) 
-		{
+		if (yValueRight < elevatorDeadband) {
 			elevatorTalon1.set(elevatorSpeed);
-		}
-		else if (yValueRight > elevatorDeadband)
-		{
+		} else if (yValueRight > elevatorDeadband) {
 			elevatorTalon1.set(-elevatorSpeed);
-		}
-		else 
-		{
+		} else {
 			elevatorTalon1.set(0);	
 		}
 		
+		//shifting code
+		if (joystickLeft.getRawButtonPressed(SHIFTER) && shifted) {
+			shifted = true;
+		} else if (joystickLeft.getRawButtonPressed(SHIFTER) && !shifted) {
+			shifted = false;
+		}
 		
+		if (shifted) {
+			shifter.set(true);
+		} else {
+			shifter.set(false);
+		}
 		
 	}
 
