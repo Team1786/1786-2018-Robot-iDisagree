@@ -14,9 +14,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.*;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import edu.wpi.first.wpilibj.buttons.Trigger;
+//import edu.wpi.first.wpilibj.buttons.JoystickButton;
+//import edu.wpi.first.wpilibj.buttons.Trigger;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Compressor;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -68,7 +69,8 @@ public class Robot extends IterativeRobot {
 	 * used for any initialization code.
 	 */
 	
-	
+	//Declaring compressor
+	Compressor robotCompressor = new Compressor(1);
 	
 	
 	
@@ -172,6 +174,8 @@ public class Robot extends IterativeRobot {
 		/*if( joystickRight.getTrigger())
 		{
 			solenoid.set(true);
+			
+			This part is what switches the gears when the trigger is pressed
 		}*/
 		
 		buttonstate = trigger0.getTriggerState();
@@ -191,6 +195,12 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void testPeriodic() {
+		//charges the robot and turns it off when done
+		while(robotCompressor.getPressureSwitchValue() == false) {
+			
+			robotCompressor.setClosedLoopControl(true);
+		}
+		robotCompressor.setClosedLoopControl(false);
 	}
 }
 
