@@ -43,20 +43,6 @@ public class Robot extends IterativeRobot {
 	Joystick joystickRight = new Joystick(1);
 
 	
-	//Declaring Buttons
-	JoystickButton leftJoyTrigger = new JoystickButton(joystickLeft, 1);
-	JoystickButton leftJoySideTrigger = new JoystickButton(joystickLeft, 2);
-	JoystickButton leftJoyThumbBottomLeft = new JoystickButton(joystickLeft, 3);
-	JoystickButton leftJoyThumbBottomRight = new JoystickButton(joystickLeft, 4);
-	JoystickButton leftJoyThumbTopLeft = new JoystickButton(joystickLeft, 5);
-	JoystickButton leftJoyThumbTopRight = new JoystickButton(joystickLeft, 6);
-	JoystickButton leftJoyBase1 = new JoystickButton(joystickLeft, 7);
-	JoystickButton leftJoyBase2 = new JoystickButton(joystickLeft, 8);
-	JoystickButton leftJoyBase3 = new JoystickButton(joystickLeft, 9);
-	JoystickButton leftJoyBase4 = new JoystickButton(joystickLeft, 10);
-	JoystickButton leftJoyBase5 = new JoystickButton(joystickLeft, 11);
-	JoystickButton leftJoyBase6 = new JoystickButton(joystickLeft, 12);
-	
 	//Declaring Talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
@@ -82,6 +68,7 @@ public class Robot extends IterativeRobot {
 		
 	}
 	
+	
 	//Talon Display
 	private void displayTalon(WPI_TalonSRX talon, String label) {
 		
@@ -90,18 +77,28 @@ public class Robot extends IterativeRobot {
 		
 	}
 	
+	
 	//Joystick Display
 	private void displayJoystick(Joystick joystick, String label) {
 		SmartDashboard.putNumber(label + "Y", joystick.getY());
 		SmartDashboard.putNumber(label + "Z", joystick.getZ());
 	}
 	
-	//Gearbox Toggle
+	
+	//Fill Compressor
+	private void fillCompressor(Compressor compressor) {
+	while(compressor.getPressureSwitchValue())
+	{
+		compressor.setClosedLoopControl(true);
+	}
+		compressor.setClosedLoopControl(false);
+	}
+	
 	
 	//Shift down
-	private void DownShift(JoystickButton button) {
+	private void DownShift(Joystick joystick) {
 		@SuppressWarnings("unused")
-		boolean btnState = button.get();
+		boolean btnState = joystick.getRawButton(4);
 		
 		if (btnState = true) {
 			solenGear.set(false);
@@ -111,10 +108,11 @@ public class Robot extends IterativeRobot {
 		
 	}
 		
+	
 	//Shift up
-		private void UpShift(JoystickButton button) {
+		private void UpShift(Joystick joystick) {
 			@SuppressWarnings("unused")
-			boolean btnState = button.get();
+			boolean btnState = joystick.getRawButton(5);
 			
 			if (btnState = false) {
 				solenGear.set(true);
@@ -215,8 +213,8 @@ public class Robot extends IterativeRobot {
 		//driving thingy
 		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), true);
 		
-		DownShift(leftJoyThumbBottomRight);
-		UpShift(leftJoyThumbBottomLeft);
+		DownShift(joystickLeft);
+		UpShift(joystickLeft);
 		
 		
 		
@@ -228,5 +226,10 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+		
+		fillCompressor(compressor);
+		
+		
+		
 	}
 }
