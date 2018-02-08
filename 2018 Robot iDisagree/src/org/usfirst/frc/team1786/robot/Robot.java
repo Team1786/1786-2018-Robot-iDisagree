@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -60,7 +61,14 @@ public class Robot extends IterativeRobot {
 	// joystick button channel 3
 	final int SHIFTER = 3;
 	boolean shifted;
+	boolean shiftBtn;
+	double latest;
+	double period;
 	
+	public void debounceButton(Joystick joy, int BtnChannel, double waitPeriod ) {
+		
+	
+	}
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
@@ -127,7 +135,9 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
-		boolean shifted = false;
+		shifted = false;
+		shiftBtn = false;
+		latest = 0;
 	}
 	
 	/**
@@ -186,11 +196,23 @@ public class Robot extends IterativeRobot {
 			elevatorTalon1.set(0);	
 		}
 		
+		double period = 0.5; //seconds 
+		double now = Timer.getFPGATimestamp();
+		if (joystickLeft.getRawButton(SHIFTER)) {
+			if ((now - latest) > period) {
+				latest = now;
+				shiftBtn = true;
+				System.out.println("We just shifted!");
+			} else {
+				shiftBtn = false;
+			}
+		}
+		
 		//shifting code
-		if (joystickLeft.getRawButtonPressed(SHIFTER) && shifted) {
-			shifted = true;
-		} else if (joystickLeft.getRawButtonPressed(SHIFTER) && !shifted) {
+		if (shiftBtn && shifted) {
 			shifted = false;
+		} else if (shiftBtn && !shifted) {
+			shifted = true;
 		}
 		
 		if (shifted) {
@@ -200,6 +222,8 @@ public class Robot extends IterativeRobot {
 		}
 		
 	}
+	
+	
 
 	/**
 	 * This function is called periodically during test mode.
