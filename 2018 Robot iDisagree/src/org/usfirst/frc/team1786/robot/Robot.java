@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
+  /* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
@@ -35,17 +35,17 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
-	Joystick stick1 = new Joystick(1);
-	Joystick stick2 = new Joystick(2);
+	Joystick stick1 = new Joystick(0);
+	Joystick stick2 = new Joystick(1);
 	
 	//Current limit 120 amps
 	WPI_TalonSRX robotLeft = new WPI_TalonSRX(1);
 	WPI_TalonSRX robotLeftSlave1 = new WPI_TalonSRX(2);
-	//WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
+	WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
 	
-	WPI_TalonSRX robotRight = new WPI_TalonSRX(3);
-	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
-	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
+	WPI_TalonSRX robotRight = new WPI_TalonSRX(4);
+	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(5);
+	WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
 	
 	Spark spark1 = new Spark(0);
 	Spark spark2= new Spark(1);
@@ -53,9 +53,6 @@ public class Robot extends IterativeRobot {
 	double speed;
 	boolean isTurning;
 	boolean isSteering;
-	
-	//current limiting
-	
 	
 
 	/**
@@ -67,25 +64,28 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		
 		//change speed here
+		
 		speed = 0.5;
-		
-		//initialize current limiting
-		
-		robotLeft.enableCurrentLimit(true);
-		robotRight.enableCurrentLimit(true);
-		
+				
 		//create slaves
 		
 		robotLeftSlave1.follow(robotLeft);
-		//robotLeftSlave2.follow(robotLeft);
+		robotLeftSlave2.follow(robotLeft);
 		
 		robotRightSlave1.follow(robotRight);
-		//robotRightSlave2.follow(robotRight);
+		robotRightSlave2.follow(robotRight);
+		
+		//reverse masters
+		
+		robotRight.setInverted(true);
+		robotLeft.setInverted(true);
 		
 		//current limiting
-		robotLeft.configContinuousCurrentLimit(120, 1);
-		robotRight.configContinuousCurrentLimit(120, 1);
+		
+		this.limitCurrent(robotLeft);
+		this.limitCurrent(robotRight);
 		
 		
 		
@@ -139,17 +139,12 @@ public class Robot extends IterativeRobot {
 		this.displayTalon(robotLeftSlave1, "robotLeftSlave1");
 		this.displayTalon(robotRightSlave1, "robotRightSave1");
 		
-		//limit current
-		
-		this.limitCurrent(robotLeft);
-		this.limitCurrent(robotRight);
-		
 		//drive
 		
 		this.drive();
 		
 		//pickup
-		
+		  
 		this.pickup();
 		
 	}
@@ -187,7 +182,8 @@ public class Robot extends IterativeRobot {
 			isTurning = false;
 			double power = Math.sqrt((x*x)+(y*y));
 			SmartDashboard.putNumber("power", power);
-			if(power > 0.2)
+			//deadzone was = 0.2
+			if(power > 0)
 			{
 				isSteering = true;
 				power *= speed;
@@ -224,6 +220,8 @@ public class Robot extends IterativeRobot {
 	}
 	private void limitCurrent(WPI_TalonSRX talon)
 	{
+		
+		talon.enableCurrentLimit(true);
 		talon.configPeakCurrentLimit(60, 0);
 		talon.configPeakCurrentDuration(10000,0);
 		talon.configContinuousCurrentLimit(40, 0);
