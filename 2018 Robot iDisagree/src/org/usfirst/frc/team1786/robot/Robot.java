@@ -41,16 +41,19 @@ public class Robot extends IterativeRobot {
 	//Current limit 120 amps
 	WPI_TalonSRX robotLeft = new WPI_TalonSRX(1);
 	WPI_TalonSRX robotLeftSlave1 = new WPI_TalonSRX(2);
-	WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
+	//WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
 	
-	WPI_TalonSRX robotRight = new WPI_TalonSRX(4);
-	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(5);
-	WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
+	WPI_TalonSRX robotRight = new WPI_TalonSRX(3);
+	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
+	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
 	
+	//
 	Spark spark1 = new Spark(0);
 	Spark spark2= new Spark(1);
 	
-	double speed;
+	// 1 = full speed .5 is testing speed3
+	double speed = .5;
+	
 	boolean isTurning;
 	boolean isSteering;
 	
@@ -65,22 +68,18 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
-		//change speed here
-		
-		speed = 0.5;
 				
 		//create slaves
-		
 		robotLeftSlave1.follow(robotLeft);
-		robotLeftSlave2.follow(robotLeft);
+		//robotLeftSlave2.follow(robotLeft);
 		
 		robotRightSlave1.follow(robotRight);
-		robotRightSlave2.follow(robotRight);
+		//robotRightSlave2.follow(robotRight);
 		
 		//reverse masters
 		
-		robotRight.setInverted(true);
-		robotLeft.setInverted(true);
+		//robotRight.setInverted(true);
+		//robotLeft.setInverted(true);
 		
 		//current limiting
 		
@@ -182,7 +181,7 @@ public class Robot extends IterativeRobot {
 			isTurning = false;
 			double power = Math.sqrt((x*x)+(y*y));
 			SmartDashboard.putNumber("power", power);
-			//deadzone was = 0.2
+			//deadzone for all non twisting movement; was = 0.2
 			if(power > 0)
 			{
 				isSteering = true;
