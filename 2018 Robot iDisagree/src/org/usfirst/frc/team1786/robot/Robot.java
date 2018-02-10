@@ -52,8 +52,9 @@ public class Robot extends IterativeRobot {
 	Spark spark2= new Spark(1);
 	
 	// 1 = full speed .5 is testing speed3
-	double speed = .5;
+	final double speed = .5;
 	
+	//for smart dashboard
 	boolean isTurning;
 	boolean isSteering;
 	
