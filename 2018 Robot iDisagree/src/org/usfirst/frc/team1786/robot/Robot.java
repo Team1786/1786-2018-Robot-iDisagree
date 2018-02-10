@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -65,10 +66,34 @@ public class Robot extends IterativeRobot {
 	double latest;
 	double period;
 	
-	public void debounceButton(Joystick joy, int BtnChannel, double waitPeriod ) {
+	public void debounceButton(Joystick joy, int BtnChannel, int waitPeriod ) 
+	{
 		
+		boolean BtnState = joy.getRawButtonPressed(BtnChannel);
+		Timer lastButtonClick = new Timer();
+		double timeSence = lastButtonClick.get();
+		int toMilli = 1000;
+		long waitInMilli = waitPeriod * toMilli;
+		
+		if (joy.getRawButtonPressed(BtnChannel)) 
+		{
+			lastButtonClick.reset();
+			lastButtonClick.start();
+		}
+		if (BtnState && timeSence < waitPeriod) 
+		{	
+			try 
+			{
+				Thread.currentThread().sleep(waitInMilli);
+			}
+			catch(InterruptedException ie){
+				
+			}
+		}
 	
+		
 	}
+	
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
@@ -169,6 +194,8 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Talon4", talon4);
 		SmartDashboard.putNumber("Talon5", talon5);
 		SmartDashboard.putNumber("Talon6", talon6);
+		
+		
 		
 		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //allows the robot to drive with scaling using the y and z values from the left joystick
 		
