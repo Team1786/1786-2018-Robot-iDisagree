@@ -62,7 +62,7 @@ public class Robot extends IterativeRobot {
 	
 	boolean buttonstate = false;
 	//boolean button1 = true;
-	AnalogTrigger trigger0 = new AnalogTrigger(0);
+	AnalogTrigger trigger1 = new AnalogTrigger(0);
 	
 	/*
 	 * This function is run when the robot is first started up and should be
@@ -73,12 +73,15 @@ public class Robot extends IterativeRobot {
 	Compressor robotCompressor = new Compressor(1);
 	
 	
-	
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		
+		//Inverts both front motors
+		talonL1.setInverted(true);
+		talonR4.setInverted(true);
 		
 		//talonL2 and L3 slave energy off talonL1
 		//talonR5 and R6 slave energy off talonR4
@@ -169,7 +172,11 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), true);
-			//SmartDashboard.putNumber("". );
+			
+		//Declares that the trigger can only be pressed on the left joystick
+		joystickLeft.getRawButton(1);
+		
+		//SmartDashboard.putNumber("". );
 		
 		/*if( joystickRight.getTrigger())
 		{
@@ -178,7 +185,7 @@ public class Robot extends IterativeRobot {
 			This part is what switches the gears when the trigger is pressed
 		}*/
 		
-		buttonstate = trigger0.getTriggerState();
+		buttonstate = trigger1.getTriggerState();
 		
 		if (buttonstate)
 		{
