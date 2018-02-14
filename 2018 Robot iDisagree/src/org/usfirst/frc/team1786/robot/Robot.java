@@ -58,6 +58,12 @@ public class Robot extends IterativeRobot {
 	boolean isTurning;
 	boolean isSteering;
 	
+	//for autonomous
+	final String defaultMoveCommand = "2LeftSwitch";
+	String moveCommand;
+	
+	
+	
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -108,6 +114,10 @@ public class Robot extends IterativeRobot {
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
+		//recieves the move command from the user
+		
+		SmartDashboard.putString("Move Command: ", defaultMoveCommand);
+		moveCommand = SmartDashboard.getString("Move Command: ", defaultMoveCommand);
 	}
 
 	/**
@@ -123,6 +133,8 @@ public class Robot extends IterativeRobot {
 			default:
 				// Put default auto code here
 				break;
+				
+				
 		}
 	}
 
