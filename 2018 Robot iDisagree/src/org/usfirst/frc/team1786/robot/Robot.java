@@ -39,6 +39,12 @@ public class Robot extends IterativeRobot {
 	Spark spark2;
 	Joystick stick1;
 	
+	WPI_TalonSRX talon7;
+	WPI_TalonSRX talon8;
+	WPI_TalonSRX talon9;
+	
+	
+	
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -51,9 +57,15 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
 		
-		spark1 = new Spark(0);
-		spark2 = new Spark(1);
-		stick1 = new Joystick(1);
+		//spark1 = new Spark(0);
+		//spark2 = new Spark(1);
+		//stick1 = new Joystick(1);
+		
+		talon7 = new WPI_TalonSRX(7);
+		talon8 = new WPI_TalonSRX(8);
+		talon9 = new WPI_TalonSRX(9);
+		
+		
 		
 		
 	}
@@ -98,10 +110,13 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		double throttle =  stick1.getY();
-		SmartDashboard.putNumber("Throttle: ", throttle);
-		spark1.set(throttle);
-		spark2.set(-throttle);
+		//double throttle =  stick1.getY();
+		//SmartDashboard.putNumber("Throttle: ", throttle);
+		//spark1.set(throttle);
+		//spark2.set(-throttle);
+		talon7.set(1);
+		talon8.set(1);
+		talon9.set(1);
 		
 		
 	}
