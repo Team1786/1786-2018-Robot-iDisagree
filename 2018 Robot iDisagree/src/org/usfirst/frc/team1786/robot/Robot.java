@@ -101,12 +101,12 @@ public class Robot extends IterativeRobot {
 		
 		if (joystickY > 0 && joystickY > deadband) 
 		{
-			double scaledYValue = joystickY - deadband;
+			double scaledYValue = (joystickY - deadband) / ((1-deadband)/(1));
 			return scaledYValue;
 		}
 		else if (joystickY < 0 && joystickY < -deadband) 
 		{
-			double scaledYValue = joystickY + deadband;
+			double scaledYValue = -(joystickY + deadband) / ((1+deadband)/(1));
 			return scaledYValue;
 		}
 		else 
@@ -124,12 +124,12 @@ public class Robot extends IterativeRobot {
 		
 		if (joystickZ > 0 && joystickZ > deadband) 
 		{
-			double scaledZValue = joystickZ - deadband;
+			double scaledZValue = (joystickZ - deadband) / ((1-deadband)/(1));
 			return scaledZValue;
 		}
 		else if (joystickZ < 0 && joystickZ < -deadband) 
 		{
-			double scaledZValue = joystickZ + deadband;
+			double scaledZValue = -(joystickZ + deadband) / ((1+deadband)/(1));
 			return scaledZValue;
 		}
 		else 
@@ -304,11 +304,12 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 		
-		while (compressor.getPressureSwitchValue() == false) 
-		{	
-			compressor.setClosedLoopControl(true);
-		}
-		compressor.setClosedLoopControl(false);
+		double y = joystickLeft.getY();
+		double dead = .15;
+		double scaled = YdeadbandScaler(joystickLeft, dead);
+		SmartDashboard.putNumber("origY", y);
+		SmartDashboard.putNumber("scaledY", scaled);
+		
 		
 	}
 }
