@@ -94,6 +94,55 @@ public class Robot extends IterativeRobot {
 		
 	}
 	
+	public double YdeadbandScaler(Joystick joy, double deadband) 
+	{
+		double joystickY = joy.getY();
+		
+		
+		if (joystickY > 0 && joystickY > deadband) 
+		{
+			double scaledYValue = joystickY - deadband;
+			return scaledYValue;
+		}
+		else if (joystickY < 0 && joystickY < -deadband) 
+		{
+			double scaledYValue = joystickY + deadband;
+			return scaledYValue;
+		}
+		else 
+		{
+			double scaledYValue = 0;
+			return scaledYValue;
+		}	
+		
+	}
+	
+	public double ZdeadbandScaler(Joystick joy, double deadband) 
+	{
+		double joystickZ = joy.getZ();
+		
+		
+		if (joystickZ > 0 && joystickZ > deadband) 
+		{
+			double scaledZValue = joystickZ - deadband;
+			return scaledZValue;
+		}
+		else if (joystickZ < 0 && joystickZ < -deadband) 
+		{
+			double scaledZValue = joystickZ + deadband;
+			return scaledZValue;
+		}
+		else 
+		{
+			double scaledZValue = 0;
+			return scaledZValue;
+		}	
+		
+	}
+	
+	
+	
+	
 	@Override
 	public void robotInit() {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
@@ -199,10 +248,12 @@ public class Robot extends IterativeRobot {
 		
 		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //allows the robot to drive with scaling using the y and z values from the left joystick
 		
-		double armWheelSpeed = Math.pow(zValueRight, 2);
+		double armWheelSpeed = zValueRight;
 		double elevatorSpeed = yValueRight;
 		double armDeadband = .15;
 		double elevatorDeadband = .15;
+		
+		
 		
 		if (zValueRight < armDeadband) {
 			rightArmTalon.set(-armWheelSpeed);
@@ -215,13 +266,8 @@ public class Robot extends IterativeRobot {
 			leftArmTalon.set(0);	
 		}
 		
-		if (yValueRight < elevatorDeadband) {
-			elevatorTalon1.set(elevatorSpeed);
-		} else if (yValueRight > elevatorDeadband) {
-			elevatorTalon1.set(-elevatorSpeed);
-		} else {
-			elevatorTalon1.set(0);	
-		}
+		
+		elevatorTalon1.set(YdeadbandScaler(joystickRight, elevatorDeadband));
 		
 		double period = 0.5; //seconds 
 		double now = Timer.getFPGATimestamp();
