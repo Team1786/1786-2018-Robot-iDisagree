@@ -30,8 +30,7 @@ import edu.wpi.first.wpilibj.Spark;
  */
 public class Robot extends IterativeRobot {
 	
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
+	
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
@@ -59,9 +58,11 @@ public class Robot extends IterativeRobot {
 	boolean isSteering;
 	
 	//for autonomous
-	final String defaultMoveCommand = "2LeftSwitch";
-	String moveCommand;
-	
+	final String command1 = "Swith Position 2";
+	final String command2 = "Scale Position 1";
+	final String command3 = "Scale Position 3";
+	final String command4 = "Move Forward";
+			
 	
 	
 
@@ -71,8 +72,13 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
+		m_chooser.addDefault("Default Auto", command4);
+		
+		m_chooser.addObject(command1, command1);
+		m_chooser.addObject(command2, command2);
+		m_chooser.addObject(command3, command3);
+		m_chooser.addObject(command4, command4);
+		
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
 				
@@ -110,14 +116,30 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autoSelected = m_chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + m_autoSelected);
-		//recieves the move command from the user
 		
-		SmartDashboard.putString("Move Command: ", defaultMoveCommand);
-		moveCommand = SmartDashboard.getString("Move Command: ", defaultMoveCommand);
+		m_autoSelected = m_chooser.getSelected();
+		
+		System.out.println("Auto selected: " + m_autoSelected);
+		
+		switch (m_autoSelected) {
+			
+			case command1:
+				//command1
+				break;
+			case command2:
+				//command2
+				break;
+			case command3:
+				//command3
+				break;
+			case command4:
+				//command4
+				break;
+			default:
+				//command4
+				break;
+			
+		}
 	}
 
 	/**
@@ -125,17 +147,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
-				break;
-			case kDefaultAuto:
-			default:
-				// Put default auto code here
-				break;
-				
-				
-		}
+		//nothing in periodic
 	}
 
 	/**
@@ -244,6 +256,18 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber(label+" Output Current: ", talon.getOutputCurrent());
 		SmartDashboard.putNumber(label+" Output Temperature: ", talon.getTemperature());
 		
+	}
+	private void Move(double distance)
+	{
+		while(true)
+		{
+			robotLeft.set(1);
+			robotRight.set(1);
+		}
+	}
+	private void Turn(String direction)
+	{
+		//if()
 	}
 
 	/**
