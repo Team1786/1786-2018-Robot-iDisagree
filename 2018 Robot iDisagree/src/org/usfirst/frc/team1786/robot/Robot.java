@@ -106,7 +106,7 @@ public class Robot extends IterativeRobot {
 		}
 		else if (joystickY < 0 && joystickY < -deadband) 
 		{
-			double scaledYValue = -(joystickY + deadband) / ((1+deadband)/(1));
+			double scaledYValue = (joystickY + deadband) / ((1-deadband)/(1));
 			return scaledYValue;
 		}
 		else 
@@ -129,7 +129,7 @@ public class Robot extends IterativeRobot {
 		}
 		else if (joystickZ < 0 && joystickZ < -deadband) 
 		{
-			double scaledZValue = -(joystickZ + deadband) / ((1+deadband)/(1));
+			double scaledZValue = (joystickZ + deadband) / ((1-deadband)/(1));
 			return scaledZValue;
 		}
 		else 
