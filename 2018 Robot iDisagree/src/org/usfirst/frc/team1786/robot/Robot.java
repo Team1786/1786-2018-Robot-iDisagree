@@ -32,9 +32,9 @@ Master Branch
 
 package org.usfirst.frc.team1786.robot;
 
+import org.usfirst.frc.team1786.robot.RobotUtilities;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.Solenoid;
