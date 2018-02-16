@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -32,10 +31,10 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 
-	private int contCurrent = 40;
-	private int peakDuration = 10000;
-	private int peakCurrent = 60;
-	private double joystickDeadband = 0.05;
+	final int contCurrent = 40;
+	final int peakDuration = 10000;
+	final int peakCurrent = 60;
+	final double joystickDeadband = 0.05;
 
 	
 	//Declare Joysticks
@@ -57,6 +56,10 @@ public class Robot extends IterativeRobot {
 	
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
+	
+	//Button Assignments
+	final int DownShiftButton = 4;
+	final int UpShiftButton = 5;
 	
 	
 	//Current Limiting
@@ -86,6 +89,7 @@ public class Robot extends IterativeRobot {
 	
 	
 	//Fill Compressor
+	@SuppressWarnings("unused")
 	private void fillCompressor(Compressor compressor) {
 	while(compressor.getPressureSwitchValue())
 	{
@@ -96,12 +100,11 @@ public class Robot extends IterativeRobot {
 	
 	
 	//Shift down
-	private void DownShift(Joystick joystick) {
-		@SuppressWarnings("unused")
-		boolean btnState = joystick.getRawButton(4);
+	private void DownShift(Joystick joystick, int button) {
+		boolean btnState = joystick.getRawButton(button);
 		
-		if (btnState = true) {
-			solenGear.set(false);
+		if (btnState == true) {
+			solenGear.set(true);
 		} else {
 			
 		}
@@ -110,12 +113,11 @@ public class Robot extends IterativeRobot {
 		
 	
 	//Shift up
-		private void UpShift(Joystick joystick) {
-			@SuppressWarnings("unused")
-			boolean btnState = joystick.getRawButton(5);
+		private void UpShift(Joystick joystick, int button) {
+			boolean btnState = joystick.getRawButton(button);
 			
-			if (btnState = false) {
-				solenGear.set(true);
+			if (btnState == false) {
+				solenGear.set(false);
 			} else {
 				
 			}
@@ -139,6 +141,8 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
 		//Talon follows
+		talonL1.setInverted(true);
+		talonR4.setInverted(true);
 		talonL2.follow(talonL1);
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
@@ -213,8 +217,8 @@ public class Robot extends IterativeRobot {
 		//driving thingy
 		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), true);
 		
-		DownShift(joystickLeft);
-		UpShift(joystickLeft);
+		DownShift(joystickLeft, DownShiftButton);
+		UpShift(joystickLeft, UpShiftButton);
 		
 		
 		
@@ -227,7 +231,6 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 		
-		fillCompressor(compressor);
 		
 		
 		
