@@ -19,8 +19,7 @@ public final class RobotUtilities {
 	}
 	
 	// dylan's deadband code
-	public static double YdeadbandScaled(Joystick joy, double deadband) 
-	{
+	public static double YdeadbandScaled(Joystick joy, double deadband) {
 		double joystickY = joy.getY();
 		
 		if (joystickY > 0 && joystickY > deadband) 
@@ -41,10 +40,8 @@ public final class RobotUtilities {
 	}
 	
 	// dylan's deadband code
-	public static double ZdeadbandScaled(Joystick joy, double deadband) 
-	{
+	public static double ZdeadbandScaled(Joystick joy, double deadband) {
 		double joystickZ = joy.getZ();
-		
 		
 		if (joystickZ > 0 && joystickZ > deadband) 
 		{
