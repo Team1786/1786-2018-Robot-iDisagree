@@ -49,6 +49,10 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
 	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
+	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
+	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
+	WPI_TalonSRX elevatorTalon2 = new WPI_TalonSRX(10);
 	
 	//Declaring Solenoids & Compressors
 	Solenoid solenGear = new Solenoid(1);
