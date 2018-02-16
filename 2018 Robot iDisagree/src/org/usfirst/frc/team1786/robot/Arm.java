@@ -3,6 +3,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class Arm {
+	
 	double deadband;
 	double wheelSpeed;
 	WPI_TalonSRX leftController;
@@ -56,7 +57,6 @@ public class Arm {
 	 * @param inputJoy - wpilib joystick object to get z axis from
 	 */
 	public void driveArm( Joystick inputJoy) {
-		
 		// driveArm logic by Dylan
 		double zValueRight = inputJoy.getZ();
 		
