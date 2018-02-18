@@ -15,49 +15,27 @@ import edu.wpi.first.wpilibj.Joystick;
 public final class RobotUtilities {
 	
 	private RobotUtilities() {
-	
+	// don't need to do anything in auto right now
 	}
 	
 	// dylan's deadband code
-	public static double YdeadbandScaled(Joystick joy, double deadband) {
-		double joystickY = joy.getY();
+	public static double deadbandScaled(double inputAxis, double deadband) {
+		double value = inputAxis;
 		
-		if (joystickY > 0 && joystickY > deadband) 
+		if (value > 0 && value > deadband) 
 		{
-			double scaledYValue = (joystickY - deadband) / ((1-deadband)/(1));
-			return scaledYValue;
+			double scaledValue = (value - deadband) / ((1 - deadband) / (1));
+			return scaledValue;
 		}
-		else if (joystickY < 0 && joystickY < -deadband) 
+		else if (value < 0 && value < -deadband) 
 		{
-			double scaledYValue = (joystickY + deadband) / ((1-deadband)/(1));
-			return scaledYValue;
+			double scaledValue = (value + deadband) / ((1 - deadband) / (1));
+			return scaledValue;
 		}
 		else 
 		{
-			double scaledYValue = 0;
-			return scaledYValue;
+			double scaledValue = 0;
+			return scaledValue;
 		}	
-	}
-	
-	// dylan's deadband code
-	public static double ZdeadbandScaled(Joystick joy, double deadband) {
-		double joystickZ = joy.getZ();
-		
-		if (joystickZ > 0 && joystickZ > deadband) 
-		{
-			double scaledZValue = (joystickZ - deadband) / ((1-deadband)/(1));
-			return scaledZValue;
-		}
-		else if (joystickZ < 0 && joystickZ < -deadband) 
-		{
-			double scaledZValue = (joystickZ + deadband) / ((1-deadband)/(1));
-			return scaledZValue;
-		}
-		else 
-		{
-			double scaledZValue = 0;
-			return scaledZValue;
-		}	
-		
 	}
 }
