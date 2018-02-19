@@ -9,6 +9,7 @@
 package org.usfirst.frc.team1786.robot;
  
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
@@ -79,6 +80,9 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject(command3, command3);
 		m_chooser.addObject(command4, command4);
 		
+		robotLeft.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+		
+		
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
 				
@@ -116,6 +120,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		int distanceMoved = robotLeft.getSensorCollection().getPulseWidthPosition();
 		
 		m_autoSelected = m_chooser.getSelected();
 		
@@ -267,7 +272,14 @@ public class Robot extends IterativeRobot {
 	}
 	private void Turn(String direction)
 	{
-		//if()
+		if(direction == "left")
+		{
+			//while loop
+		}
+		else if(direction == "right")
+		{
+			//while loop
+		}
 	}
 
 	/**
