@@ -9,6 +9,7 @@
 package org.usfirst.frc.team1786.robot;
  
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
@@ -35,13 +36,17 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
-	Spark spark1;
-	Spark spark2;
-	Joystick stick1;
+	//Spark spark1;
+	//Spark spark2;
+	//Joystick stick1;
 	
-	WPI_TalonSRX talon7;
-	WPI_TalonSRX talon8;
-	WPI_TalonSRX talon9;
+	//WPI_TalonSRX talon7;
+	//WPI_TalonSRX talon8;
+	//WPI_TalonSRX talon9;
+	
+	WPI_TalonSRX testTalon;
+	
+	double encoderData;
 	
 	
 	
@@ -61,10 +66,13 @@ public class Robot extends IterativeRobot {
 		//spark2 = new Spark(1);
 		//stick1 = new Joystick(1);
 		
-		talon7 = new WPI_TalonSRX(7);
-		talon8 = new WPI_TalonSRX(8);
-		talon9 = new WPI_TalonSRX(9);
+		//talon7 = new WPI_TalonSRX(7);
+		//talon8 = new WPI_TalonSRX(8);
+		//talon9 = new WPI_TalonSRX(9);
 		
+		testTalon  = new WPI_TalonSRX(1);
+		
+		testTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 		
 		
 		
@@ -87,6 +95,7 @@ public class Robot extends IterativeRobot {
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
+		
 	}
 
 	/**
@@ -94,15 +103,12 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
-				break;
-			case kDefaultAuto:
-			default:
-				// Put default auto code here
-				break;
-		}
+		
+		encoderData = testTalon.getSensorCollection().getPulseWidthPosition();
+		SmartDashboard.putNumber("Encoder Output", encoderData);
+		testTalon.set(1);
+		
+		
 	}
 
 	/**
@@ -110,13 +116,17 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		
+		
 		//double throttle =  stick1.getY();
 		//SmartDashboard.putNumber("Throttle: ", throttle);
 		//spark1.set(throttle);
 		//spark2.set(-throttle);
-		talon7.set(1);
-		talon8.set(1);
-		talon9.set(1);
+		//talon7.set(1);
+		//talon8.set(1);
+		//talon9.set(1);
+		
+		
 		
 		
 	}
