@@ -59,27 +59,24 @@ public class Arm {
 	public void setWheelSpeed( double armWheelSpeed) {
 		wheelSpeed = armWheelSpeed;
 	}
-
 	/**
 	 * to be run in a looping function. Drives the arm based on input
-	 * @param inputJoy - wpilib joystick object to get z axis from
+	 * @param inputJoy - wpilib joystick axis to get movement from
+	 * @param constSpeed - bool for whether to run at const speed or not
 	 */
-	public void driveArm(double axis) {
-		// driveArm logic by Dylan
-		double value = RobotUtilities.deadbandScaled(axis, deadband);
-
-		rightController.set(value);
-	}
-	
-	// run the constant wheel speed in the direction of the joystick
-	// if it is moved past deadband radius
 	public void driveArm(double axis, boolean constSpeed) {
 		double value = RobotUtilities.deadbandScaled(axis, deadband);
 		
-		if (Math.abs(value) > 0) {
-
-			rightController.set(wheelSpeed * Math.signum(value));
-			leftController.set(wheelSpeed * Math.signum(value));
+		if (constSpeed) {
+			if (Math.abs(value) > 0) {
+				rightController.set(wheelSpeed * Math.signum(value));
+				leftController.set(wheelSpeed * Math.signum(value));
+			}
+		// if constSpeed isn't true, just run at the throttle speed directly
+		} else {
+			rightController.set(value);
+			leftController.set(value);
 		}
+
 	}
 }
