@@ -15,12 +15,14 @@ public class ButtonDebouncer {
 	public ButtonDebouncer(Joystick joy, int btnChannel, double waitPeriod) {
 		button = btnChannel;
 		period = waitPeriod;
-		
-		latest = 0;
 	}
 	
 	public void setPeriod(double waitperiod) {
 		period = waitperiod;
+	}
+	
+	public void setLatest() {
+		latest = 0;
 	}
 	
 	public boolean get() {

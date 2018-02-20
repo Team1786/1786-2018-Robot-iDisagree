@@ -84,6 +84,21 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void robotInit() {
+		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
+		talonL3.follow(talonL1);
+		talonR5.follow(talonR4);
+		talonR6.follow(talonR4);
+
+		talonL1.setInverted(true);
+		talonR4.setInverted(true);
+
+		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); //sets the duration of the peak
+		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
+		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
+		
+		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
+		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
+		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
 	}
 
 	@Override
@@ -94,6 +109,14 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 	}
 
+	@Override
+	public void teleopInit() {
+		//set the solenoid in a default position
+		shifted = false;
+		//make sure latest is zero
+		shiftBtn.setLatest();
+	}
+	
 	@Override
 	public void teleopPeriodic() {
 
