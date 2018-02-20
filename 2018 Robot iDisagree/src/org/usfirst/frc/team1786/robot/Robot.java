@@ -210,18 +210,22 @@ public class Robot extends IterativeRobot {
 		{
 			isTurning = false;
 			double power = Math.sqrt((x*x)+(y*y));
-			SmartDashboard.putNumber("power", power);
+			SmartDashboard.putNumber("rawY", y);
 			//deadzone for all non twisting movement; was = 0.2
-			if(power > 0)
+			if(power > 0.05)
 			{
 				isSteering = true;
-				power *= speed;
 				if(power>1)
 					power=1;
+				//philip's modifier function
+				power = exponentialModify(power, 5);
 				if(y<-0.25)
 					power=-power;
-					
+				power *= speed;
+				SmartDashboard.putNumber("power", power);
 				double scale = 1-Math.abs(x);
+				//philip's function being used for turning
+				scale = exponentialModify(scale, 5); 
 				if(x<0)
 				{
 					//left
@@ -269,6 +273,11 @@ public class Robot extends IterativeRobot {
 			robotLeft.set(1);
 			robotRight.set(1);
 		}
+	}
+	private double exponentialModify(double power, double scale) 
+	{
+			
+		return Math.tan(power*Math.atan(5))/5;
 	}
 	private void Turn(String direction)
 	{
