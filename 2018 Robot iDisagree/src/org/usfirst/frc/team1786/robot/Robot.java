@@ -45,7 +45,7 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
 	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
 	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
-	WPI_TalonSRX elevatorTalon2 = new WPI_TalonSRX(10);
+	
 	
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
@@ -94,52 +94,26 @@ public class Robot extends IterativeRobot {
 		
 	}
 	
-	public double YdeadbandScaler(Joystick joy, double deadband) 
-	{
-		double joystickY = joy.getY();
-		
-		
-		if (joystickY > 0 && joystickY > deadband) 
+	public static double deadbandScaled(double inputAxis, double deadband) {
+		double value = inputAxis;
+
+		if (value > 0 && value > deadband)
 		{
-			double scaledYValue = (joystickY - deadband) / ((1-deadband)/(1));
-			return scaledYValue;
+			double scaledValue = (value - deadband) / ((1 - deadband) / (1));
+			return scaledValue;
 		}
-		else if (joystickY < 0 && joystickY < -deadband) 
+		else if (value < 0 && value < -deadband)
 		{
-			double scaledYValue = (joystickY + deadband) / ((1-deadband)/(1));
-			return scaledYValue;
+			double scaledValue = (value + deadband) / ((1 - deadband) / (1));
+			return scaledValue;
 		}
-		else 
+		else
 		{
-			double scaledYValue = 0;
-			return scaledYValue;
-		}	
-		
-	}
+			double scaledValue = 0;
+			return scaledValue;
+		}
 	
-	public double ZdeadbandScaler(Joystick joy, double deadband) 
-	{
-		double joystickZ = joy.getZ();
-		
-		
-		if (joystickZ > 0 && joystickZ > deadband) 
-		{
-			double scaledZValue = (joystickZ - deadband) / ((1-deadband)/(1));
-			return scaledZValue;
-		}
-		else if (joystickZ < 0 && joystickZ < -deadband) 
-		{
-			double scaledZValue = (joystickZ + deadband) / ((1-deadband)/(1));
-			return scaledZValue;
-		}
-		else 
-		{
-			double scaledZValue = 0;
-			return scaledZValue;
-		}	
-		
 	}
-	
 	
 	
 	
@@ -154,7 +128,7 @@ public class Robot extends IterativeRobot {
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
-		elevatorTalon2.follow(elevatorTalon1);
+		
 		
 		talonL1.setInverted(true);
 		talonR4.setInverted(true);
@@ -220,16 +194,16 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		Double dispYValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
+		Double yValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
 		Double xValueLeft = joystickLeft.getX();//puts the left joysticks X value into a variable
 		Double zValueLeft = joystickLeft.getZ();//puts the left joysticks Z value into a variable
 		Double yValueRight = joystickRight.getY();
 		Double zValueRight = joystickRight.getZ();
-		SmartDashboard.putNumber("Y value", dispYValueLeft); //displays the y value on computer
+		SmartDashboard.putNumber("Y value", yValueLeft); //displays the y value on computer
 		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
 		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
 		
-		Double driveYValue = -(joystickLeft.getY()); //inverts the y value so that foward is foward
+		
 		
 		double talon1 = talonL1.getOutputCurrent(); //defines the talons AMP values
 		double talon2 = talonL2.getOutputCurrent();
@@ -244,30 +218,20 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Talon5", talon5);
 		SmartDashboard.putNumber("Talon6", talon6);
 		
+		double driveDeadband = .15;
 		
+		double scaledDriveY = deadbandScaled(yValueLeft, driveDeadband);
+		double scaledDriveZ = deadbandScaled(zValueLeft, driveDeadband);
+		myRobot.arcadeDrive(scaledDriveY, scaledDriveZ);
 		
-		myRobot.arcadeDrive(driveYValue, zValueLeft, true); //allows the robot to drive with scaling using the y and z values from the left joystick
-		
-		double armWheelSpeed = zValueRight;
-		double elevatorSpeed = yValueRight;
 		double armDeadband = .15;
 		double elevatorDeadband = .15;
 		
 		
+		rightArmTalon.set(deadbandScaled(zValueRight, armDeadband));
+		leftArmTalon.set(deadbandScaled(-zValueRight, -armDeadband));
 		
-		if (zValueRight < armDeadband) {
-			rightArmTalon.set(-armWheelSpeed);
-			leftArmTalon.set(armWheelSpeed);
-		} else if (zValueRight > armDeadband) {
-			rightArmTalon.set(-armWheelSpeed);
-			leftArmTalon.set(armWheelSpeed);	
-		} else {
-			rightArmTalon.set(0);
-			leftArmTalon.set(0);	
-		}
-		
-		
-		elevatorTalon1.set(YdeadbandScaler(joystickRight, elevatorDeadband));
+		elevatorTalon1.set(deadbandScaled(yValueRight, elevatorDeadband));
 		
 		double period = 0.5; //seconds 
 		double now = Timer.getFPGATimestamp();
@@ -304,11 +268,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 		
-		double y = joystickLeft.getY();
-		double dead = .15;
-		double scaled = YdeadbandScaler(joystickLeft, dead);
-		SmartDashboard.putNumber("origY", y);
-		SmartDashboard.putNumber("scaledY", scaled);
+		
 		
 		
 	}
