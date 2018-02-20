@@ -91,7 +91,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autoSelected = m_chooser.getSelected();
+		//
+		//m_autoSelected = m_chooser.getSelected();
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
@@ -106,7 +107,11 @@ public class Robot extends IterativeRobot {
 		
 		encoderData = testTalon.getSensorCollection().getPulseWidthPosition();
 		SmartDashboard.putNumber("Encoder Output", encoderData);
-		testTalon.set(1);
+		testTalon.set(0.1);
+		if(encoderData > 4096)
+		{
+			encoderData = 0;
+		}
 		
 		
 	}
