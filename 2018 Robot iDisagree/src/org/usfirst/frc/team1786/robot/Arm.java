@@ -3,7 +3,6 @@ package org.usfirst.frc.team1786.robot;
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 
 import com.ctre.phoenix.motorcontrol.can.*;
-import edu.wpi.first.wpilibj.Joystick;
 
 import java.lang.Math;
 

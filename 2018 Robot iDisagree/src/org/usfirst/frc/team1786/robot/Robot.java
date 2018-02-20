@@ -79,9 +79,8 @@ public class Robot extends IterativeRobot {
 	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
 	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
 	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds	
-
 	
-	
+	boolean shifted;
 	
 	@Override
 	public void robotInit() {
@@ -117,6 +116,20 @@ public class Robot extends IterativeRobot {
 		arm.driveArm(yValueRight, true);
 		
 		elevator.driveElevator(throttleValueLeft, true);
+		
+		// shifting code
+		if (shiftBtn.get() == true && shifted) {
+			shifted = false;
+		} else if (shiftBtn.get() == true && !shifted) {
+			shifted = true;
+		}
+		
+		if(shifted == true) {
+			shifter.set(true);
+		} else { 
+			shifter.set(false);
+		}
+		
 		
 	}
 
