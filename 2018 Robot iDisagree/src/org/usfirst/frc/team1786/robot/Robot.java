@@ -46,8 +46,8 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
 	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
 	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
 	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
@@ -224,7 +224,8 @@ public class Robot extends IterativeRobot {
 		displayJoystick(joystickLeft, "LeftJoystick");
 		
 		//driving thingy
-		myRobot.arcadeDrive(-exponentialModify(joystickLeft.getY(), 5), joystickLeft.getZ(), true);
+		double modY = exponentialModify(joystickLeft.getY(), 5);
+		myRobot.arcadeDrive(modY, joystickLeft.getZ(), false);
 		
 		DownShift(joystickLeft, DownShiftButton);
 		UpShift(joystickLeft, UpShiftButton);
