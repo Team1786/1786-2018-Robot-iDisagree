@@ -1,11 +1,14 @@
 package org.usfirst.frc.team1786.robot;
+
+import org.usfirst.frc.team1786.robot.RobotUtilities;
+
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 
+import java.lang.Math;
+
 /*
  * A class for controlling team 1786's power-cube holding arms.
- *
- *
  */
 public class Arm {
 
@@ -31,7 +34,7 @@ public class Arm {
 	 * Constructor for a robotic arm with driven wheels
 	 * @param leftArmController - Motor controller for use in driving the left arm
 	 * @param rightArmController - Motor controller for use in driving the right arm
-	 * @param armDeadband - desired deadband radius for arm control
+	 * @param armDeadband - desired deadband radius for arm control (don't scale it please)
 	 * @param armWheelSpeed - desired regular speed preset for the arm control
 	 */
 	public Arm(WPI_TalonSRX leftArmController, WPI_TalonSRX rightArmController, double armDeadband, double armWheelSpeed) {
@@ -61,19 +64,22 @@ public class Arm {
 	 * to be run in a looping function. Drives the arm based on input
 	 * @param inputJoy - wpilib joystick object to get z axis from
 	 */
-	public void driveArm( Joystick inputJoy) {
+	public void driveArm(double axis) {
 		// driveArm logic by Dylan
-		double zValueRight = inputJoy.getZ();
+		double value = RobotUtilities.deadbandScaled(axis, deadband);
 
-		if (zValueRight < deadband) {
-			rightController.set(-wheelSpeed);
-			leftController.set(wheelSpeed);
-		} else if (zValueRight > deadband) {
-			rightController.set(-wheelSpeed);
-			leftController.set(wheelSpeed);
-		} else {
-			rightController.set(0);
-			leftController.set(0);
+		rightController.set(value);
+	}
+	
+	// run the constant wheel speed in the direction of the joystick
+	// if it is moved past deadband radius
+	public void driveArm(double axis, boolean constSpeed) {
+		double value = RobotUtilities.deadbandScaled(axis, deadband);
+		
+		if (Math.abs(value) > 0) {
+
+			rightController.set(wheelSpeed * Math.signum(value));
+			leftController.set(wheelSpeed * Math.signum(value));
 		}
 	}
 }
