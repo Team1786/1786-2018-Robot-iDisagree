@@ -15,7 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
-
+import java.lang.Math;
 
 
 /**
@@ -127,6 +127,11 @@ public class Robot extends IterativeRobot {
 			}
 			
 		}
+		
+	//Code for Scaling driving correctly	
+		private double exponentialModify(double joyY, double scale) {
+			return Math.atan(scale*joyY)/Math.atan(scale);
+		}
 	
 	/*Z-Drive Exponential
 	private double sqrZ(Joystick joystick) {
@@ -219,7 +224,7 @@ public class Robot extends IterativeRobot {
 		displayJoystick(joystickLeft, "LeftJoystick");
 		
 		//driving thingy
-		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), true);
+		myRobot.arcadeDrive(-exponentialModify(joystickLeft.getY(), 5), joystickLeft.getZ(), true);
 		
 		DownShift(joystickLeft, DownShiftButton);
 		UpShift(joystickLeft, UpShiftButton);
