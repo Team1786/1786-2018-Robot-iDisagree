@@ -36,6 +36,8 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
+	private double rotationCount = 0;
+	
 	//Spark spark1;
 	//Spark spark2;
 	//Joystick stick1;
@@ -96,6 +98,9 @@ public class Robot extends IterativeRobot {
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
+		testTalon.getSensorCollection().setPulseWidthPosition(0, 0);
+		testTalon.set(-0.1);
+		rotationCount = 0;
 		
 	}
 
@@ -106,12 +111,25 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		
 		encoderData = testTalon.getSensorCollection().getPulseWidthPosition();
+		
 		SmartDashboard.putNumber("Encoder Output", encoderData);
-		testTalon.set(0.1);
-		if(encoderData > 4096)
+		SmartDashboard.putNumber("Roatations", rotationCount);
+		
+		
+		
+		if(encoderData > 4096 || encoderData < -4096)
 		{
-			encoderData = 0;
+			testTalon.getSensorCollection().setPulseWidthPosition(0, 100000000);
+			rotationCount += 0.125;
+			//catches exception
+			
 		}
+		else if(rotationCount%1!=0)
+		{
+			rotationCount -= 0.125;
+		}
+		
+		
 		
 		
 	}
