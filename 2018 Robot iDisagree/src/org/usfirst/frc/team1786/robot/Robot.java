@@ -218,7 +218,7 @@ public class Robot extends IterativeRobot {
 				if(power>1)
 					power=1;
 				//philip's modifier function
-				power = exponentialModify(power, 5);
+				power = exponentialModify(power, 3);
 				if(y<-0.25)
 					power=-power;
 				power *= speed;
@@ -268,16 +268,16 @@ public class Robot extends IterativeRobot {
 	}
 	private void Move(double distance)
 	{
-		while(true)
-		{
-			robotLeft.set(1);
-			robotRight.set(1);
-		}
+		
+		robotLeft.set(1);
+		robotRight.set(1);
+		if(robotLeft.getSensorCollection().getPulseWidthPosition() > 40)
+		
 	}
 	private double exponentialModify(double power, double scale) 
 	{
 			
-		return Math.tan(power*Math.atan(5))/5;
+		return Math.tan(power*Math.atan(scale))/scale;
 	}
 	private void Turn(String direction)
 	{
