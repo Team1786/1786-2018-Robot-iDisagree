@@ -130,7 +130,8 @@ public class Robot extends IterativeRobot {
 		
 	//Code for Scaling driving correctly	
 		private double exponentialModify(double joyY, double scale) {
-			return Math.atan(scale*joyY)/Math.atan(scale);
+			// return Math.atan(scale*joyY)/Math.atan(scale); thought this would work, but needed inverse
+			return Math.tan(joyY*Math.atan(scale))/scale;
 		}
 	
 	/*Z-Drive Exponential
