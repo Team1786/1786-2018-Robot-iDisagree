@@ -114,6 +114,48 @@ public class Robot extends IterativeRobot {
 		talonR4.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 	}
 
+	// display a single talon on the dashboard
+	// will's code
+	private void displayTalon(WPI_TalonSRX talon, String label)
+	{
+		SmartDashboard.putNumber(label+" Output Current: ", talon.getOutputCurrent());
+		SmartDashboard.putNumber(label+" Output Temperature: ", talon.getTemperature());
+		
+	}
+	// update the smart dashboard
+	public void DashboardUpdate() {
+		// raw joystick data
+		Double yLeft = joystickLeft.getY();
+		Double xLeft = joystickLeft.getX();
+		Double zLeft = joystickLeft.getZ();
+		Double throttleLeft = joystickLeft.getThrottle();
+		Double yRight = joystickRight.getY();
+		Double zRight = joystickRight.getZ();
+		Double throttleRight = joystickRight.getThrottle();
+		
+		SmartDashboard.putNumber("yLeft", yLeft);
+		SmartDashboard.putNumber("xLeft", xLeft);
+		SmartDashboard.putNumber("zLeft", zLeft);
+		SmartDashboard.putNumber("throttleLeft", throttleLeft);
+		SmartDashboard.putNumber("yRight", yRight);
+		SmartDashboard.putNumber("zRight", zRight);
+		SmartDashboard.putNumber("throttleRight", throttleRight);
+		
+		// current data on drive talons
+		displayTalon(talonL1, "Talon L1");
+		displayTalon(talonL2, "Talon L2");
+		displayTalon(talonL3, "Talon L3");
+		displayTalon(talonR4, "Talon R4");
+		displayTalon(talonR5, "Talon R5");
+		displayTalon(talonR6, "Talon R6");
+		
+		// current data on other talons
+		displayTalon(rightArmTalon, "rightArmTalon");
+		displayTalon(leftArmTalon, "leftArmTalon");
+		displayTalon(elevatorTalon1, "elevatorTalon");
+
+	}
+	
 	// Will's drive code, it uses two axes to determine the amount and type of rotation
 	public void WrobleDrive(double speed, double rotation, double inPlaceRotation) {
 		double y = speed;
@@ -132,7 +174,6 @@ public class Robot extends IterativeRobot {
 			
 			// Implement the distance formula for Joystick power calculation
 			double power = Math.sqrt((x * x) + (y * y));
-			SmartDashboard.putNumber("rawY", y);
 			
 			// deadzone for all non in place twisting movement, was = 0.2
 			if(power > 0.05) {
@@ -153,7 +194,7 @@ public class Robot extends IterativeRobot {
 				// scale the power according to the desired speed
 				power *= speed;
 				
-				SmartDashboard.putNumber("power", power);
+				SmartDashboard.putNumber("drivetrain power", power);
 				
 				// the value of scale must be equal to or less than x
 				double scale = 1-Math.abs(x);
