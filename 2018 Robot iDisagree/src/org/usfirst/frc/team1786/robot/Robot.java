@@ -210,16 +210,18 @@ public class Robot extends IterativeRobot {
 		
 		Double yValueRight = joystickRight.getY();
 		Double zValueRight = joystickRight.getZ();
+		Double throttleValueRight = joystickRight.getThrottle();
 		
 		double yValueLeftScaled = RobotUtilities.deadbandScaled(yValueLeft, 0.15);
 		double zValueLeftScaled = RobotUtilities.deadbandScaled(yValueLeft, 0.15);
 		
-		// run the moudles
-		drivetrain.arcadeDrive(yValueLeftScaled, zValueLeftScaled);
+		// run the modules
+//		drivetrain.arcadeDrive(yValueLeftScaled, zValueLeftScaled);
+		WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
 		
 		arm.driveArm(yValueRight, true);
 		
-		elevator.driveElevator(throttleValueLeft, true);
+		elevator.driveElevator(throttleValueRight, true);
 		
 		// shifting code
 		if (shiftBtn.get() == true && shifted) {
