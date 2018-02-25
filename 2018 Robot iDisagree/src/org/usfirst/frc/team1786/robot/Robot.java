@@ -47,10 +47,9 @@ import com.ctre.phoenix.motorcontrol.can.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
-
 public class Robot extends IterativeRobot {
 
-	/* button mapping */
+	// button mapping
 	final int SHIFTER = 3;
 	
 	// Code from Dylan
@@ -77,6 +76,7 @@ public class Robot extends IterativeRobot {
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, SHIFTER, 0.5);
 	
 	// pneumatics
+	// note: compressor appears to use 10 amps in usage
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
 	
@@ -99,14 +99,9 @@ public class Robot extends IterativeRobot {
 		// talons running on the top gearbox position need inverting according to gear arrangement
 		talonL1.setInverted(true);
 		talonR4.setInverted(true);
-
-		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); //sets the duration of the peak
-		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
-		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
 		
-		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
-		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
-		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
+		limitTalonCurrent(talonL1, maxPeakAmp, peakTimeDuration, maxCountAmp);
+		limitTalonCurrent(talonR4, maxPeakAmp, peakTimeDuration, maxCountAmp);
 		
 		//configure encoders
 		// Will's implementation
@@ -114,14 +109,24 @@ public class Robot extends IterativeRobot {
 		talonR4.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 	}
 
-	// display a single talon on the dashboard
+	// current limiting talons and display a single talon on the dashboard
 	// will's code
+	private void limitTalonCurrent(WPI_TalonSRX talon, int peakLimit, int PeakDuration, int ContLimit)
+	{
+		
+		talon.enableCurrentLimit(true);
+		talon.configPeakCurrentLimit(peakLimit, 0);
+		talon.configPeakCurrentDuration(PeakDuration, 0);
+		talon.configContinuousCurrentLimit(ContLimit, 0);
+	}
+	
 	private void displayTalon(WPI_TalonSRX talon, String label)
 	{
 		SmartDashboard.putNumber(label+" Output Current: ", talon.getOutputCurrent());
 		SmartDashboard.putNumber(label+" Output Temperature: ", talon.getTemperature());
 		
 	}
+	
 	// update the smart dashboard
 	public void DashboardUpdate() {
 		// raw joystick data
@@ -253,9 +258,6 @@ public class Robot extends IterativeRobot {
 		Double zValueRight = joystickRight.getZ();
 		Double throttleValueRight = joystickRight.getThrottle();
 		
-		double yValueLeftScaled = RobotUtilities.deadbandScaled(yValueLeft, 0.15);
-		double zValueLeftScaled = RobotUtilities.deadbandScaled(yValueLeft, 0.15);
-		
 		// run the modules
 //		drivetrain.arcadeDrive(yValueLeftScaled, zValueLeftScaled);
 		WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
@@ -277,7 +279,8 @@ public class Robot extends IterativeRobot {
 			shifter.set(false);
 		}
 		
-		
+		// update the dashboard
+		DashboardUpdate();
 	}
 
 	@Override
