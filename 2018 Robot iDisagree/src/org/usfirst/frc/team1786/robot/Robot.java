@@ -138,27 +138,31 @@ public class Robot extends IterativeRobot {
 			if(power > 0.05) {
 				isSteering = true;
 				
+				// prevent power from getting greater than 1
 				if(power > 1) {
 					power = 1;
 				}
 				
-				// philip's modifier function
+				// philip's modifier function applied to power
 				power = RobotUtilities.exponentialModify(power, 3);
 				
 				// deadzone is implemented to prevent accidental backwards movement
 				if(y < -0.25)
 					power =- power;
 
+				// scale the power according to the desired speed
 				power *= speed;
 				
 				SmartDashboard.putNumber("power", power);
 				
+				// the value of scale must be equal to or less than x
 				double scale = 1-Math.abs(x);
-				// philip's function being used for turning
+				
+				// philip's function used for turning scale
 				scale = RobotUtilities.exponentialModify(scale, 5);
 				
-				// apply power and then scale it accordingly
-				if(x<0) {
+				// apply power and scale it accordingly
+				if(x < 0) {
 					
 					//left
 					talonL1.set(-power*scale);
@@ -170,11 +174,11 @@ public class Robot extends IterativeRobot {
 					talonR4.set(power*scale);
 				}	
 			} else {
+				// stay still if we don't need to move
 				isSteering = false;
 				talonL1.set(0);
 				talonR4.set(0);
 			}
-			//nothing
 		}
 	}
 	
