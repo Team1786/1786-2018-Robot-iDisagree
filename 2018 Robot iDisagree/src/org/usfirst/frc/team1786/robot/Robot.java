@@ -26,25 +26,26 @@
 
 Code Written by the programming class
 
-Master Branch
-
 */
 
 package org.usfirst.frc.team1786.robot;
 
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 import org.usfirst.frc.team1786.robot.ButtonDebouncer;
-
 import org.usfirst.frc.team1786.robot.Arm;
 import org.usfirst.frc.team1786.robot.Elevator;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
+
+import com.kauailabs.navx.frc.AHRS;
 
 
 public class Robot extends IterativeRobot {
@@ -63,6 +64,7 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
 	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
 
+	// joysticks
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
 		
@@ -71,16 +73,21 @@ public class Robot extends IterativeRobot {
 	Arm arm = new Arm(leftArmTalon, rightArmTalon, 0.2);
 	Elevator elevator = new Elevator(elevatorTalon1, 0.2);
 	
+	// buttons which will need debouncing for toggled use
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, SHIFTER, 0.5);
 	
+	// pneumatics
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
 	
+	// variable values for current limitings
 	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
 	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
 	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds	
 	
 	boolean shifted;
+	boolean isTurning;
+	boolean isSteering;
 	
 	@Override
 	public void robotInit() {
@@ -89,6 +96,7 @@ public class Robot extends IterativeRobot {
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
 
+		// talons running on the top gearbox position need inverting according to gear arrangement
 		talonL1.setInverted(true);
 		talonR4.setInverted(true);
 
@@ -99,8 +107,77 @@ public class Robot extends IterativeRobot {
 		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
 		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
 		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
+		
+		//configure encoders
+		// Will's implementation
+		talonL1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+		talonR4.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 	}
 
+	// Will's drive code, it uses two axes to determine the amount and type of rotation
+	public void WrobleDrive(double speed, double rotation, double inPlaceRotation) {
+		double y = speed;
+		double x = rotation;
+		double z = inPlaceRotation;
+		
+		// accurate in place twisting
+		if(z < -0.4 || z > 0.4) {
+			// is twisting
+			isTurning = true;
+			talonL1.set(z * speed);
+			talonR4.set(z * speed);
+		} else {
+			//scaled "arcade" style movement
+			isTurning = false;
+			
+			// Implement the distance formula for Joystick power calculation
+			double power = Math.sqrt((x * x) + (y * y));
+			SmartDashboard.putNumber("rawY", y);
+			
+			// deadzone for all non in place twisting movement, was = 0.2
+			if(power > 0.05) {
+				isSteering = true;
+				
+				if(power > 1) {
+					power = 1;
+				}
+				
+				// philip's modifier function
+				power = RobotUtilities.exponentialModify(power, 3);
+				
+				// deadzone is implemented to prevent accidental backwards movement
+				if(y < -0.25)
+					power =- power;
+
+				power *= speed;
+				
+				SmartDashboard.putNumber("power", power);
+				
+				double scale = 1-Math.abs(x);
+				// philip's function being used for turning
+				scale = RobotUtilities.exponentialModify(scale, 5);
+				
+				// apply power and then scale it accordingly
+				if(x<0) {
+					
+					//left
+					talonL1.set(-power*scale);
+					talonR4.set(power);
+				} else {
+					
+					//right
+					talonL1.set(-power);
+					talonR4.set(power*scale);
+				}	
+			} else {
+				isSteering = false;
+				talonL1.set(0);
+				talonR4.set(0);
+			}
+			//nothing
+		}
+	}
+	
 	@Override
 	public void autonomousInit() {
 	}

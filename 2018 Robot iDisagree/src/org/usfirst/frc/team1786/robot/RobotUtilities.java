@@ -37,4 +37,8 @@ public final class RobotUtilities {
 			return scaledValue;
 		}
 	}
+	
+	public static double exponentialModify(double power, double scale) {
+		return Math.tan(power * Math.atan(scale)) / scale;
+	}
 }
