@@ -1,5 +1,4 @@
 # 1786-2018-Robot-iDisagree
 2018 Robot iDisagree
 
-
-Lil-Pump Branch, Phillip Simons
+Work from Dublin School 2017-2018 Winter Term Robotics Programming Course
