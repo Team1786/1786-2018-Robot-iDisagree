@@ -51,6 +51,7 @@ public class Robot extends IterativeRobot {
 
 	// button mapping
 	final int SHIFTER = 3;
+	final int ARMRELEASE = 4;
 	
 	// Code from Dylan
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
@@ -66,6 +67,16 @@ public class Robot extends IterativeRobot {
 	// joysticks
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
+	
+	Double yValueLeft;
+	Double xValueLeft;
+	Double zValueLeft;
+	Double throttleValueLeft;
+	
+	Double yValueRight;
+	Double xValueRight;
+	Double zValueRight;
+	Double throttleValueRight;
 		
 	// robot modules
 	DifferentialDrive drivetrain = new DifferentialDrive(talonL1, talonR4);
@@ -74,18 +85,22 @@ public class Robot extends IterativeRobot {
 	
 	// buttons which will need debouncing for toggled use
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, SHIFTER, 0.5);
+	ButtonDebouncer armReleaseBtn = new ButtonDebouncer(joystickLeft, ARMRELEASE, 0.5);
 	
 	// pneumatics
 	// note: compressor appears to use 10 amps in usage
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
+	Solenoid armReleaser = new Solenoid(1);
 	
 	// variable values for current limitings
-	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
-	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
-	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds	
+	private int maxPeakAmpDrivetrain = 60; //defines the max amp that can be given to a moter during its peak
+	private int maxCountAmpDrivetrain = 40; //defines the max amp that can be given to a moter after its peak
+	private int peakTimeDurationDrivetrain = 10000; //defines how long the peak will last in milliseconds	
 	
 	boolean shifted;
+	boolean armReleased;
+	
 	boolean isTurning;
 	boolean isSteering;
 	
@@ -100,17 +115,25 @@ public class Robot extends IterativeRobot {
 		talonL1.setInverted(true);
 		talonR4.setInverted(true);
 		
-		limitTalonCurrent(talonL1, maxPeakAmp, peakTimeDuration, maxCountAmp);
-		limitTalonCurrent(talonR4, maxPeakAmp, peakTimeDuration, maxCountAmp);
+		// limit current of drive Talons
+		limitTalonCurrent(talonL1, maxPeakAmpDrivetrain, peakTimeDurationDrivetrain, maxCountAmpDrivetrain);
+		limitTalonCurrent(talonL2, maxPeakAmpDrivetrain, peakTimeDurationDrivetrain, maxCountAmpDrivetrain);
+		limitTalonCurrent(talonL3, maxPeakAmpDrivetrain, peakTimeDurationDrivetrain, maxCountAmpDrivetrain);
+		limitTalonCurrent(talonR4, maxPeakAmpDrivetrain, peakTimeDurationDrivetrain, maxCountAmpDrivetrain);
+		limitTalonCurrent(talonR5, maxPeakAmpDrivetrain, peakTimeDurationDrivetrain, maxCountAmpDrivetrain);
+		limitTalonCurrent(talonR6, maxPeakAmpDrivetrain, peakTimeDurationDrivetrain, maxCountAmpDrivetrain);
 		
-		//configure encoders
+		//configure encoders for drivetrain
 		// Will's implementation
 		talonL1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 		talonR4.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+		
+		// configure encoders for elevator
+		elevatorTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 	}
 
 	// current limiting talons and display a single talon on the dashboard
-	// will's code
+	// phillip's logic
 	private void limitTalonCurrent(WPI_TalonSRX talon, int peakLimit, int PeakDuration, int ContLimit)
 	{
 		
@@ -129,22 +152,14 @@ public class Robot extends IterativeRobot {
 	
 	// update the smart dashboard
 	public void DashboardUpdate() {
-		// raw joystick data
-		Double yLeft = joystickLeft.getY();
-		Double xLeft = joystickLeft.getX();
-		Double zLeft = joystickLeft.getZ();
-		Double throttleLeft = joystickLeft.getThrottle();
-		Double yRight = joystickRight.getY();
-		Double zRight = joystickRight.getZ();
-		Double throttleRight = joystickRight.getThrottle();
-		
-		SmartDashboard.putNumber("yLeft", yLeft);
-		SmartDashboard.putNumber("xLeft", xLeft);
-		SmartDashboard.putNumber("zLeft", zLeft);
-		SmartDashboard.putNumber("throttleLeft", throttleLeft);
-		SmartDashboard.putNumber("yRight", yRight);
-		SmartDashboard.putNumber("zRight", zRight);
-		SmartDashboard.putNumber("throttleRight", throttleRight);
+		// raw joystick data		
+		SmartDashboard.putNumber("yLeft", yValueLeft);
+		SmartDashboard.putNumber("xLeft", xValueLeft);
+		SmartDashboard.putNumber("zLeft", zValueLeft);
+		SmartDashboard.putNumber("throttleLeft", throttleValueLeft);
+		SmartDashboard.putNumber("yRight", yValueRight);
+		SmartDashboard.putNumber("zRight", zValueRight);
+		SmartDashboard.putNumber("throttleRight", throttleValueRight);
 		
 		// current data on drive talons
 		displayTalon(talonL1, "Talon L1");
@@ -154,7 +169,7 @@ public class Robot extends IterativeRobot {
 		displayTalon(talonR5, "Talon R5");
 		displayTalon(talonR6, "Talon R6");
 		
-		// current data on other talons
+		// current data on other systems
 		displayTalon(rightArmTalon, "rightArmTalon");
 		displayTalon(leftArmTalon, "leftArmTalon");
 		displayTalon(elevatorTalon1, "elevatorTalon");
@@ -249,14 +264,15 @@ public class Robot extends IterativeRobot {
 
 		// get input and scale some of it
 		// code from Dylan
-		Double yValueLeft = joystickLeft.getY();
-		Double xValueLeft = joystickLeft.getX();
-		Double zValueLeft = joystickLeft.getZ();
-		Double throttleValueLeft = joystickLeft.getThrottle();
+		yValueLeft = joystickLeft.getY();
+		xValueLeft = joystickLeft.getX();
+		zValueLeft = joystickLeft.getZ();
+		throttleValueLeft = joystickLeft.getThrottle();
 		
-		Double yValueRight = joystickRight.getY();
-		Double zValueRight = joystickRight.getZ();
-		Double throttleValueRight = joystickRight.getThrottle();
+		yValueRight = joystickRight.getY();
+		xValueRight = joystickRight.getY();
+		zValueRight = joystickRight.getZ();
+		throttleValueRight = joystickRight.getThrottle();
 		
 		// run the modules
 //		drivetrain.arcadeDrive(yValueLeftScaled, zValueLeftScaled);
