@@ -14,8 +14,10 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
+import edu.wpi.first.wpilibj.SPI;
+
 import java.lang.Math;
-import com.kauailabs.navx.AHRSProtocol;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,6 +38,7 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
+	AHRS navx = new AHRS(SPI.Port.kMXP);
 	
 	Joystick stick1 = new Joystick(0);
 	Joystick stick2 = new Joystick(1);
@@ -99,7 +102,7 @@ public class Robot extends IterativeRobot {
 		
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
-				
+			
 		//create slaves
 		talonL2.follow(talonL1);
 		//talonL3.follow(talonL1);
@@ -184,8 +187,8 @@ public class Robot extends IterativeRobot {
 		
 		//drive
 		
-		//this.drive();
-		this.inferiourDrive();
+		this.drive();
+		//this.inferiourDrive();
 		
 		//pickup
 		  
@@ -217,7 +220,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("is turning", isTurning);
 		SmartDashboard.putBoolean("isSteering", isSteering);
 		
-		if(z < -0.2 || z > 0.2)
+		if(z < -0.4 || z > 0.4)
 		{
 			//twist
 			
@@ -230,15 +233,16 @@ public class Robot extends IterativeRobot {
 			isTurning = false;
 			double power = Math.sqrt((x*x)+(y*y));
 			SmartDashboard.putNumber("rawY", y);
-			//deadzone for all non twisting movement; was = 0.2
-			if(power > 0.05)
+			SmartDashboard.putNumber("rawX", x); 
+			//dead zone for all non twisting movement; was = 0.2
+			if(power > 0.25)
 			{
 				isSteering = true;
 				if(power>1)
 					power=1;
 				//philip's modifier function
 				power = exponentialModify(power, 3);
-				if(y<-0.5)
+				if(y<0)
 					power=-power;
 				power *= speed;
 				SmartDashboard.putNumber("power", power); 
@@ -284,8 +288,8 @@ public class Robot extends IterativeRobot {
 		
 		if(remainder < 200)
 		{
-			rotations += 1;
-			distanceInches += 12.5663;
+			rotations += 1+(remainder/4096);
+			distanceInches += 12.56631*(1+(remainder/4096));  
 			
 		}
 		
@@ -308,14 +312,30 @@ public class Robot extends IterativeRobot {
 	private void Move(double distance)
 	{
 		distance += distanceInches;
+		double difference = distance;
 		
-		talonL1.set(1);
-		talonR1.set(1);
-		if(distanceInches >= distance)
+		double direction = 1;
+		double speed = 1;
+		
+		talonL1.set(direction*speed);
+		talonR1.set(direction*speed);
+		while (Math.abs(difference) > 1)
 		{
-			talonL1.set(0);
-			talonR1.set(0);
+			difference = distanceInches - distance;
+			
+			if(difference < 0)
+			{
+				direction *= -1;
+				speed *= 0.5;
+				
+				distance = (difference*-1)+distanceInches;
+				
+				talonL1.set(direction*speed);
+				talonR1.set(direction*speed);
+			}
 		}
+		talonL1.set(0);
+		talonR1.set(0);
 		
 	}
 	private double exponentialModify(double power, double scale) 
@@ -337,7 +357,7 @@ public class Robot extends IterativeRobot {
 	private void inferiourDrive ()
 	{
 		double y = stick1.getY();
-		double z = stick1.getZ();
+		double z = stick1.getZ();  
 		
 		myRobot.arcadeDrive(-y, z, true);
 	}
