@@ -314,24 +314,24 @@ public class Robot extends IterativeRobot {
 		distance += distanceInches;
 		double difference = distance;
 		
-		double direction = 1;
+		
 		double speed = 1;
 		
-		talonL1.set(direction*speed);
-		talonR1.set(direction*speed);
+		talonL1.set(speed);
+		talonR1.set(speed);
 		while (Math.abs(difference) > 1)
 		{
 			difference = distanceInches - distance;
 			
 			if(difference < 0)
 			{
-				direction *= -1;
-				speed *= 0.5;
+				
+				speed *= 0.5 * -1;
 				
 				distance = (difference*-1)+distanceInches;
 				
-				talonL1.set(direction*speed);
-				talonR1.set(direction*speed);
+				talonL1.set(speed);
+				talonR1.set(speed);
 			}
 		}
 		talonL1.set(0);
