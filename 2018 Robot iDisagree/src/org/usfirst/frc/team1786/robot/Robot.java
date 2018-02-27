@@ -184,8 +184,8 @@ public class Robot extends IterativeRobot {
 		
 		//drive
 		
-		this.drive();
-		//this.inferiourDrive();
+		//this.drive();
+		this.inferiourDrive();
 		
 		//pickup
 		  
