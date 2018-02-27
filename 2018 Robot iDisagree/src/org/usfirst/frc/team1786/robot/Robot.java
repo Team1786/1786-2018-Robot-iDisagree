@@ -32,15 +32,21 @@ package org.usfirst.frc.team1786.robot;
 
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 import org.usfirst.frc.team1786.robot.ButtonDebouncer;
+
+import java.lang.invoke.ConstantCallSite;
+
 import org.usfirst.frc.team1786.robot.Arm;
 import org.usfirst.frc.team1786.robot.Elevator;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Timer.StaticInterface;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -77,11 +83,24 @@ public class Robot extends IterativeRobot {
 	Double xValueRight;
 	Double zValueRight;
 	Double throttleValueRight;
+	
+	/* START OF PREF ITEMS */
+	// setup preferences area of smartDashboard
+	// variables under this heading may be changes by the dashboard
+	// these values will be saved in a text file on the roborio, and are persistent from boot to boot
+	Preferences prefs;
+	private int maxPeakAmpDrivetrain = 60; //defines the max amp that can be given to a moter during its peak
+	private int maxCountAmpDrivetrain = 40; //defines the max amp that can be given to a moter after its peak
+	private int peakTimeDurationDrivetrain = 10000; //defines how long the peak will last in milliseconds	
+	
+	double armDeadband = 0.2;
+	double elevatorDeadband = 0.2;
+	/* END OF PREF ITEMS*/
 		
 	// robot modules
 	DifferentialDrive drivetrain = new DifferentialDrive(talonL1, talonR4);
-	Arm arm = new Arm(leftArmTalon, rightArmTalon, 0.2);
-	Elevator elevator = new Elevator(elevatorTalon1, 0.2);
+	Arm arm = new Arm(leftArmTalon, rightArmTalon, armDeadband);
+	Elevator elevator = new Elevator(elevatorTalon1, elevatorDeadband);
 	
 	// buttons which will need debouncing for toggled use
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, SHIFTER, 0.5);
@@ -92,11 +111,6 @@ public class Robot extends IterativeRobot {
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
 	Solenoid armReleaser = new Solenoid(1);
-	
-	// variable values for current limitings
-	private int maxPeakAmpDrivetrain = 60; //defines the max amp that can be given to a moter during its peak
-	private int maxCountAmpDrivetrain = 40; //defines the max amp that can be given to a moter after its peak
-	private int peakTimeDurationDrivetrain = 10000; //defines how long the peak will last in milliseconds	
 	
 	boolean shifted;
 	boolean armReleased;
@@ -300,8 +314,9 @@ public class Robot extends IterativeRobot {
 		// update the dashboard
 		DashboardUpdate();
 	}
-
+	
 	@Override
 	public void testPeriodic() {
+
 	}
 }
