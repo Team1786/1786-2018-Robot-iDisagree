@@ -7,17 +7,19 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class Elevator {
 	double deadband;
 	
-	//default speed
-	double speed = 0.5;
+	// default speed
+	double speed = 1;
 	
 	WPI_TalonSRX motorController;
 	
+	// constructor with custom lift speed
 	public Elevator(WPI_TalonSRX liftController, double liftDeadband, double liftSpeed) {
 		motorController = liftController;
 		deadband = liftDeadband;
 		speed = liftSpeed;
 	}
 	
+	// constructor without liftspeed (use default)
 	public Elevator(WPI_TalonSRX liftController, double liftDeadband) {
 		motorController = liftController;
 		deadband = liftDeadband;
