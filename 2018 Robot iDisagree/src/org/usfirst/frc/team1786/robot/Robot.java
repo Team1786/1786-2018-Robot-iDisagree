@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import java.lang.Math;
+import com.kauailabs.navx.AHRSProtocol;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -35,24 +36,34 @@ public class Robot extends IterativeRobot {
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
+	
 	Joystick stick1 = new Joystick(0);
 	Joystick stick2 = new Joystick(1);
 	
 	//Current limit 120 amps
-	WPI_TalonSRX robotLeft = new WPI_TalonSRX(1);
-	WPI_TalonSRX robotLeftSlave1 = new WPI_TalonSRX(2);
-	//WPI_TalonSRX robotLeftSlave2 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
+	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
+	//WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
 	
-	WPI_TalonSRX robotRight = new WPI_TalonSRX(3);
-	WPI_TalonSRX robotRightSlave1 = new WPI_TalonSRX(4);
-	//WPI_TalonSRX robotRightSlave2 = new WPI_TalonSRX(6);
+	WPI_TalonSRX talonR1 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR2 = new WPI_TalonSRX(4);
+	//WPI_TalonSRX talonR3 = new WPI_TalonSRX(6);
 	
-	//
+	//for testing
 	Spark spark1 = new Spark(0);
 	Spark spark2= new Spark(1);
 	
-	// 1 = full speed .5 is testing speed3
-	final double speed = .5;
+	WPI_TalonSRX testTalon = new WPI_TalonSRX(5);
+	
+	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
+	
+	//for encoder
+	double rotations = 0;
+	double distanceInches = 0;
+	double rawEncoderData = 0;
+	
+	// 1 = full speed .5 is testing speed
+	final double speed = 1;
 	
 	//for smart dashboard
 	boolean isTurning;
@@ -80,31 +91,34 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject(command3, command3);
 		m_chooser.addObject(command4, command4);
 		
-		robotLeft.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+		//configure encoder
+		testTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+		//reset encoder
+		testTalon.getSensorCollection().setPulseWidthPosition(0, 100000);
 		
 		
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
 				
 		//create slaves
-		robotLeftSlave1.follow(robotLeft);
-		//robotLeftSlave2.follow(robotLeft);
+		talonL2.follow(talonL1);
+		//talonL3.follow(talonL1);
 		
-		robotRightSlave1.follow(robotRight);
-		//robotRightSlave2.follow(robotRight);
+		talonR2.follow(talonR1);
+		//talonR3.follow(talonR1);
 		
 		//reverse masters
 		
-		//robotRight.setInverted(true);
-		//robotLeft.setInverted(true);
+		//talonR1.setInverted(true);
+		//talonL1.setInverted(true);
 		
 		//current limiting
 		
-		this.limitCurrent(robotLeft);
-		this.limitCurrent(robotRight);
+		this.limitCurrent(talonL1);
+		this.limitCurrent(talonR1);
 		
-		
-		
+		//follow for testTalon
+		testTalon.follow(talonL1);
 	}
 
 	/**
@@ -120,7 +134,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		int distanceMoved = robotLeft.getSensorCollection().getPulseWidthPosition();
+		int distanceMoved = talonL1.getSensorCollection().getPulseWidthPosition();
 		
 		m_autoSelected = m_chooser.getSelected();
 		
@@ -152,7 +166,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		//nothing in periodic
+		this.trackEncoder();
 	}
 
 	/**
@@ -161,20 +175,25 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		//display Data;
+		//display Data
 		
-		this.displayTalon(robotLeft, "robotLeft");
-		this.displayTalon(robotRight, "robotRight");
-		this.displayTalon(robotLeftSlave1, "robotLeftSlave1");
-		this.displayTalon(robotRightSlave1, "robotRightSave1");
+		this.displayTalon(talonL1, "talonL1");
+		this.displayTalon(talonR1, "talonR1");
+		this.displayTalon(talonL2, "talonL2");
+		this.displayTalon(talonR2, "talonR2");
 		
 		//drive
 		
 		this.drive();
+		//this.inferiourDrive();
 		
 		//pickup
 		  
 		this.pickup();
+		
+		//encoder
+		
+		this.trackEncoder();
 		
 	}
 	private void pickup()
@@ -198,13 +217,13 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("is turning", isTurning);
 		SmartDashboard.putBoolean("isSteering", isSteering);
 		
-		if(z < -0.4 || z > 0.4)
+		if(z < -0.2 || z > 0.2)
 		{
 			//twist
 			
 			isTurning = true;
-			robotLeft.set(z*speed);
-			robotRight.set(z*speed);
+			talonL1.set(exponentialModify(z*speed, 5));
+			talonR1.set(exponentialModify(z*speed, 5));
 		}
 		else
 		{
@@ -219,37 +238,57 @@ public class Robot extends IterativeRobot {
 					power=1;
 				//philip's modifier function
 				power = exponentialModify(power, 3);
-				if(y<-0.25)
+				if(y<-0.5)
 					power=-power;
 				power *= speed;
-				SmartDashboard.putNumber("power", power);
+				SmartDashboard.putNumber("power", power); 
+				//getting scale
 				double scale = 1-Math.abs(x);
-				//philip's function being used for turning
-				scale = exponentialModify(scale, 5); 
+				
 				if(x<0)
 				{
 					//left
 					
-					robotLeft.set(-power*scale);
-					robotRight.set(power);
+					talonL1.set(-power*scale);
+					talonR1.set(power);
 				}
 				else
 				{
 					//right
 					
-					robotLeft.set(-power);
-					robotRight.set(power*scale);
+					talonL1.set(-power);
+					talonR1.set(power*scale);
 				}
 				
 			}
 			else
 			{
 				isSteering = false;
-				robotLeft.set(0);
-				robotRight.set(0);
+				talonL1.set(0);
+				talonR1.set(0);
 			}
 			//nothing
 		}
+	}
+	private void trackEncoder()
+	{
+		//4096 = a rotation
+		//a rotation = 4pi inches moved
+		
+		rawEncoderData = testTalon.getSensorCollection().getPulseWidthPosition();
+		double remainder = rawEncoderData % 4096;
+		
+		SmartDashboard.putNumber("Rotations: ", rotations);
+		SmartDashboard.putNumber("Distance in Inches: ", distanceInches);
+		SmartDashboard.putNumber("Raw Encoder Output: ", rawEncoderData);
+		
+		if(remainder < 200)
+		{
+			rotations += 1;
+			distanceInches += 12.5663;
+			
+		}
+		
 	}
 	private void limitCurrent(WPI_TalonSRX talon)
 	{
@@ -268,10 +307,15 @@ public class Robot extends IterativeRobot {
 	}
 	private void Move(double distance)
 	{
+		distance += distanceInches;
 		
-		robotLeft.set(1);
-		robotRight.set(1);
-		if(robotLeft.getSensorCollection().getPulseWidthPosition() > 40)
+		talonL1.set(1);
+		talonR1.set(1);
+		if(distanceInches >= distance)
+		{
+			talonL1.set(0);
+			talonR1.set(0);
+		}
 		
 	}
 	private double exponentialModify(double power, double scale) 
@@ -290,6 +334,13 @@ public class Robot extends IterativeRobot {
 			//while loop
 		}
 	}
+	private void inferiourDrive ()
+	{
+		double y = stick1.getY();
+		double z = stick1.getZ();
+		
+		myRobot.arcadeDrive(-y, z, true);
+	}
 
 	/**
 	 * This function is called periodically during test mode.
@@ -298,3 +349,4 @@ public class Robot extends IterativeRobot {
 	public void testPeriodic() {
 	}
 }
+//willw
