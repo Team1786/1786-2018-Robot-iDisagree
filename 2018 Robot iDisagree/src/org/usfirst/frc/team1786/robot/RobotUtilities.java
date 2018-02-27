@@ -38,6 +38,7 @@ public final class RobotUtilities {
 		}
 	}
 	
+	// phillip's exponential modifier code
 	public static double exponentialModify(double power, double scale) {
 		return Math.tan(power * Math.atan(scale)) / scale;
 	}
