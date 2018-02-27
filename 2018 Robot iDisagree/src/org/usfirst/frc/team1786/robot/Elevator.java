@@ -43,6 +43,7 @@ public class Elevator {
 		
 		if (constSpeed) {
 			if (Math.abs(value) > 0) {
+				// signum returns -1,0,1 based on sign of parameter
 				motorController.set(speed * Math.signum(value));
 			}
 		// if constSpeed isn't true, just run at the throttle speed directly

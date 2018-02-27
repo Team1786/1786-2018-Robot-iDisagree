@@ -13,7 +13,7 @@ public class Arm {
 
 	double deadband;
 	// default wheel speed
-	double wheelSpeed = 0.5;
+	double wheelSpeed = 1;
 	WPI_TalonSRX leftController;
 	WPI_TalonSRX rightController;
 
@@ -68,6 +68,7 @@ public class Arm {
 		double value = RobotUtilities.deadbandScaled(axis, deadband);
 		
 		if (constSpeed) {
+			// signum returns -1,0,1 based on sign of parameter
 			if (Math.abs(value) > 0) {
 				rightController.set(wheelSpeed * Math.signum(value));
 				leftController.set(wheelSpeed * Math.signum(value));
