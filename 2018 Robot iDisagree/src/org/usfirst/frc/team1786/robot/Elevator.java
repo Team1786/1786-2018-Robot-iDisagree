@@ -34,8 +34,9 @@ public class Elevator {
 	}
 	
 	/**
-	 * to be run in a looping function. Drives the arm based on input
-	 * @param inputJoy - wpilib joystick axis to get movement from
+	 * to be run in a looping function. Drives the arm based on input.
+	 * @param inputJoy - wpilib joystick axis to get movement from. It applies
+	 * 					 deadzone within the function so don't add it externally
 	 * @param constSpeed - bool for whether to run at const speed or not
 	 */
 	public void driveElevator(double axis, boolean constSpeed) {

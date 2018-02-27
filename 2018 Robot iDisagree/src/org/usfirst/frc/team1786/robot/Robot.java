@@ -275,7 +275,9 @@ public class Robot extends IterativeRobot {
 		throttleValueRight = joystickRight.getThrottle();
 		
 		// run the modules
-//		drivetrain.arcadeDrive(yValueLeftScaled, zValueLeftScaled);
+		drivetrain.arcadeDrive(RobotUtilities.deadbandScaled(yValueLeft, 0.2),
+							   RobotUtilities.deadbandScaled(zValueLeft, 0.2));
+		
 		WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
 		
 		arm.driveArm(yValueRight, true);

@@ -61,7 +61,8 @@ public class Arm {
 	}
 	/**
 	 * to be run in a looping function. Drives the arm based on input
-	 * @param inputJoy - wpilib joystick axis to get movement from
+	 * @param inputJoy - wpilib joystick axis to get movement from. It applies
+	 * 					 deadzone within the function so don't add it externally
 	 * @param constSpeed - bool for whether to run at const speed or not
 	 */
 	public void driveArm(double axis, boolean constSpeed) {
