@@ -196,60 +196,56 @@ public class Robot extends IterativeRobot {
 		double x = rotation;
 		double z = inPlaceRotation;
 		
-		// accurate in place twisting
-		if(z < -0.4 || z > 0.4) {
-			// is twisting
+		SmartDashboard.putBoolean("is turning", isTurning);
+		SmartDashboard.putBoolean("isSteering", isSteering);
+		
+		if(z < -0.4 || z > 0.4)
+		{
+			//twist
+			
 			isTurning = true;
-			talonL1.set(z * speed);
-			talonR4.set(z * speed);
-		} else {
-			//scaled "arcade" style movement
+			talonL1.set(RobotUtilities.exponentialModify(z*speed, 5));
+			talonR4.set(RobotUtilities.exponentialModify(z*speed, 5));
+		}
+		else
+		{
 			isTurning = false;
-			
-			// Implement the distance formula for Joystick power calculation
-			double power = Math.sqrt((x * x) + (y * y));
-			
-			// deadzone for all non in place twisting movement, was = 0.2
-			if(power > 0.05) {
+			double power = Math.sqrt((x*x)+(y*y));
+			SmartDashboard.putNumber("rawY", y);
+			SmartDashboard.putNumber("rawX", x); 
+			//dead zone for all non twisting movement; was = 0.2
+			if(power > 0.25)
+			{
 				isSteering = true;
-				
-				// prevent power from getting greater than 1
-				if(power > 1) {
-					power = 1;
-				}
-				
-				// philip's modifier function applied to power
+				if(power>1)
+					power=1;
+				//philip's modifier function
 				power = RobotUtilities.exponentialModify(power, 3);
-				
-				// deadzone is implemented to prevent accidental backwards movement
-				if(y < -0.25)
-					power =- power;
-
-				// scale the power according to the desired speed
+				if(y<0)
+					power=-power;
 				power *= speed;
-				
-				SmartDashboard.putNumber("drivetrain power", power);
-				
-				// the value of scale must be equal to or less than x
+				SmartDashboard.putNumber("power", power); 
+				//getting scale
 				double scale = 1-Math.abs(x);
 				
-				// philip's function used for turning scale
-				scale = RobotUtilities.exponentialModify(scale, 5);
-				
-				// apply power and scale it accordingly
-				if(x < 0) {
-					
+				if(x<0)
+				{
 					//left
+					
 					talonL1.set(-power*scale);
 					talonR4.set(power);
-				} else {
-					
+				}
+				else
+				{
 					//right
+					
 					talonL1.set(-power);
 					talonR4.set(power*scale);
-				}	
-			} else {
-				// stay still if we don't need to move
+				}
+				
+			}
+			else
+			{
 				isSteering = false;
 				talonL1.set(0);
 				talonR4.set(0);
