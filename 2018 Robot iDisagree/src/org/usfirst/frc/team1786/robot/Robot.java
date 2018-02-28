@@ -274,11 +274,8 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
-		//set the solenoid in a default position
+		//default positons
 		shifted = false;
-		//make sure latest is zero
-		shiftBtn.setLatest();
-		
 		useWrobleDrive = true;
 		useCurvatureDrive = false;
 		reversed = false;
@@ -300,11 +297,6 @@ public class Robot extends IterativeRobot {
 		throttleValueRight = joystickRight.getThrottle();
 		
 		// run the modules
-//		drivetrain.arcadeDrive(RobotUtilities.deadbandScaled(yValueLeft, 0.2),
-//							   RobotUtilities.deadbandScaled(zValueLeft, 0.2));
-		
-//		WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
-		
 		arm.driveArm(yValueRight, true);
 		
 		elevator.driveElevator(throttleValueRight, true);
