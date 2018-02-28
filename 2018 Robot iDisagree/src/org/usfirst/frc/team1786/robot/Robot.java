@@ -60,8 +60,10 @@ public class Robot extends IterativeRobot {
 	
 	//Declaring buttons
 	
-	boolean buttonstate = false;
-	//boolean button1 = true;
+	boolean actuatorState = false;
+		
+	//JoystickButton buttonstate = new JoystickButton(joystickLeft, 1);
+	
 	AnalogTrigger trigger1 = new AnalogTrigger(0);
 	
 	/*
@@ -71,6 +73,7 @@ public class Robot extends IterativeRobot {
 	
 	//Declaring compressor
 	Compressor robotCompressor = new Compressor(1);
+	boolean actuator = false;
 	
 	
 	@Override
@@ -164,6 +167,8 @@ public class Robot extends IterativeRobot {
 				break;
 		}
 	}
+	
+		
 
 	/**
 	 * This function is called periodically during operator control.
@@ -171,30 +176,19 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), true);
+		joystickLeft.getRawButton(2);
+		
+		if (actuatorState && actuator) {
 			
-		//Declares that the trigger can only be pressed on the left joystick
-		joystickLeft.getRawButton(1);
-		
-		//SmartDashboard.putNumber("". );
-		
-		/*if( joystickRight.getTrigger())
-		{
-			solenoid.set(true);
-			
-			This part is what switches the gears when the trigger is pressed
-		}*/
-		
-		buttonstate = trigger1.getTriggerState();
-		
-		if (buttonstate)
-		{
-			solenoid.set(true);
+				actuator = false;
+				actuatorState = true;
 		}
-
+		else if (actuatorState && !actuator) {
 		
+			actuator = true;
+			actuatorState = false;
+		}
 	}
-
 	/**
 	 * This function is called periodically during test mode.
 	 */
