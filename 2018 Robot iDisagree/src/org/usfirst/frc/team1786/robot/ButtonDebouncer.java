@@ -2,6 +2,7 @@ package org.usfirst.frc.team1786.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 
+// Works!
 public class ButtonDebouncer {
 	Joystick joystick;
 	int button;
@@ -17,8 +18,11 @@ public class ButtonDebouncer {
 	 * @param waitPeriod - how long to wait in between state changes
 	 */
 	public ButtonDebouncer(Joystick joy, int btnChannel, double waitPeriod) {
+		joystick = joy;
 		button = btnChannel;
 		period = waitPeriod;
+		now = 0;
+		latest = 0;
 	}
 	
 	/**
