@@ -33,6 +33,7 @@ package org.usfirst.frc.team1786.robot;
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 import org.usfirst.frc.team1786.robot.ButtonDebouncer;
 
+import java.awt.geom.Line2D;
 import java.lang.invoke.ConstantCallSite;
 
 import org.usfirst.frc.team1786.robot.Arm;
@@ -47,6 +48,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Timer.StaticInterface;
+import edu.wpi.first.wpilibj.buttons.Button;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -58,6 +60,9 @@ public class Robot extends IterativeRobot {
 	// button mapping
 	final int SHIFTER = 3;
 	final int ARMRELEASE = 4;
+	final int REV = 1;
+	final int WROBLE = 12;
+	final int CURVE = 10;
 	
 	// Code from Dylan
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
@@ -105,6 +110,9 @@ public class Robot extends IterativeRobot {
 	// buttons which will need debouncing for toggled use
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, SHIFTER, 0.5);
 	ButtonDebouncer armReleaseBtn = new ButtonDebouncer(joystickLeft, ARMRELEASE, 0.5);
+	ButtonDebouncer wrobleDriveBtn = new ButtonDebouncer(joystickLeft, WROBLE, 0.5);
+	ButtonDebouncer curveDriveBtn = new ButtonDebouncer(joystickLeft, CURVE, 0.5);
+	ButtonDebouncer reverseDriveBtn = new ButtonDebouncer(joystickLeft, REV, 0.5);
 	
 	// pneumatics
 	// note: compressor appears to use 10 amps in usage
@@ -114,6 +122,9 @@ public class Robot extends IterativeRobot {
 	
 	boolean shifted;
 	boolean armReleased;
+	boolean useWrobleDrive;
+	boolean useCurvatureDrive;
+	boolean reversed;
 	
 	boolean isTurning;
 	boolean isSteering;
@@ -267,6 +278,10 @@ public class Robot extends IterativeRobot {
 		shifted = false;
 		//make sure latest is zero
 		shiftBtn.setLatest();
+		
+		useWrobleDrive = true;
+		useCurvatureDrive = false;
+		reversed = false;
 	}
 	
 	@Override
@@ -285,19 +300,90 @@ public class Robot extends IterativeRobot {
 		throttleValueRight = joystickRight.getThrottle();
 		
 		// run the modules
-		drivetrain.arcadeDrive(RobotUtilities.deadbandScaled(yValueLeft, 0.2),
-							   RobotUtilities.deadbandScaled(zValueLeft, 0.2));
+//		drivetrain.arcadeDrive(RobotUtilities.deadbandScaled(yValueLeft, 0.2),
+//							   RobotUtilities.deadbandScaled(zValueLeft, 0.2));
 		
-		WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
+//		WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
 		
 		arm.driveArm(yValueRight, true);
 		
 		elevator.driveElevator(throttleValueRight, true);
 		
+		// drive code toggling
+		boolean wrobleDriveBtnState = wrobleDriveBtn.get();
+		boolean curveDriveBtnState = curveDriveBtn.get();
+		boolean reverseDriveBtnState = curveDriveBtn.get();
+		
+		// switch between reversed driving and regular
+		if (reverseDriveBtnState && reversed) {
+			reversed = false;
+		} else if (reverseDriveBtnState && !reversed) {
+			reversed = true;
+		}
+		
+		// switch between using wroble's drive code and the regular one
+		if (wrobleDriveBtnState && useWrobleDrive) {
+			useWrobleDrive = false;
+		} else if (wrobleDriveBtnState && !useWrobleDrive) {
+			useWrobleDrive = true;
+		}
+		
+		// switch between using curvature drive and the regular one
+		if (curveDriveBtnState && useCurvatureDrive) {
+			useCurvatureDrive = false;
+		} else if (curveDriveBtnState && !useCurvatureDrive) {
+			useCurvatureDrive = true;
+		}
+		
+		if (reversed) {
+			//L1 and R4 are masters and need the opposition inversion of the rest
+			talonL1.setInverted(false);
+			talonL2.setInverted(true);
+			talonL3.setInverted(true);
+			
+			talonR4.setInverted(false);
+			talonR5.setInverted(true);
+			talonR6.setInverted(true);
+		} else {
+			//L1 and R4 are masters and need the opposition inversion of the rest
+			talonL1.setInverted(true);
+			talonL2.setInverted(false);
+			talonL3.setInverted(false);
+			
+			talonR4.setInverted(true);
+			talonR5.setInverted(false);
+			talonR6.setInverted(false);
+		}
+		
+		if (useWrobleDrive) {
+			// WrobleDrive doesn't use the drivetrain object
+			drivetrain.setSafetyEnabled(false);
+			WrobleDrive(yValueLeft, xValueLeft, zValueLeft);
+		} else {
+			// arcade and curvature drive use the drivetrain object
+			drivetrain.setSafetyEnabled(true);
+			if (useCurvatureDrive) {
+				// quick turn when thumb button is held
+				if (joystickRight.getRawButton(2)) {
+					drivetrain.curvatureDrive(RobotUtilities.exponentialModify(RobotUtilities.deadbandScaled(-yValueLeft, 0.2), 2),
+								              RobotUtilities.exponentialModify(RobotUtilities.deadbandScaled(zValueRight, 0.1), 2), true);
+				} else {
+					// second axis controls rate of turning
+					drivetrain.curvatureDrive(RobotUtilities.exponentialModify(RobotUtilities.deadbandScaled(-yValueLeft, 0.2), 2),
+											  RobotUtilities.exponentialModify(RobotUtilities.deadbandScaled(xValueRight, 0.2), 2), false);
+				}
+			} else {
+				// arcade drive with one joystick and squared inputs
+				drivetrain.arcadeDrive(RobotUtilities.deadbandScaled(-yValueLeft, 0.2),
+									   RobotUtilities.deadbandScaled(zValueLeft, 0.2), true);
+			}
+		}
+		
 		// shifting code
-		if (shiftBtn.get() == true && shifted) {
+		boolean shiftBtnState = shiftBtn.get();
+		if (shiftBtnState == true && shifted) {
 			shifted = false;
-		} else if (shiftBtn.get() == true && !shifted) {
+		} else if (shiftBtnState == true && !shifted) {
 			shifted = true;
 		}
 		
