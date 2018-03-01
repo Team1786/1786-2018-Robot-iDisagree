@@ -1,5 +1,4 @@
 package org.usfirst.frc.team1786.robot;
-import edu.wpi.first.wpilibj.Joystick;
 
 /*
  * A utility class for some common utilities we need
@@ -13,7 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 
 public final class RobotUtilities {
-
+	
 	private RobotUtilities() {
 	// don't need to do anything in auto right now
 	}
@@ -37,5 +36,10 @@ public final class RobotUtilities {
 			double scaledValue = 0;
 			return scaledValue;
 		}
+	}
+	
+	// phillip's exponential modifier code
+	public static double exponentialModify(double power, double scale) {
+		return Math.tan(power * Math.atan(scale)) / scale;
 	}
 }

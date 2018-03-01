@@ -3,7 +3,8 @@ package org.usfirst.frc.team1786.robot;
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 
 import com.ctre.phoenix.motorcontrol.can.*;
-import edu.wpi.first.wpilibj.Joystick;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 import java.lang.Math;
 
@@ -13,7 +14,8 @@ import java.lang.Math;
 public class Arm {
 
 	double deadband;
-	double wheelSpeed;
+	// default wheel speed
+	double wheelSpeed = 1;
 	WPI_TalonSRX leftController;
 	WPI_TalonSRX rightController;
 
@@ -61,13 +63,15 @@ public class Arm {
 	}
 	/**
 	 * to be run in a looping function. Drives the arm based on input
-	 * @param inputJoy - wpilib joystick axis to get movement from
+	 * @param inputJoy - wpilib joystick axis to get movement from. It applies
+	 * 					 deadzone within the function so don't add it externally
 	 * @param constSpeed - bool for whether to run at const speed or not
 	 */
 	public void driveArm(double axis, boolean constSpeed) {
 		double value = RobotUtilities.deadbandScaled(axis, deadband);
 		
 		if (constSpeed) {
+			// signum returns -1,0,1 based on sign of parameter
 			if (Math.abs(value) > 0) {
 				rightController.set(wheelSpeed * Math.signum(value));
 				leftController.set(wheelSpeed * Math.signum(value));
@@ -78,5 +82,26 @@ public class Arm {
 			leftController.set(value);
 		}
 
+	}
+	
+	/**
+	 * run arms by holding down buttons for either forwards or reverse
+	 * @param intake - is intake button pressed
+	 * @param outtake - is outtake button pressed
+	 */
+	public void driveArm(boolean intake, boolean outtake) {
+		if (intake && outtake) {
+			rightController.set(wheelSpeed);
+			leftController.set(wheelSpeed);
+		} else if (outtake) {
+			rightController.set(wheelSpeed);
+			leftController.set(wheelSpeed);
+		} else if (intake) {
+			rightController.set(0);
+			leftController.set(0);
+		} else {
+			rightController.set(0);
+			leftController.set(0);
+		}
 	}
 }
