@@ -36,12 +36,12 @@ public class Robot extends IterativeRobot {
 	final int peakCurrent = 60;
 	final double joystickDeadband = 0.05;
 
-	
+
 	//Declare Joysticks
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
 
-	
+
 	//Declaring Talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
@@ -53,45 +53,45 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
 	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
 	WPI_TalonSRX elevatorTalon2 = new WPI_TalonSRX(10);
-	
+
 	//Declaring Solenoids & Compressors
 	Solenoid solenGear = new Solenoid(1);
 	Compressor compressor = new Compressor(1);
-	
-	
+
+
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
-	
+
 	//Button Assignments
 	final int DownShiftButton = 4;
 	final int UpShiftButton = 5;
-	
-	
+
+
 	//Current Limiting
 	private void currentLimiting(WPI_TalonSRX talon) {
 		talon.configContinuousCurrentLimit(contCurrent, 0);
 		talon.configPeakCurrentLimit(peakCurrent, 0);
 		talon.configPeakCurrentDuration(peakDuration, 0);
 		talon.enableCurrentLimit(true);
-		
+
 	}
-	
-	
+
+
 	//Talon Display
 	private void displayTalon(WPI_TalonSRX talon, String label) {
-		
+
 		SmartDashboard.putNumber(label + " Current", talon.getOutputCurrent());
 		SmartDashboard.putNumber(label + " Temperature", talon.getTemperature());
-		
+
 	}
-	
-	
+
+
 	//Joystick Display
 	private void displayJoystick(Joystick joystick, String label) {
 		SmartDashboard.putNumber(label + "Y", joystick.getY());
 		SmartDashboard.putNumber(label + "Z", joystick.getZ());
 	}
-	
-	
+
+
 	//Fill Compressor
 	@SuppressWarnings("unused")
 	private void fillCompressor(Compressor compressor) {
@@ -101,45 +101,45 @@ public class Robot extends IterativeRobot {
 	}
 		compressor.setClosedLoopControl(false);
 	}
-	
-	
+
+
 	//Shift down
 	private void DownShift(Joystick joystick, int button) {
 		boolean btnState = joystick.getRawButton(button);
-		
+
 		if (btnState == true) {
 			solenGear.set(true);
 		} else {
-			
+
 		}
-		
+
 	}
-		
-	
+
+
 	//Shift up
 		private void UpShift(Joystick joystick, int button) {
 			boolean btnState = joystick.getRawButton(button);
-			
+
 			if (btnState == false) {
 				solenGear.set(false);
 			} else {
-				
+
 			}
-			
+
 		}
-		
-	//Code for Scaling driving correctly	
+
+	//Code for Scaling driving correctly
 		private double exponentialModify(double joyY, double scale) {
 			// return Math.atan(scale*joyY)/Math.atan(scale); thought this would work, but needed inverse
 			return Math.tan(joyY*Math.atan(scale))/scale;
 		}
-	
+
 	/*Z-Drive Exponential
 	private double sqrZ(Joystick joystick) {
 		return joystick.getZ()/Math.abs(joystick.getZ())* Math.sqrt(Math.abs(joystick.getZ()));
 	}*/
-	
-	
+
+
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -149,7 +149,7 @@ public class Robot extends IterativeRobot {
 		m_chooser.addDefault("Default Auto", kDefaultAuto);
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
-		
+
 		//Talon follows
 		talonL1.setInverted(true);
 		talonR4.setInverted(true);
@@ -157,21 +157,21 @@ public class Robot extends IterativeRobot {
 		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
 		talonR6.follow(talonR4);
-		
+
 		//apply deadband
 		myRobot.setDeadband(joystickDeadband);
-		
+
 		//Current Limiter
-		currentLimiting(talonL1);
-		currentLimiting(talonL2);
-		currentLimiting(talonL3);
-		currentLimiting(talonR4);
-		currentLimiting(talonR5);
-		currentLimiting(talonR6);
-		
-		
-		
-		
+		Robot.currentLimiting(talonL1);
+		Robot.currentLimiting(talonL2);
+		Robot.currentLimiting(talonL3);
+		Robot.currentLimiting(talonR4);
+		Robot.currentLimiting(talonR5);
+		Robot.currentLimiting(talonR6);
+
+
+
+
 	}
 
 	/**
@@ -214,26 +214,26 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		
-		displayTalon(talonL1, "TalonL1");
-		displayTalon(talonL2, "TalonL2");
-		displayTalon(talonL3, "TalonL3");
-		displayTalon(talonR4, "TalonR4");
-		displayTalon(talonR5, "TalonR5");
-		displayTalon(talonR6, "TalonR6");
-		
+
+		Robot.displayTalon(talonL1, "TalonL1");
+		Robot.displayTalon(talonL2, "TalonL2");
+		Robot.displayTalon(talonL3, "TalonL3");
+		Robot.displayTalon(talonR4, "TalonR4");
+		Robot.displayTalon(talonR5, "TalonR5");
+		Robot.displayTalon(talonR6, "TalonR6");
+
 		displayJoystick(joystickLeft, "LeftJoystick");
-		
+
 		//driving thingy
 		double modY = exponentialModify(joystickLeft.getY(), 5);
 		myRobot.arcadeDrive(modY, joystickLeft.getZ(), false);
-		
-		DownShift(joystickLeft, DownShiftButton);
-		UpShift(joystickLeft, UpShiftButton);
-		
-		
-		
-		
+
+		Robot.DownShift(joystickLeft, DownShiftButton);
+		Robot.UpShift(joystickLeft, UpShiftButton);
+
+
+
+
 	}
 
 	/**
@@ -241,9 +241,9 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
-		
-		
-		
-		
+
+
+
+
 	}
 }
