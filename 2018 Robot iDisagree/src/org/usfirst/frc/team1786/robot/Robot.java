@@ -105,6 +105,7 @@ public class Robot extends IterativeRobot {
 	
 	double armDeadband = 0.2; // value gotten during robotInit
 	double elevatorDeadband = 0.2; // value gotten during robotInit
+	
 	boolean useWrobleDrive; // value gotten during teleopInit
 	boolean useCurvatureDrive; // value gotten during teleopInit
 	boolean reversed; // value gotten during teleopInit
@@ -122,6 +123,7 @@ public class Robot extends IterativeRobot {
 	ButtonDebouncer wrobleDriveBtn = new ButtonDebouncer(joystickLeft, WROBLE, 0.5);
 	ButtonDebouncer curveDriveBtn = new ButtonDebouncer(joystickLeft, CURVE, 0.5);
 	ButtonDebouncer reverseDriveBtn = new ButtonDebouncer(joystickLeft, REV, 0.5);
+	
 	
 	// pneumatics
 	// note: compressor appears to use 10 amps in usage
@@ -341,10 +343,12 @@ public class Robot extends IterativeRobot {
 		prefs = Preferences.getInstance();
 		
 		shifted = false;
+		armReleased = false;
 		useWrobleDrive = prefs.getBoolean("wroble drive default teleop", false);
 		useCurvatureDrive = prefs.getBoolean("is curve drive default teleop", false);
 		reversed = prefs.getBoolean("is drivetrain reversed by default teleop", false);
 		reversable = prefs.getBoolean("use button for reversing", false);
+	
 	}
 	
 	@Override
@@ -452,6 +456,20 @@ public class Robot extends IterativeRobot {
 			shifter.set(true);
 		} else { 
 			shifter.set(false);
+		}
+		
+		
+		boolean armRelBtnState = armReleaseBtn.get();
+		if (armRelBtnState == true && armReleased) {
+			armReleased = false;
+		} else if (armRelBtnState == true && !armReleased) {
+			armReleased = true;
+		}
+		
+		if (armReleased == true) {
+			armReleaser.set(true);
+		} else {
+			armReleaser.set(true);
 		}
 		
 		// update the dashboard
