@@ -1,7 +1,5 @@
 package org.usfirst.frc.team1786.robot;
 
-import org.omg.CORBA.Current;
-
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -74,21 +72,9 @@ public class Autonomous {
 	
 	/**
 	 *  get encoder data from any encoder equiped talon
-	 * @param WPI_TalonSRX motorController
-	 * @return returns raw data from generic encoder
-	 */
-	public double trackEncoder(WPI_TalonSRX motorController) {}
-	
-	/**
-	 *  get encoder data from any encoder equiped talon
 	 * @param TalonSRX motorController
 	 * @return returns raw data from generic encoder
 	 */
-	public double trackEncoder(TalonSRX motorController) {}
-	
-	public double rotationCalculator(double rawTicks) {}
-	
-	public double distanceCalculator(double rotations) {}
 	
 	/**
 	 * move a set distance

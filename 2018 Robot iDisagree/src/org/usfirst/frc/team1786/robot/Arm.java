@@ -4,6 +4,8 @@ import org.usfirst.frc.team1786.robot.RobotUtilities;
 
 import com.ctre.phoenix.motorcontrol.can.*;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
 import java.lang.Math;
 
 /*
@@ -80,5 +82,26 @@ public class Arm {
 			leftController.set(value);
 		}
 
+	}
+	
+	/**
+	 * run arms by holding down buttons for either forwards or reverse
+	 * @param intake - is intake button pressed
+	 * @param outtake - is outtake button pressed
+	 */
+	public void driveArm(boolean intake, boolean outtake) {
+		if (intake && outtake) {
+			rightController.set(wheelSpeed);
+			leftController.set(wheelSpeed);
+		} else if (outtake) {
+			rightController.set(wheelSpeed);
+			leftController.set(wheelSpeed);
+		} else if (intake) {
+			rightController.set(0);
+			leftController.set(0);
+		} else {
+			rightController.set(0);
+			leftController.set(0);
+		}
 	}
 }
