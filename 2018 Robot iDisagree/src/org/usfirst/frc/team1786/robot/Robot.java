@@ -33,9 +33,6 @@ package org.usfirst.frc.team1786.robot;
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 import org.usfirst.frc.team1786.robot.ButtonDebouncer;
 
-import java.awt.geom.Line2D;
-import java.lang.invoke.ConstantCallSite;
-
 import org.usfirst.frc.team1786.robot.Arm;
 import org.usfirst.frc.team1786.robot.Elevator;
 
@@ -64,6 +61,7 @@ public class Robot extends IterativeRobot {
 	final int WROBLE = 12;
 	final int CURVE = 10;
 	
+	
 	// Code from Dylan
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
@@ -90,16 +88,17 @@ public class Robot extends IterativeRobot {
 	Double throttleValueRight;
 	
 	/* START OF PREF ITEMS */
-	// setup preferences area of smartDashboard
-	// variables under this heading may be changes by the dashboard
+	// variables under this heading may be changed by the dashboard preferences menu
 	// these values will be saved in a text file on the roborio, and are persistent from boot to boot
+	// when they are set via prefs.getDouble() or prefs.getBoolean()
 	Preferences prefs;
-	private int maxPeakAmpDrivetrain = 60; //defines the max amp that can be given to a moter during its peak
-	private int maxCountAmpDrivetrain = 40; //defines the max amp that can be given to a moter after its peak
-	private int peakTimeDurationDrivetrain = 10000; //defines how long the peak will last in milliseconds	
-	
-	double armDeadband = 0.2;
-	double elevatorDeadband = 0.2;
+
+	double armDeadband = 0.2; // value gotten during robotInit
+	double elevatorDeadband = 0.2; // value gotten during robotInit
+	boolean useWrobleDrive; // value gotten during teleopInit
+	boolean useCurvatureDrive; // value gotten during teleopInit
+	boolean reversed; // value gotten during teleopInit
+	boolean reversable; // value gotten during teleopInit
 	/* END OF PREF ITEMS*/
 		
 	// robot modules
@@ -119,15 +118,17 @@ public class Robot extends IterativeRobot {
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
 	Solenoid armReleaser = new Solenoid(1);
-	
+
 	boolean shifted;
 	boolean armReleased;
-	boolean useWrobleDrive;
-	boolean useCurvatureDrive;
-	boolean reversed;
 	
 	boolean isTurning;
 	boolean isSteering;
+	
+	private int maxPeakAmpDrivetrain = 60; //defines the max amp that can be given to a moter during its peak
+	private int maxCountAmpDrivetrain = 40; //defines the max amp that can be given to a moter after its peak
+	private int peakTimeDurationDrivetrain = 10000; //defines how long the peak will last in milliseconds	
+	
 	
 	@Override
 	public void robotInit() {
@@ -154,7 +155,15 @@ public class Robot extends IterativeRobot {
 		talonR4.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 		
 		// configure encoders for elevator
-		elevatorTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+		elevatorTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);	
+		
+		// change the module deadbands to whatever the driveteam chose in the prefs on dashboard
+		prefs = Preferences.getInstance();
+		
+		armDeadband = prefs.getDouble("armDeadband", 0.2);
+		arm.setDeadband(armDeadband);
+		elevatorDeadband = prefs.getDouble("armDeadband", 0.2);
+		elevator.setDeadband(elevatorDeadband);
 	}
 
 	// current limiting talons and display a single talon on the dashboard
@@ -269,16 +278,19 @@ public class Robot extends IterativeRobot {
 	}
 
 	@Override
-	public void autonomousPeriodic() {
+	public void autonomousPeriodic() {	// setup preferences area of smartDashboard
 	}
 
 	@Override
 	public void teleopInit() {
 		//default positons
+		prefs = Preferences.getInstance();
+		
 		shifted = false;
-		useWrobleDrive = true;
-		useCurvatureDrive = false;
-		reversed = false;
+		useWrobleDrive = prefs.getBoolean("wroble drive default teleop", true);
+		useCurvatureDrive = prefs.getBoolean("is curve drive default teleop", false);
+		reversed = prefs.getBoolean("is drivetrain reversed by default teleop", false);
+		reversable = prefs.getBoolean("use button for reversing", false);
 	}
 	
 	@Override
@@ -306,11 +318,14 @@ public class Robot extends IterativeRobot {
 		boolean curveDriveBtnState = curveDriveBtn.get();
 		boolean reverseDriveBtnState = curveDriveBtn.get();
 		
-		// switch between reversed driving and regular
-		if (reverseDriveBtnState && reversed) {
-			reversed = false;
-		} else if (reverseDriveBtnState && !reversed) {
-			reversed = true;
+		// only allow reversing if this preference toggle is true
+		if (reversable) {
+			// switch between reversed driving and regular
+			if (reverseDriveBtnState && reversed) {
+				reversed = false;
+			} else if (reverseDriveBtnState && !reversed) {
+				reversed = true;
+			}
 		}
 		
 		// switch between using wroble's drive code and the regular one
