@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
+import edu.wpi.first.wpilibj.DriverStation;
 
 
 /**
@@ -29,9 +31,11 @@ public class Robot extends IterativeRobot {
 	private int currentLimit1 = 40;
 	private int currentLimit2 = 60;
 	private int currentDur = 10000;
-	private int upShiftButtonNum = 6;
-	private int downShiftButtonNum = 5;
-
+	private int startPosition = 0;
+	private char scaleSide = 'e';
+	private char switchSide = 'e';
+	String gameData; 
+	private boolean gameDataStat = false;
 	
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
@@ -40,21 +44,24 @@ public class Robot extends IterativeRobot {
 
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new  Joystick(1);
-	JoystickButton upShiftButton = new JoystickButton(joystickLeft,upShiftButtonNum);
-	JoystickButton downShiftButton = new JoystickButton(joystickLeft,downShiftButtonNum);
 	
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
-	//WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(4);
-	//WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
+	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
+	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
+	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
+	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
+	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
+	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
 	
 	Compressor compressor1 = new Compressor(1);
 	Solenoid solenoid1 = new Solenoid(0);
 	
+	SensorCollection evevatorLimitSwitch = new SensorCollection(elevatorTalon1);
 	
 	DifferentialDrive myRobot = new DifferentialDrive (talonL1, talonR4);
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -65,42 +72,46 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
 		
+		//inverted talons so it can turn
+		talonL1.setInverted(true);
+		talonR4.setInverted(true);
+		
 		//limiting the current all the time
 		talonL1.configContinuousCurrentLimit(currentLimit1,0);
 		talonL2.configContinuousCurrentLimit(currentLimit1,0);
-		//talonL3.configContinuousCurrentLimit(currentLimit1,0);
+		talonL3.configContinuousCurrentLimit(currentLimit1,0);
 		talonR4.configContinuousCurrentLimit(currentLimit1,0);
 		talonR5.configContinuousCurrentLimit(currentLimit1,0);
-		//talonR6.configContinuousCurrentLimit(currentLimit1,0);
+		talonR6.configContinuousCurrentLimit(currentLimit1,0);
 		
 		//time when peak is active
 		talonL1.configPeakCurrentDuration(currentDur,0);
 		talonL2.configPeakCurrentDuration(currentDur,0);
-		//talonL3.configPeakCurrentDuration(currentDur,0);
+		talonL3.configPeakCurrentDuration(currentDur,0);
 		talonR4.configPeakCurrentDuration(currentDur,0);
 		talonR5.configPeakCurrentDuration(currentDur,0);
-		//talonR6.configPeakCurrentDuration(currentDur,0);
+		talonR6.configPeakCurrentDuration(currentDur,0);
 		
 		//only when the above is active
 		talonL1.configPeakCurrentLimit(currentLimit2,0);
 		talonL2.configPeakCurrentLimit(currentLimit2,0);
-		//talonL3.configPeakCurrentLimit(currentLimit2,0);
+		talonL3.configPeakCurrentLimit(currentLimit2,0);
 		talonR4.configPeakCurrentLimit(currentLimit2,0);
 		talonR5.configPeakCurrentLimit(currentLimit2,0);
-		//talonR6.configPeakCurrentLimit(currentLimit2,0);
+		talonR6.configPeakCurrentLimit(currentLimit2,0);
 		
 		//does it do what it do
 		talonL1.enableCurrentLimit(true);
 		talonL2.enableCurrentLimit(true);
-		//talonL3.enableCurrentLimit(true);
+		talonL3.enableCurrentLimit(true);
 		talonR4.enableCurrentLimit(true);
 		talonR5.enableCurrentLimit(true);
-		//talonR6.enableCurrentLimit(true);
+		talonR6.enableCurrentLimit(true);
 		
 		talonL2.follow(talonL1);
-		//talonL3.follow(talonL1);
+		talonL3.follow(talonL1);
 		talonR5.follow(talonR4);
-		//talonR6.follow(talonR4);
+		talonR6.follow(talonR4);
 	
 		SmartDashboard.putString("upShiftButtonState", "false");
 	
@@ -123,8 +134,20 @@ public class Robot extends IterativeRobot {
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
+		
+		while(gameDataStat) {
+			gameData = DriverStation.getInstance().getGameSpecificMessage();
+            if(gameData.length() > 0)
+            {
+            	gameDataStat = false;
+            	switchSide = gameData.charAt(0);
+            	scaleSide = gameData.charAt(1);
+            }
+            
+		}
 	}
-
+	
+	
 	/**
 	 * This function is called periodically during autonomous.
 	 */
@@ -152,39 +175,34 @@ public class Robot extends IterativeRobot {
 		//the tempature
 		SmartDashboard.putNumber("talonL1Temp", talonL1.getTemperature());
 		SmartDashboard.putNumber("talonL2Temp", talonL2.getTemperature());
-		//SmartDashboard.putNumber("talonL3Temp", talonL3.getTemperature());
+		SmartDashboard.putNumber("talonL3Temp", talonL3.getTemperature());
 		SmartDashboard.putNumber("talonR3Temp", talonR4.getTemperature());
 		SmartDashboard.putNumber("talonR5Temp", talonR5.getTemperature());
-		//SmartDashboard.putNumber("talonR6Temp", talonR6.getTemperature());
+		SmartDashboard.putNumber("talonR6Temp", talonR6.getTemperature());
 		
 		//the output current
 		SmartDashboard.putNumber("talonL1Current", talonL1.getOutputCurrent());
 		SmartDashboard.putNumber("talonL2TCurrent", talonL2.getOutputCurrent());
-		//SmartDashboard.putNumber("talonL3Current", talonL3.getOutputCurrent());
+		SmartDashboard.putNumber("talonL3Current", talonL3.getOutputCurrent());
 		SmartDashboard.putNumber("talonR3Current", talonR4.getOutputCurrent());
 		SmartDashboard.putNumber("talonR5Current", talonR5.getOutputCurrent());
-		//SmartDashboard.putNumber("talonR6Current", talonR6.getOutputCurrent());
+		SmartDashboard.putNumber("talonR6Current", talonR6.getOutputCurrent());
+		
+		boolean shiftUp = joystickLeft.getRawButton(6);
+		boolean shiftDown = joystickLeft.getRawButton(5);
 		
 		
-		if ( upShiftButton.get() == false ){
-			
-			SmartDashboard.putString("upShiftButtonState", "True");
-		
+		//for the Drive system
+		if(shiftUp) {
 			solenoid1.set(true);
-		}
-		if ( downShiftButton.get() == false ){
-			
+		} else if
+		(shiftDown) {
 			solenoid1.set(false);
 		}
 		
-		//while (compressor1.getPressureSwitchValue() == false)
-		///{
-			//compressor1.setClosedLoopControl(true);
-			//compressor1.start();
-		//}
-			//compressor1.setClosedLoopControl(false);
 		
-		myRobot.arcadeDrive(-joystickLeft.getY(), joystickLeft.getZ(), false);
+		
+		myRobot.arcadeDrive(joystickLeft.getY(), joystickLeft.getZ(), false);
 		
 	
 	}
@@ -195,6 +213,6 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during test mode.
 	 */
 	@Override
-	public void testPeriodic() {
+ 	public void testPeriodic() {
 	}
 }
