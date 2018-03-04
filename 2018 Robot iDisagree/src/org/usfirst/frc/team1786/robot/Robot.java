@@ -46,7 +46,6 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.CameraServer;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -59,12 +58,22 @@ public class Robot extends IterativeRobot {
 	private static final String kLeftAuto = "Left position Scale placement";
 	private static final String kRightAuto = "Right position Scale placement";
 	
+	Timer autoClock;
+	
+	// baseline auto enum
+	public enum auto_states {
+		START,
+		DRIVING_FORWARD,
+		STOP
+	}
+	
+	auto_states auto_status;
+	
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
 	// button mapping
 	final int SHIFTER = 3;
-	final int ARMRELEASE = 4;
 	final int REV = 1;
 	final int WROBLE = 12;
 	final int CURVE = 10;
@@ -77,9 +86,10 @@ public class Robot extends IterativeRobot {
 	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
 	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
 	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
-	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
-	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
-	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
+	
+	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(8);
+	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(9);
+	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(7);
 
 	// joysticks
 	Joystick joystickLeft = new Joystick(0);
@@ -94,24 +104,17 @@ public class Robot extends IterativeRobot {
 	Double xValueRight;
 	Double zValueRight;
 	Double throttleValueRight;
-	
-	/* START OF PREF ITEMS */
-	// variables under this heading may be changed by the dashboard preferences menu
-	// these values will be saved in a text file on the roborio, and are persistent from boot to boot
-	// when they are set via prefs.getDouble() or prefs.getBoolean()
-	Preferences prefs;
 
 	String gameData;
 	
-	double armDeadband = 0.2; // value gotten during robotInit
-	double elevatorDeadband = 0.2; // value gotten during robotInit
+	double armDeadband = 0.2;
+	double elevatorDeadband = 0.2;
 	
-	boolean useWrobleDrive; // value gotten during teleopInit
-	boolean useCurvatureDrive; // value gotten during teleopInit
-	boolean reversed; // value gotten during teleopInit
-	boolean reversable; // value gotten during teleopInit
-	/* END OF PREF ITEMS*/
-		
+	boolean useWrobleDrive;
+	boolean useCurvatureDrive;
+	boolean reversed;
+	boolean reversable;
+	
 	// robot modules
 	DifferentialDrive drivetrain = new DifferentialDrive(talonL1, talonR4);
 	Arm arm = new Arm(leftArmTalon, rightArmTalon, armDeadband);
@@ -119,7 +122,6 @@ public class Robot extends IterativeRobot {
 	
 	// buttons which will need debouncing for toggled use
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, SHIFTER, 0.5);
-	ButtonDebouncer armReleaseBtn = new ButtonDebouncer(joystickLeft, ARMRELEASE, 0.5);
 	ButtonDebouncer wrobleDriveBtn = new ButtonDebouncer(joystickLeft, WROBLE, 0.5);
 	ButtonDebouncer curveDriveBtn = new ButtonDebouncer(joystickLeft, CURVE, 0.5);
 	ButtonDebouncer reverseDriveBtn = new ButtonDebouncer(joystickLeft, REV, 0.5);
@@ -129,7 +131,6 @@ public class Robot extends IterativeRobot {
 	// note: compressor appears to use 10 amps in usage
 	Compressor compressor = new Compressor();
 	Solenoid shifter = new Solenoid(0);
-	Solenoid armReleaser = new Solenoid(1);
 
 	boolean shifted;
 	boolean armReleased;
@@ -144,13 +145,11 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void robotInit() {
+		// autonomous choosing
 		m_chooser.addDefault("Move past baseline in any position", kBaselineAuto);
 		m_chooser.addObject("Left position scale placement", kLeftAuto);
 		m_chooser.addObject("Right position scale placement", kRightAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
-		
-		// start automatic running of the usb camera
-		CameraServer.getInstance().startAutomaticCapture();
 		
 		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
 		talonL3.follow(talonL1);
@@ -180,12 +179,9 @@ public class Robot extends IterativeRobot {
 		// configure encoders for elevator
 		elevatorTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);	
 		
-		// change the module deadbands to whatever the driveteam chose in the prefs on dashboard
-		prefs = Preferences.getInstance();
-		
-		armDeadband = prefs.getDouble("armDeadband", 0.2);
+		armDeadband = 0.2;
 		arm.setDeadband(armDeadband);
-		elevatorDeadband = prefs.getDouble("armDeadband", 0.2);
+		elevatorDeadband = 0.2;
 		elevator.setDeadband(elevatorDeadband);
 	}
 
@@ -193,7 +189,6 @@ public class Robot extends IterativeRobot {
 	// phillip's logic
 	private void limitTalonCurrent(WPI_TalonSRX talon, int peakLimit, int PeakDuration, int ContLimit)
 	{
-		
 		talon.enableCurrentLimit(true);
 		talon.configPeakCurrentLimit(peakLimit, 0);
 		talon.configPeakCurrentDuration(PeakDuration, 0);
@@ -214,8 +209,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("xLeft", xValueLeft);
 		SmartDashboard.putNumber("zLeft", zValueLeft);
 		SmartDashboard.putNumber("throttleLeft", throttleValueLeft);
+		
 		SmartDashboard.putNumber("yRight", yValueRight);
 		SmartDashboard.putNumber("zRight", zValueRight);
+		SmartDashboard.putNumber("xRight", xValueRight);
 		SmartDashboard.putNumber("throttleRight", throttleValueRight);
 		
 		// current data on drive talons
@@ -242,7 +239,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("is turning", isTurning);
 		SmartDashboard.putBoolean("isSteering", isSteering);
 		
-		if(z < -0.4 || z > 0.4)
+		if(z < -0.5 || z > 0.5)
 		{
 			//twist
 			
@@ -302,57 +299,82 @@ public class Robot extends IterativeRobot {
 		
 		m_autoSelected = m_chooser.getSelected();
 		System.out.println("Auto selected: " + m_autoSelected);
+		
+		auto_status = auto_states.START;
+	}
+	
+	public void baseline_auto(auto_states states, double drivePower, double driveTime) {
+		switch (states) {
+		case START:
+			autoClock.start();
+			auto_status = auto_states.DRIVING_FORWARD;
+			break;
+		case DRIVING_FORWARD:
+			if (autoClock.get() > driveTime) {
+				drivetrain.arcadeDrive(0, 0);
+			} else {
+				drivetrain.arcadeDrive(drivePower, 0);
+			}
+			break;
+		case STOP:
+			System.out.println("finished auto routine!");
+			break;
+		}
 	}
 
 	@Override
 	public void autonomousPeriodic() {	// setup preferences area of smartDashboard
 		switch (m_autoSelected) {
+			// if position of robot is on the left relative to our DS
 			case kLeftAuto:
 				// see if we successfully got gameData
 				if (gameData.length() > 0) {
 					//see if scale is a position L or R
 					// 0 = switch, 1 = scale, 2 = opponent switch
 					if(gameData.charAt(1) == 'L') {
-						// left auto code.
+						// left auto switch code
 					} else {
-						//right auto code
+						//right auto switch code
 					}
 				}
 				break;
+			// if position of robot is on the right relative to our DS
 			case kRightAuto:
 				// see if we successfully got gameData
 				if (gameData.length() > 0) {
 					//see if scale is a position L or R
 					// 0 = switch, 1 = scale, 2 = opponent switch
 					if(gameData.charAt(1) == 'L') {
-						// left auto code.
+						// left auto switch code.
 					} else {
-						//right auto code
+						//right auto switch code
 					}
 				}
+			// Cross the baseline from any position
 			case kBaselineAuto:
+				// run the baseline auto
+				baseline_auto(auto_status, 0.75, 2.5);
+			// Don't do anything at all
 			default:
-				// Put default auto code here to move past base line
 				break;
 		}	
 	}
 
 	@Override
 	public void teleopInit() {
-		//default positons
-		prefs = Preferences.getInstance();
 		
 		shifted = false;
 		armReleased = false;
-		useWrobleDrive = prefs.getBoolean("wroble drive default teleop", false);
-		useCurvatureDrive = prefs.getBoolean("is curve drive default teleop", false);
-		reversed = prefs.getBoolean("is drivetrain reversed by default teleop", false);
-		reversable = prefs.getBoolean("use button for reversing", false);
+		useWrobleDrive = false;
+		useCurvatureDrive = false;
+		reversed = false;
+		reversable = false;
 	
 	}
 	
 	@Override
 	public void teleopPeriodic() {
+		compressor.setClosedLoopControl(true);
 
 		// get input and scale some of it
 		// code from Dylan
@@ -459,18 +481,18 @@ public class Robot extends IterativeRobot {
 		}
 		
 		
-		boolean armRelBtnState = armReleaseBtn.get();
-		if (armRelBtnState == true && armReleased) {
-			armReleased = false;
-		} else if (armRelBtnState == true && !armReleased) {
-			armReleased = true;
-		}
-		
-		if (armReleased == true) {
-			armReleaser.set(true);
-		} else {
-			armReleaser.set(true);
-		}
+//		boolean armRelBtnState = armReleaseBtn.get();
+//		if (armRelBtnState == true && armReleased) {
+//			armReleased = false;
+//		} else if (armRelBtnState == true && !armReleased) {
+//			armReleased = true;
+//		}
+//		
+//		if (armReleased == true) {
+//			armReleaser.set(true);
+//		} else {
+//			armReleaser.set(true);
+//		}
 		
 		// update the dashboard
 		DashboardUpdate();
@@ -478,6 +500,6 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void testPeriodic() {
-
+		compressor.setClosedLoopControl(true);
 	}
 }
