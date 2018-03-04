@@ -3,9 +3,6 @@ package org.usfirst.frc.team1786.robot;
 import org.usfirst.frc.team1786.robot.RobotUtilities;
 
 import com.ctre.phoenix.motorcontrol.can.*;
-
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-
 import java.lang.Math;
 
 /*
@@ -14,8 +11,9 @@ import java.lang.Math;
 public class Arm {
 
 	double deadband;
+	
 	// default wheel speed
-	double wheelSpeed = 1;
+	double wheelSpeed = 0.75;
 	WPI_TalonSRX leftController;
 	WPI_TalonSRX rightController;
 
@@ -70,6 +68,7 @@ public class Arm {
 	public void driveArm(double axis, boolean constSpeed) {
 		double value = RobotUtilities.deadbandScaled(axis, deadband);
 		
+		// run the arms at constant speed in the direction of the throttle
 		if (constSpeed) {
 			// signum returns -1,0,1 based on sign of parameter
 			if (Math.abs(value) > 0) {

@@ -38,7 +38,6 @@ import org.usfirst.frc.team1786.robot.Elevator;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,8 +48,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
-
-import com.kauailabs.navx.frc.AHRS;
 
 public class Robot extends IterativeRobot {
 
@@ -107,7 +104,7 @@ public class Robot extends IterativeRobot {
 
 	String gameData;
 	
-	double armDeadband = 0.2;
+	double armDeadband = 0.5;
 	double elevatorDeadband = 0.2;
 	
 	boolean useWrobleDrive;
@@ -150,6 +147,9 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject("Left position scale placement", kLeftAuto);
 		m_chooser.addObject("Right position scale placement", kRightAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
+		
+		SmartDashboard.setDefaultBoolean("CanReverseDrivetrain", false);
+		SmartDashboard.setPersistent("CanReverseDrivetrain");
 		
 		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
 		talonL3.follow(talonL1);
@@ -236,10 +236,7 @@ public class Robot extends IterativeRobot {
 		double x = rotation;
 		double z = inPlaceRotation;
 		
-		SmartDashboard.putBoolean("is turning", isTurning);
-		SmartDashboard.putBoolean("isSteering", isSteering);
-		
-		if(z < -0.5 || z > 0.5)
+		if(z < -0.4 || z > 0.4)
 		{
 			//twist
 			
@@ -251,8 +248,6 @@ public class Robot extends IterativeRobot {
 		{
 			isTurning = false;
 			double power = Math.sqrt((x*x)+(y*y));
-			SmartDashboard.putNumber("rawY", y);
-			SmartDashboard.putNumber("rawX", x); 
 			//dead zone for all non twisting movement; was = 0.2
 			if(power > 0.25)
 			{
@@ -264,7 +259,7 @@ public class Robot extends IterativeRobot {
 				if(y<0)
 					power=-power;
 				power *= speed;
-				SmartDashboard.putNumber("power", power); 
+				SmartDashboard.putNumber("wrobleDrive Power", power); 
 				//getting scale
 				double scale = 1-Math.abs(x);
 				
@@ -363,13 +358,13 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopInit() {
 		
+		//defaults for teleop
 		shifted = false;
 		armReleased = false;
 		useWrobleDrive = false;
 		useCurvatureDrive = false;
 		reversed = false;
-		reversable = false;
-	
+		reversable = SmartDashboard.getBoolean("CanReverseDrivetrain", false);
 	}
 	
 	@Override
@@ -389,9 +384,9 @@ public class Robot extends IterativeRobot {
 		throttleValueRight = joystickRight.getThrottle();
 		
 		// run the modules
-		arm.driveArm(throttleValueRight, true);
+		arm.driveArm(throttleValueRight, false);
 		
-		elevator.driveElevator(yValueLeft, false);
+		elevator.driveElevator(yValueRight, false);
 		
 		// drive code toggling
 		boolean wrobleDriveBtnState = wrobleDriveBtn.get();

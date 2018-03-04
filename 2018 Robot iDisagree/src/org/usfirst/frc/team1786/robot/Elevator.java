@@ -8,7 +8,7 @@ public class Elevator {
 	double deadband;
 	
 	// default speed
-	double speed = 1;
+	double speed = 0.75;
 	
 	WPI_TalonSRX motorController;
 	
