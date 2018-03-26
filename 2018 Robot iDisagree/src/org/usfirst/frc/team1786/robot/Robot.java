@@ -5,18 +5,34 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------*/
+/* Everyones code combined into a single file                                 */
+/* Individuals should add more comments to sections of code they wrote        */
+/* because they were seriously lacking in their individual sections!          */
+/*----------------------------------------------------------------------------*/
+
 package org.usfirst.frc.team1786.robot;
 
+//import org.usfirst.frc.team1786.robot.RobotUtilities;
+import static org.usfirst.frc.team1786.robot.RobotConstants.*;
+import org.usfirst.frc.team1786.robot.DriveTrain;
+import org.usfirst.frc.team1786.robot.Arm;
+import org.usfirst.frc.team1786.robot.Elevator;
+import org.usfirst.frc.team1786.robot.AutonomousActions;
+//import org.usfirst.frc.team1786.robot.ButtonDebouncer;
+
+
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.drive.*;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.buttons.*;
-import edu.wpi.first.wpilibj.PWMTalonSRX;
-import com.ctre.phoenix.motorcontrol.can.*;
+import edu.wpi.first.wpilibj.Timer;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.drive.*;
+//import edu.wpi.first.wpilibj.Solenoid;
+
+//import com.ctre.phoenix.motorcontrol.can.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -25,68 +41,58 @@ import com.ctre.phoenix.motorcontrol.can.*;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
-// welcome to my branch boys
 public class Robot extends IterativeRobot {
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
-	private String m_autoSelected;
-	private SendableChooser<String> m_chooser = new SendableChooser<>();
 
+	// Autonomous actions
+	private static final String command1 = "Switch Position 1";
+	private static final String command2 = "Switch Position 2";
+	private static final String command3 = "Scale Position 3";
+	private static final String command4 = "Move Forward";//defualt acation
+	//
+	private String m_autoSelected;
+	//
+	private SendableChooser<String> m_chooser = new SendableChooser<>();
+	
+	public String gameData; // used to get game data information at the start of a match
+	
+	//controllers for the robot
+	Joystick joystickLeft = new Joystick(0);
+	Joystick joystickRight = new Joystick(1);
+	Compressor compressor1;// = new Compressor(0);
+	
+	// create robot systems
+	//private RobotUtilities myRobotUtilities = new RobotUtilities();
+	private DriveTrain myDriveTrain = new DriveTrain();//drive train for the robot
+	private Arm myArm = new Arm();
+	private Elevator myElevator = new Elevator();
+	private AutonomousActions myAutonomousActions = new AutonomousActions(myDriveTrain, myArm, myElevator);
+	
+	//for use in testPeriodic only for testing autonomous actions 1 at a time
+	int autoOrder = 1;
+	boolean timerDelayed = false;
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
-	WPI_TalonSRX talonL1 = new WPI_TalonSRX(1);
-	WPI_TalonSRX talonL2 = new WPI_TalonSRX(2);
-	WPI_TalonSRX talonL3 = new WPI_TalonSRX(3);
-	WPI_TalonSRX talonR4 = new WPI_TalonSRX(4);
-	WPI_TalonSRX talonR5 = new WPI_TalonSRX(5);
-	WPI_TalonSRX talonR6 = new WPI_TalonSRX(6);
-	
-	Joystick joystickLeft = new Joystick(0);
-	Joystick joystickRight = new Joystick(1);
-	
-	JoystickButton shiftUp = new JoystickButton(joystickLeft, 3);
-	JoystickButton shiftDown = new JoystickButton(joystickLeft, 4);
-	
-	Compressor robotCompressor = new Compressor();
-	
-	
-	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR4);
-	
-	private int maxPeakAmp = 60; //defines the max amp that can be given to a moter during its peak
-	private int maxCountAmp = 40; //defines the max amp that can be given to a moter after its peak
-	private int peakTimeDuration = 10000; //defines how long the peak will last in milliseconds
-	
-	
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto choices", m_chooser);
 		
+		// add autonomous options
+		m_chooser.addObject(command1, command1);// Switch Position 1
+		m_chooser.addObject(command2, command2);// Switch Position 2
+		m_chooser.addObject(command3, command3);// Scale Position 3
+		m_chooser.addObject(command4, command4);// drive forward
 		
-		talonL2.follow(talonL1); //tells the following talons to follow their leading talons
-		talonL3.follow(talonL1);
-		talonR5.follow(talonR4);
-		talonR6.follow(talonR4);
+		//initialize systems
+		myDriveTrain.init();
+		// if we add invert and follow code to arms we will need an init for that as well
 		
-		Double deadband = .05; //defines the deadzone
-		
-		myRobot.setDeadband(deadband); //sets the deadzone
-		
-		
-		
-		talonL1.configPeakCurrentDuration(peakTimeDuration, 0); //sets the duration of the peak
-		talonL1.configPeakCurrentLimit(maxPeakAmp, 0); //sets the max current of the peak
-		talonL1.configContinuousCurrentLimit(maxCountAmp, 0); //sets the max current for the time after the peak
-		
-		talonR4.configPeakCurrentDuration(peakTimeDuration, 0); //same as the other one
-		talonR4.configPeakCurrentLimit(maxPeakAmp, 0);
-		talonR4.configContinuousCurrentLimit(maxCountAmp, 0);
-		
-		
-		
+		// initialize and turn the compressor on if we are not on the test robot
+		if(!TESTBOT){
+			compressor1 = new Compressor(0);
+			compressor1.setClosedLoopControl(true);
+		}
 	}
 
 	/**
@@ -102,10 +108,17 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		
+		// Get what autonomous action was selected by the team captain
 		m_autoSelected = m_chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
+		// autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
+		
+		// get the game data so we know where our switch and scale is
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		
+		// start the autonomous timer and send it the game data
+		myAutonomousActions.autonomousInit(gameData);
 	}
 
 	/**
@@ -113,15 +126,33 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
+		
+		myDriveTrain.leftTalonPulse();
+		myAutonomousActions.action1();
+		/*switch (m_autoSelected) {
+			case command1:
+				myAutonomousActions.action1();
 				break;
-			case kDefaultAuto:
+			case command2:
+				myAutonomousActions.action2();
+				break;
+			case command3:
+				myAutonomousActions.action3();
+				break;
+			case command4:
+				myAutonomousActions.actionDefault();
+				break;
 			default:
 				// Put default auto code here
+				myAutonomousActions.actionDefault();
 				break;
 		}
+		
+		//check to see how far we have moved or turned
+		myAutonomousActions.trackEncoder();
+		myAutonomousActions.trackNavx();
+		*/
+
 	}
 
 	/**
@@ -130,32 +161,14 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		Double dispYValueLeft = joystickLeft.getY(); //puts the left joysticks Y value into a variable
-		Double xValueLeft = joystickLeft.getX();//puts the left joysticks X value into a variable
-		Double zValueLeft = joystickLeft.getZ();//puts the left joysticks Z value into a variable
-		SmartDashboard.putNumber("Y value", dispYValueLeft); //displays the y value on computer
-		SmartDashboard.putNumber("X value", xValueLeft); //displays the x value on computer
-		SmartDashboard.putNumber("Z value", zValueLeft); //displays the z value on computer
-		
-		Double driveYValue = -(joystickLeft.getY()); //inverts the y value so that foward is foward
-		
-		double talon1 = talonL1.getOutputCurrent(); //defines the talons AMP values
-		double talon2 = talonL2.getOutputCurrent();
-		double talon3 = talonL3.getOutputCurrent();
-		double talon4 = talonR4.getOutputCurrent();
-		double talon5 = talonR5.getOutputCurrent();
-		double talon6 = talonR6.getOutputCurrent();
-		SmartDashboard.putNumber("Talon1", talon1); //displays all the talon AMP values
-		SmartDashboard.putNumber("Talon2", talon2);
-		SmartDashboard.putNumber("Talon3", talon3);
-		SmartDashboard.putNumber("Talon4", talon4);
-		SmartDashboard.putNumber("Talon5", talon5);
-		SmartDashboard.putNumber("Talon6", talon6);
-		
-		
-		
-		
-		//myRobot.arcadeDrive(driveYValue, zValueLeft, true); //alows the robot to drive with scaling using the y and z values from the left joystick
+		//handle driving
+		myDriveTrain.go(joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
+		//handle elevator
+		myElevator.go(joystickRight.getY());
+		//handle arm
+		myArm.go(joystickRight.getThrottle());
+		//switch gears
+		//any buttons for elevator and arm presets
 		
 	}
 
@@ -164,13 +177,31 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
-		
-		while(robotCompressor.getPressureSwitchValue())
+		 
+		if(!timerDelayed)
 		{
-			robotCompressor.setClosedLoopControl(true);
+			myAutonomousActions.trackEncoder();
+			myDriveTrain.leftTalonPulse();
+			Timer.delay(10);
+			myDriveTrain.resetSensors();
+			myDriveTrain.leftTalonPulse();
+			Timer.delay(10);
+			timerDelayed = true;
 		}
-			robotCompressor.setClosedLoopControl(false);
-		}
-			
+		// test the autonomous move code
+		autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, myAutonomousActions.trackEncoder());
+		// test autonomous turn code
+		//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, myAutonomousActions.trackNavx());
+		// test autonomous elevator code
+		autoOrder = myElevator.autonomousRaiseToScale(2, autoOrder, 5);
+		autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, 2);
+		// test autonomous arm code
+		autoOrder = myArm.autonomousDepositeCube(3, autoOrder);
+		
+		// track Encoder and Navx just so smartdash is updated.
+		myDriveTrain.leftTalonPulse();
+		myAutonomousActions.trackEncoder();
+		myAutonomousActions.trackNavx();
+	}
 	
 }
