@@ -18,11 +18,15 @@ public class Elevator {
 		
 	}
 	
+	/**
+	 * move the elevator directly with axis input
+	 * @param y - [-1,1] ranged input
+	 */
 	public void go(double y)
 	{
 		elevatorTalon1.set(deadbandScaled(y, elevatorDeadband));
 	}
-	
+
 	// this might be able to be modified so that it can be used with a button during teleop time.
 	public int autonomousRaiseToSwitch(int order, int autoOrder)
 	{

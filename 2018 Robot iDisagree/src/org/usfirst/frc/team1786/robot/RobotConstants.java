@@ -1,11 +1,10 @@
 package org.usfirst.frc.team1786.robot;
 
 
-
 public final class RobotConstants {
 
 	//***Leave this as the top Constant***
-	// running on the test robot? Test robot only has for motors production has 6 for drive train
+	/** running on the test robot? Test robot only has for motors, production has 6 for drive train */
 	final static boolean TESTBOT = true;
 	
 	//Select witch drive code to use
@@ -15,14 +14,17 @@ public final class RobotConstants {
 		WROBLE_DRIVE, WROBLE_DRIVE_TURN_INVERTED, ARCADE_DRIVE_SQUARED, ARCADE_DRIVE, CURVATURE_DRIVE_SQUARED
 	}
 	
+	/** the current drive system being used */
 	final static DriveType myDriveSystem = DriveType.ARCADE_DRIVE_SQUARED;
 	
 	// Default Autonomous drive action constants
 	final static double defaultAutonomousDriveSeconds = 3;
 	final static double defaultAutonomousDriveSpeed = .5;
 	
-	// throttle and turn speed for autonomous controls
+	/** throttle for autonomous controls */
 	final static double autoTurnSpeed = 1;
+	
+	/** turn speed for autonomous controls */
 	final static double autoDriveSpeed = 1;
 	
 	// Autonomous Elevator action constants
@@ -37,12 +39,19 @@ public final class RobotConstants {
 	// joystick dead bands
 	final static double armDeadband = .25;
 	final static double elevatorDeadband = .15;
-	final static double deadband = .15; //defines the drive dead zone
+	
+	/** deadzone for the drivetrain */
+	final static double deadband = .15;
 	
 	// Current limiting
-	final static int driveMaxPeakAmp = 50; //defines the max amp that can be given to a motor during its peak
-	final static int driveMaxCountAmp = 30; //defines the max amp that can be given to a motor after its peak
-	final static int drivePeakTimeDuration = 4000; //defines how long the peak will last in milliseconds (4 seconds)
+	/** defines the max amp that can be given to a motor during its peak */
+	final static int driveMaxPeakAmp = 50;
+	
+	/** defines the max amp that can be given to a motor after its peak */
+	final static int driveMaxCountAmp = 30;
+	
+	/** defines how long the peak will last in milliseconds (4 seconds) */
+	final static int drivePeakTimeDuration = 4000;
 	
 	// Talon numbers
 	// implement so that we can quickly change which talon number is assigned to a talon

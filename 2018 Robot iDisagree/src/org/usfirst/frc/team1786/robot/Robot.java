@@ -111,6 +111,7 @@ public class Robot extends IterativeRobot {
 		
 		// Get what autonomous action was selected by the team captain
 		m_autoSelected = m_chooser.getSelected();
+		
 		// autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
 		
@@ -163,11 +164,15 @@ public class Robot extends IterativeRobot {
 		
 		//handle driving
 		myDriveTrain.go(joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
+		
 		//handle elevator
 		myElevator.go(joystickRight.getY());
+		
 		//handle arm
 		myArm.go(joystickRight.getThrottle());
+		
 		//switch gears
+		
 		//any buttons for elevator and arm presets
 		
 	}

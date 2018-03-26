@@ -24,16 +24,12 @@ public class Arm {
 	// Timer used in autonomous
 	private Timer timer = new Timer();
 
-	/**
-	 * Constructor for a robotic arm with driven wheels
-	 * @param leftArmController - Motor controller for use in driving the left arm
-	 * @param rightArmController - Motor controller for use in driving the right arm
-	 * @param armDeadband - desired deadband radius for arm control
-	 */
-	public Arm() {
-		
-	}
+	public Arm() {}
 	
+	/** 
+	 * move the arms
+	 * @param speed - [-1,1] input for speed of arm movement
+	 */
 	public void go(double speed)
 	{
 		// should probably use follow and invert but this is fine for now

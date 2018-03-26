@@ -39,7 +39,9 @@ public class DriveTrain {
 	WPI_TalonSRX talonR2 = new WPI_TalonSRX(numTalonR2);
 	WPI_TalonSRX talonR3 = new WPI_TalonSRX(numTalonR3);
 	
-	//for shifting gears
+	/**
+	 * solenoid used for drivetrain gear shifting
+	 */
 	Solenoid solenoid1;// = new Solenoid(0);
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
@@ -138,6 +140,12 @@ public class DriveTrain {
 		
 	}
 	
+	/**
+	 * move the drive train according to axis 
+	 * @param y - [-1,1] axis
+	 * @param x - [-1,1] axis
+	 * @param z - [-1,1] axis
+	 */
 	public void go(double y, double x, double z)
 	{
 		throttle = y;
