@@ -1,6 +1,11 @@
 package org.usfirst.frc.team1786.robot;
-import edu.wpi.first.wpilibj.Joystick;
 
+import static org.usfirst.frc.team1786.robot.RobotConstants.*;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.ctre.phoenix.motorcontrol.can.*;
 /*
  * A utility class for some common utilities we need
  *
@@ -18,6 +23,12 @@ public final class RobotUtilities {
 	// don't need to do anything in auto right now
 	}
 
+	//add a curve t
+	public static double exponentialModify(double joyY) {
+		double scale = 5; //scale the curve
+		return Math.tan(joyY*Math.atan(scale))/scale;
+	}
+	
 	// dylan's deadband code
 	public static double deadbandScaled(double inputAxis, double deadband) {
 		double value = inputAxis;
@@ -38,4 +49,32 @@ public final class RobotUtilities {
 			return scaledValue;
 		}
 	}
+	
+	// Philip's utilities
+	// Current limiting
+	public static void currentLimiting(WPI_TalonSRX talon, int contCurrent, int peakCurrent, int peakDuration) {
+		talon.configContinuousCurrentLimit(contCurrent, 0);
+		talon.configPeakCurrentLimit(peakCurrent, 0);
+		talon.configPeakCurrentDuration(peakDuration, 0);
+		talon.enableCurrentLimit(true);
+		
+	}
+	
+	
+	//Talon Display
+	public static void displayTalon(WPI_TalonSRX talon, String label) {
+		
+		SmartDashboard.putNumber(label + " Current", talon.getOutputCurrent());
+		SmartDashboard.putNumber(label + " Temperature", talon.getTemperature());
+		
+	}
+	
+	
+	//Joystick Display
+	private void displayJoystick(Joystick joystick, String label) {
+		SmartDashboard.putNumber(label + "Y", joystick.getY());
+		SmartDashboard.putNumber(label + "Z", joystick.getZ());
+	}
+	
+	
 }
