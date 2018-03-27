@@ -33,6 +33,9 @@ public class DriveTrain implements PIDOutput{
 	final double refreshPeriod = 0.5;
 	final int interval = 9;
 	
+	// boolean for tracking shifted state
+	boolean shifted;
+	
 	// drive train talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(numTalonL1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(numTalonL2);
@@ -45,7 +48,7 @@ public class DriveTrain implements PIDOutput{
 	 * solenoid used for drivetrain gear shifting
 	 */
 	Solenoid solenoid1;// = new Solenoid(0);
-	
+
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
 		
 	// NavX MXP 
@@ -192,6 +195,13 @@ public class DriveTrain implements PIDOutput{
 		
 		// limit how fast we can attempt to accelerate (NOT WORKING)
 //		throttle = throttleSpeedIncrease(throttle);
+		
+		// update the shifter
+		if (shifted == true) {
+			shift(true);
+		} else {
+			shift(false);
+		}
 				
 		switch(myDriveSystem) {
 			case ARCADE_DRIVE_SQUARED:
@@ -269,6 +279,14 @@ public class DriveTrain implements PIDOutput{
 				talonR1.set(0);
 			}
 		}
+	}
+	
+	/**
+	 * pass through for whether to shift or not
+	 * @param shiftState - true for high gear, false for low gear
+	 */
+	public void shift(boolean shiftState) {
+		solenoid1.set(shiftState);
 	}
 	
 	/**

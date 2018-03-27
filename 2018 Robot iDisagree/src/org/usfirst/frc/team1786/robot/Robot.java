@@ -62,6 +62,8 @@ public class Robot extends IterativeRobot {
 	//controllers for the robot
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
+	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, 5, 0.5);
+	
 	Compressor compressor1;// = new Compressor(0);
 	
 	// create robot systems
@@ -74,6 +76,7 @@ public class Robot extends IterativeRobot {
 	//for use in testPeriodic only for testing autonomous actions 1 at a time
 	int autoOrder = 1;
 	boolean timerDelayed = false;
+	
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -164,6 +167,12 @@ public class Robot extends IterativeRobot {
 
 	}
 
+	@Override
+	public void teleopInit() {
+		// low gear by default
+		myDriveTrain.shifted = false;
+	}
+	
 	/**
 	 * This function is called periodically during operator control.
 	 */
@@ -171,6 +180,9 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		//handle driving
+		// this handles teleop driving, including shifting. 
+		// just pass the desired value of the shifter to 
+		// myDriveTrain.shifted
 		myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
 		
 		myDriveTrain.leftTalonPulse();
@@ -182,6 +194,14 @@ public class Robot extends IterativeRobot {
 //		myArm.go(joystickRight.getThrottle());
 		
 		//switch gears
+		boolean shiftBtnState = shiftBtn.get();
+		
+		if (shiftBtnState && myDriveTrain.shifted) {
+			myDriveTrain.shifted = false;
+		} else if (shiftBtnState && !myDriveTrain.shifted) {
+			myDriveTrain.shifted = true;
+		}
+		
 		
 		//any buttons for elevator and arm presets
 		
