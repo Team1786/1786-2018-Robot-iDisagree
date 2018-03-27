@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 //import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
@@ -108,8 +109,31 @@ public class DriveTrain implements PIDOutput{
 		turnController.setAbsoluteTolerance(kTurnToleranceDegrees);
 		turnController.setContinuous(true);
 		turnController.disable(); // Don't forget this!!
-				
+		
+		// set min and peak output values for the move forward auto pid loop
+		talonR1.configNominalOutputForward(0, 0);
+		talonR1.configNominalOutputReverse(0, 0);
+		talonR1.configPeakOutputForward(1, 0);
+		talonR1.configPeakOutputReverse(-1, 0);
+		
+		talonR1.configAllowableClosedloopError(0, 0, 0);
+		
+		talonR1.config_kP(0, kMoveP, 0);
+		talonR1.config_kI(0, kMoveI, 0);
+		talonR1.config_kD(0, kMoveD, 0);
+		talonR1.config_kF(0, kMoveF, 0);
+		
 		resetSensors();
+		/*
+		 * lets grab the 360 degree position of the MagEncoder's absolute
+		 * position, and intitally set the relative sensor to match.
+		 */
+		int absolutePosition = talonR1.getSensorCollection().getPulseWidthPosition();
+		/* mask out overflows, keep bottom 12 bits */
+		absolutePosition &= 0xFFF;
+		/* set the quadrature (relative) sensor to match absolute */
+		talonR1.setSelectedSensorPosition(absolutePosition, 0, 0);
+		// setup and zero out encoders, etc.	
 		
 	}
 	
@@ -249,18 +273,31 @@ public class DriveTrain implements PIDOutput{
 		}
 	}
 	
-	public int autonomousMove(double distance, int order, int autoOrder, double distanceInches) {
-
+	/**
+	 * move the robot to a given position autonomously, must be called periodically.
+	 * @param distance - distance in inches you'd like to move
+	 * @param order
+	 * @param autoOrder
+	 * @return
+	 */
+	public int autonomousMove(double distance, int order, int autoOrder) {
 		//check to see what command we are on. If they don't match, do nothing. 
 		if (order == autoOrder) {
-			// some sort of error correction code should go here encase each side is moving at a different speed.
-				talonL1.set(0.5);
-				talonR1.set(-0.5);
-				if (distanceInches >= distance) {
-					talonL1.set(0);
-					talonR1.set(0);
-					resetSensors();
-					autoOrder++;//we are done, increment autoOrder so that the next command can run. 
+			// get how many wheel rotations we need, using 2(pi)r formula
+			double targetRotations = distance / (6 * Math.PI);
+			double targetPosition = targetRotations * 4096;
+			
+			//active the pid loop
+			talonR1.set(ControlMode.Position, targetPosition);
+			
+			//match the left talon to the right without the permanant follow mode
+			talonL1.set(talonR1.getMotorOutputPercent());
+			
+			// deadzone of 200 quadrature ticks (out of total 4096 per rotation)
+			if(rightTalonEncoderData() >= (targetPosition - 200) && rightTalonEncoderData() <= (targetPosition + 200)) {
+				talonR1.set(ControlMode.PercentOutput, 0);
+				talonL1.set(0);
+				autoOrder++;
 			}
 		}
 		return autoOrder;
@@ -332,6 +369,7 @@ public class DriveTrain implements PIDOutput{
 		return navx.getAngle();
 	}
 	
+	// NOT FUNCTIONAL
 	private double throttleSpeedIncrease(double targetSpeed)
 	{
 		// amount to increase speed by. at .02 it will take 1 second to reach max speed

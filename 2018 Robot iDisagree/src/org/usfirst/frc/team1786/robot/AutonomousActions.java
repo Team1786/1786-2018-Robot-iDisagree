@@ -41,8 +41,8 @@ public class  AutonomousActions {
 		if (gameData.charAt(0) == 'L') // left side is our switch
 		{
 //			DropPickup();
-//			autoOrder = myDriveTrain.autonomousMove(18.0, 1, autoOrder, trackEncoder());
-			autoOrder = myDriveTrain.autonomousTurn(90.0f, 1, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(36.0, 1, autoOrder);
+//			autoOrder = myDriveTrain.autonomousTurn(90.0f, 1, autoOrder);
 			//autoOrder = myDriveTrain.autonomousMove(67, 3, autoOrder, distanceInches);
 			//autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
 			//autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
@@ -54,8 +54,8 @@ public class  AutonomousActions {
 		else // right side is our switch
 		{
 //			DropPickup();
-//			autoOrder = myDriveTrain.autonomousMove(18.0, 1, autoOrder, trackEncoder());
-			autoOrder = myDriveTrain.autonomousTurn(-90.0f, 1, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(36.0, 1, autoOrder);
+//			autoOrder = myDriveTrain.autonomousTurn(-90.0f, 1, autoOrder);
 //			autoOrder = myDriveTrain.autonomousTurn(180.0f, 2, autoOrder);
 //			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
 //			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
