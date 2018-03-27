@@ -45,30 +45,30 @@ public class  AutonomousActions {
 	{
 		if (gameData.charAt(0) == 'L') // left side is our switch
 		{
-			DropPickup();
+//			DropPickup();
 			//autoOrder = myDriveTrain.autonomousMove(68, 1, autoOrder, distanceInches);
-			//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, rawNavxData);
+			autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder);
 			//autoOrder = myDriveTrain.autonomousMove(67, 3, autoOrder, distanceInches);
 			//autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
 			//autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
-			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
+//			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
+//			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
 		else // right side is our switch 
 		{
-			DropPickup();
-			/*autoOrder = myDriveTrain.autonomousMove(68, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder);
-			autoOrder = myArm.autonomousDepositeCube(7, autoOrder); */
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(68, 1, autoOrder, distanceInches);
+			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder);
+//			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder);
+//			autoOrder = myArm.autonomousDepositeCube(7, autoOrder);
 			//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, rawNavxData);
-			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
-			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
+//			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
+//			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		}
@@ -78,23 +78,23 @@ public class  AutonomousActions {
 	{
 		if (gameData.charAt(0) == 'L') // left side is our switch
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder, .1);
-			autoOrder = myArm.autonomousDepositeCube(7, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder, .1);
+//			autoOrder = myArm.autonomousDepositeCube(7, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
 		else // right side is our switch 
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, .1);
-			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, .1);
+//			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 		}
 	}
@@ -104,23 +104,23 @@ public class  AutonomousActions {
 	{
 		if (gameData.charAt(1) == 'L') // left side is our scale
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
-			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
+//			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
 		else // right side is our scale
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
-			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
+//			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		}

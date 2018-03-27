@@ -8,6 +8,10 @@ package org.usfirst.frc.team1786.robot;
 import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import static org.usfirst.frc.team1786.robot.RobotUtilities.*;
 
+import java.nio.DoubleBuffer;
+
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -21,7 +25,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
-public class DriveTrain {
+public class DriveTrain implements PIDOutput{
 	
 	//Wroble Drive variables
 	// for smart dashboard
@@ -47,19 +51,16 @@ public class DriveTrain {
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
 	
 	// NavX MXP 
-	AHRS navx = new AHRS(SPI.Port.kMXP);
+	AHRS navx;
+	PIDController turnController;
+	double rotateToAngleRate;
+	double kTurnTargetAngleDegrees = 90.0f;
 	
 	// throttle and turn speed for teleop controls
 	double throttle = 0;
 	double turn = 0;
 	// current speed being sent use to limit throttle increases
 	double sendSpeed = 0;
-	
-	// turn speed for autonomous controls
-	double turnSpeed = autoTurnSpeed;
-	
-	// something for turning in autonomous
-	int iTurn = 1;
 	
 	public DriveTrain()
 	{
@@ -99,6 +100,16 @@ public class DriveTrain {
 		{
 			initProductionRobot();
 		}
+		
+		navx = new AHRS(SPI.Port.kMXP);
+		navx.reset();
+		turnController = new PIDController(kTurnP,kTurnI,kTurnD,kTurnF,navx, this);
+		turnController.setInputRange(-180.0f, 180.0f);
+		turnController.setOutputRange(-1.0, 1.0);
+		turnController.setAbsoluteTolerance(kTurnToleranceDegrees);
+		turnController.setContinuous(true);
+		turnController.disable(); // Don't forget this!!
+		
 		resetSensors();
 		
 	}
@@ -255,37 +266,37 @@ public class DriveTrain {
 	}
 	
 
-	
-	public int autonomousTurn(double direction, int order, int autoOrder, double rawNavxData) {
+	/**
+	 * turn to a given angle autonomously, must be called periodically
+	 * @param direction - [-180f,180f] the range must be that
+	 * @param order
+	 * @param autoOrder
+	 * @return
+	 */
+	public int autonomousTurn(double direction, int order, int autoOrder) {
 		if (order == autoOrder) {
+			// init check
+			if(!turnController.isEnabled()) {
+				navx.reset();
+				turnController.setSetpoint(direction);
+				rotateToAngleRate = 0;
+				turnController.enable();
+			}
+			double currentAngle = navx.getAngle();
 			
-			// if direction is negative we turn in the oposite direction
-			if (direction < 0) {
-				direction *= -1;
-				turnSpeed *= -1;
+			// turn based on the outputed rotateToAngleRate
+			// given by the turn controller
+			go(0.0, 0.0, rotateToAngleRate);
+			
+			//are we done yet? if so, turn it off and move on to the next action
+			// check if the angle is within a tolerance, say 5 degress +-
+			// allowing for a little over and under shoot
+			if(currentAngle >= (direction - 5) && currentAngle <= (direction + 5)) {
+				turnController.disable();
+				autoOrder++;
 			}
-
-			talonL1.set(-turnSpeed);
-			talonR1.set(turnSpeed);
-
-			// checks to see if it should slow down
-			if (rawNavxData > ((direction / interval) * iTurn)) {
-				iTurn++;
-				// error += rawNavxData - ((direction/interval)*i);
-				double scale = ((direction / interval) * iTurn) / rawNavxData;
-				turnSpeed *= scale;
-				if (iTurn == interval) {
-					talonL1.set(0);
-					talonR1.set(0);
-
-					turnSpeed = 1;
-					iTurn = 1;
-					autoOrder++;
-					talonL1.getSensorCollection().setPulseWidthPosition(0, 100000);
-
-				}
-			}
-		}
+			
+		} // upon action completion, increment autoOrder++
 		return autoOrder;
 	}
 	
@@ -304,6 +315,7 @@ public class DriveTrain {
 	{
 		return talonL1.getSensorCollection().getPulseWidthPosition();
 	}
+	
 	public void leftTalonPulse()
 	{
 		SmartDashboard.putNumber("Left Position: ",talonL1.getSensorCollection().getPulseWidthPosition() );
@@ -351,5 +363,7 @@ public class DriveTrain {
 		}
 	}
 	
-
+	public void pidWrite(double output) {
+		rotateToAngleRate = output;
+	}
 }

@@ -69,4 +69,11 @@ public final class RobotConstants {
 	final static int numLeftArmTalon = 8;
 	final static int numElevatorTalon1 = 9;
 	
+	// used to turn autonomous turning routine
+    static final double kTurnP = 0.03;
+    static final double kTurnI = 0.00;
+    static final double kTurnD = 0.00;
+    static final double kTurnF = 0.00;
+    
+    static final double kTurnToleranceDegrees = 2.0f;
 }
