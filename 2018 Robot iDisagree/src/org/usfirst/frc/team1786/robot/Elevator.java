@@ -4,12 +4,13 @@ import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import static org.usfirst.frc.team1786.robot.RobotUtilities.*;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 public class Elevator {
 	
-	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(9);
+	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(numElevatorTalon1);
 	
 	// Timer used in autonomous
 	private Timer timer = new Timer();
@@ -24,7 +25,7 @@ public class Elevator {
 	 */
 	public void go(double y)
 	{
-		elevatorTalon1.set(deadbandScaled(y, elevatorDeadband));
+		elevatorTalon1.set(deadbandScaled(-y, elevatorDeadband));
 	}
 
 	// this might be able to be modified so that it can be used with a button during teleop time.

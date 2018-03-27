@@ -8,13 +8,12 @@ package org.usfirst.frc.team1786.robot;
 import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import static org.usfirst.frc.team1786.robot.RobotUtilities.*;
 
-import java.nio.DoubleBuffer;
-
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.DriverStation;
@@ -49,12 +48,11 @@ public class DriveTrain implements PIDOutput{
 	Solenoid solenoid1;// = new Solenoid(0);
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
-	
+		
 	// NavX MXP 
 	AHRS navx;
 	PIDController turnController;
 	double rotateToAngleRate;
-	double kTurnTargetAngleDegrees = 90.0f;
 	
 	// throttle and turn speed for teleop controls
 	double throttle = 0;
@@ -101,6 +99,7 @@ public class DriveTrain implements PIDOutput{
 			initProductionRobot();
 		}
 		
+		//set up turning auto objects
 		navx = new AHRS(SPI.Port.kMXP);
 		navx.reset();
 		turnController = new PIDController(kTurnP,kTurnI,kTurnD,kTurnF,navx, this);
@@ -109,7 +108,7 @@ public class DriveTrain implements PIDOutput{
 		turnController.setAbsoluteTolerance(kTurnToleranceDegrees);
 		turnController.setContinuous(true);
 		turnController.disable(); // Don't forget this!!
-		
+				
 		resetSensors();
 		
 	}
@@ -159,6 +158,9 @@ public class DriveTrain implements PIDOutput{
 	 */
 	public void go(double y, double x, double z)
 	{
+		double currentAngle = navx.getAngle();
+		SmartDashboard.putNumber("current navx reading -- auto --", currentAngle);
+		
 		throttle = y;
 		turn = z;
 		
@@ -166,8 +168,8 @@ public class DriveTrain implements PIDOutput{
 		throttle = exponentialModify(throttle);
 		turn = exponentialModify(turn);
 		
-		// limit how fast we can attempt to accelerate
-		throttle = throttleSpeedIncrease(throttle);
+		// limit how fast we can attempt to accelerate (NOT WORKING)
+//		throttle = throttleSpeedIncrease(throttle);
 				
 		switch(myDriveSystem) {
 			case ARCADE_DRIVE_SQUARED:
@@ -251,21 +253,19 @@ public class DriveTrain implements PIDOutput{
 
 		//check to see what command we are on. If they don't match, do nothing. 
 		if (order == autoOrder) {
-			
 			// some sort of error correction code should go here encase each side is moving at a different speed.
-			talonL1.set(autoDriveSpeed);
-			talonR1.set(-autoDriveSpeed);
-			if (distanceInches >= distance) {
-				talonL1.set(0);
-				talonR1.set(0);
-				autoOrder++;//we are done, increment autoOrder so that the next command can run. 
-				navx.zeroYaw(); //set yaw to zero so we can begin our turn
+				talonL1.set(0.5);
+				talonR1.set(-0.5);
+				if (distanceInches >= distance) {
+					talonL1.set(0);
+					talonR1.set(0);
+					resetSensors();
+					autoOrder++;//we are done, increment autoOrder so that the next command can run. 
 			}
 		}
 		return autoOrder;
 	}
 	
-
 	/**
 	 * turn to a given angle autonomously, must be called periodically
 	 * @param direction - [-180f,180f] the range must be that
@@ -283,16 +283,16 @@ public class DriveTrain implements PIDOutput{
 				turnController.enable();
 			}
 			double currentAngle = navx.getAngle();
-			SmartDashboard.putNumber("current navx reading -- auto --", currentAngle);
 			
+			leftTalonPulse(); // get encoder data for fun
 			// turn based on the outputed rotateToAngleRate
 			// given by the turn controller
-			go(0.0, 0.0, rotateToAngleRate);
+			go(0.0, 0.0, rotateToAngleRate * 0.98);
 			
 			//are we done yet? if so, turn it off and move on to the next action
 			// check if the angle is within a tolerance, say 5 degress +-
 			// allowing for a little over and under shoot
-			if(currentAngle >= (direction - 5) && currentAngle <= (direction + 5)) {
+			if(currentAngle >= (direction - 2) && currentAngle <= (direction + 2)) {
 				turnController.disable();
 				autoOrder++;
 			}
@@ -319,7 +319,7 @@ public class DriveTrain implements PIDOutput{
 	
 	public void leftTalonPulse()
 	{
-		SmartDashboard.putNumber("Left Position: ",talonL1.getSensorCollection().getPulseWidthPosition() );
+		SmartDashboard.putNumber("Right Position: ", talonR1.getSensorCollection().getPulseWidthPosition() );
 	}
 	
 	public double rightTalonEncoderData()
