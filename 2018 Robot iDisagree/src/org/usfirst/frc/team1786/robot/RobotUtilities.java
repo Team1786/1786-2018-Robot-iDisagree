@@ -17,19 +17,33 @@ import com.ctre.phoenix.motorcontrol.can.*;
  * that makes it pretty similar to a top-level static class
  */
 
+/** 
+ * 
+ * a utility class for common robot utilities like deadband scaling and vector modification
+ *
+ */
 public final class RobotUtilities {
 
 	private RobotUtilities() {
 	// don't need to do anything in auto right now
 	}
 
-	//add a curve t
+	/**
+	 * scaled input by a power of 5, works with numbers between [-1,1]
+	 * @param joyY - wpilib joystick object
+	 * @return returns scaled value
+	 */
 	public static double exponentialModify(double joyY) {
 		double scale = 5; //scale the curve
 		return Math.tan(joyY*Math.atan(scale))/scale;
 	}
 	
-	// dylan's deadband code
+	/**
+	 * @author dylan hackel
+	 * @param inputAxis - axis which needs the deadband
+	 * @param deadband - the radius
+	 * @return scaled value after deadband application
+	 */
 	public static double deadbandScaled(double inputAxis, double deadband) {
 		double value = inputAxis;
 
@@ -50,8 +64,13 @@ public final class RobotUtilities {
 		}
 	}
 	
-	// Philip's utilities
-	// Current limiting
+	/**
+	 * set the current limiting functions of a wpi_talonsrx motorcontroller object
+	 * @param talon - wpi_talonSRX motorcontroller object
+	 * @param contCurrent - defines the max amp that can be given to a motor after its peak
+	 * @param peakCurrent - defines the max amp that can be given to a motor during its peak
+	 * @param peakDuration - defines how long the peak will last in milliseconds
+	 */
 	public static void currentLimiting(WPI_TalonSRX talon, int contCurrent, int peakCurrent, int peakDuration) {
 		talon.configContinuousCurrentLimit(contCurrent, 0);
 		talon.configPeakCurrentLimit(peakCurrent, 0);
@@ -61,7 +80,11 @@ public final class RobotUtilities {
 	}
 	
 	
-	//Talon Display
+	/**
+	 * display info about given talon on smart dashboard
+	 * @param talon - wpi_talonsrx motor controller to get info from
+	 * @param label - desired label on smart dashboard
+	 */
 	public static void displayTalon(WPI_TalonSRX talon, String label) {
 		
 		SmartDashboard.putNumber(label + " Current", talon.getOutputCurrent());
@@ -70,7 +93,11 @@ public final class RobotUtilities {
 	}
 	
 	
-	//Joystick Display
+	/** 
+	 * display info about given joystick on smart dashboard
+	 * @param joystick - wpilib joystick object
+	 * @param label - desired label to be put on smart dasboard
+	 */
 	private void displayJoystick(Joystick joystick, String label) {
 		SmartDashboard.putNumber(label + "Y", joystick.getY());
 		SmartDashboard.putNumber(label + "Z", joystick.getZ());

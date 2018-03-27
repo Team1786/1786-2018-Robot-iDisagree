@@ -15,6 +15,10 @@ package org.usfirst.frc.team1786.robot;
 
 //import org.usfirst.frc.team1786.robot.RobotUtilities;
 import static org.usfirst.frc.team1786.robot.RobotConstants.*;
+import static org.usfirst.frc.team1786.robot.RobotUtilities.deadbandScaled;
+
+import java.rmi.server.ServerCloneException;
+
 import org.usfirst.frc.team1786.robot.DriveTrain;
 import org.usfirst.frc.team1786.robot.Arm;
 import org.usfirst.frc.team1786.robot.Elevator;
@@ -26,8 +30,10 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.CameraServer;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.drive.*;
 //import edu.wpi.first.wpilibj.Solenoid;
@@ -88,6 +94,10 @@ public class Robot extends IterativeRobot {
 		myDriveTrain.init();
 		// if we add invert and follow code to arms we will need an init for that as well
 		
+		// add the camera to the dashboard
+		CameraServer myCameraServer = CameraServer.getInstance();
+		myCameraServer.addAxisCamera("main", "10.17.86.209");
+
 		// initialize and turn the compressor on if we are not on the test robot
 		if(!TESTBOT){
 			compressor1 = new Compressor(0);
@@ -111,6 +121,7 @@ public class Robot extends IterativeRobot {
 		
 		// Get what autonomous action was selected by the team captain
 		m_autoSelected = m_chooser.getSelected();
+		
 		// autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
 		System.out.println("Auto selected: " + m_autoSelected);
 		
@@ -162,46 +173,57 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		//handle driving
-		myDriveTrain.go(joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
+		myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
+		
+		myDriveTrain.leftTalonPulse();
+		
 		//handle elevator
-		myElevator.go(joystickRight.getY());
+		myElevator.go(-joystickRight.getY());
+		
 		//handle arm
-		myArm.go(joystickRight.getThrottle());
+//		myArm.go(joystickRight.getThrottle());
+		
 		//switch gears
+		
 		//any buttons for elevator and arm presets
 		
 	}
 
+	@Override
+	public void testInit() {
+	}
+	
 	/**
 	 * This function is called periodically during test mode.
 	 */
 	@Override
 	public void testPeriodic() {
 		 
-		if(!timerDelayed)
-		{
-			myAutonomousActions.trackEncoder();
-			myDriveTrain.leftTalonPulse();
-			Timer.delay(10);
-			myDriveTrain.resetSensors();
-			myDriveTrain.leftTalonPulse();
-			Timer.delay(10);
-			timerDelayed = true;
-		}
+//		if(!timerDelayed)
+//		{
+//			myAutonomousActions.trackEncoder();
+//			myDriveTrain.leftTalonPulse();
+//			Timer.delay(10);
+//			myDriveTrain.resetSensors();
+//			myDriveTrain.leftTalonPulse();
+//			Timer.delay(10);
+//			timerDelayed = true;
+//		}
+//		myAutonomousActions.action1();
 		// test the autonomous move code
-		autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, myAutonomousActions.trackEncoder());
+//		autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, myAutonomousActions.trackEncoder());
 		// test autonomous turn code
 		//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, myAutonomousActions.trackNavx());
 		// test autonomous elevator code
-		autoOrder = myElevator.autonomousRaiseToScale(2, autoOrder, 5);
-		autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, 2);
+//		autoOrder = myElevator.autonomousRaiseToScale(2, autoOrder, 5);
+//		autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, 2);
 		// test autonomous arm code
-		autoOrder = myArm.autonomousDepositeCube(3, autoOrder);
+//		autoOrder = myArm.autonomousDepositeCube(3, autoOrder);
 		
 		// track Encoder and Navx just so smartdash is updated.
-		myDriveTrain.leftTalonPulse();
-		myAutonomousActions.trackEncoder();
-		myAutonomousActions.trackNavx();
+//		myDriveTrain.leftTalonPulse();
+//		myAutonomousActions.trackEncoder();
+//		myAutonomousActions.trackNavx();
 	}
 	
 }

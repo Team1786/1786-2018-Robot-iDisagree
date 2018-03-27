@@ -19,12 +19,6 @@ public class  AutonomousActions {
 	//Autonomous Variables
 	int autoOrder = 1; // keeps track of what action within a command we are on. 
 	
-	// for encoder
-	double rotations = 0;
-	double distanceInches = 0;
-	double rawEncoderData = 0;
-	double rawNavxData = 0;
-	
 	public AutonomousActions(DriveTrain aDriveTrain, Arm anArm, Elevator anElevator){
 		myDriveTrain = aDriveTrain;
 		myArm = anArm;
@@ -38,6 +32,7 @@ public class  AutonomousActions {
 	{
 		timer.start();
 		gameData = data;
+		myDriveTrain.resetSensors();
 	}
 	
 	// go to switch
@@ -45,30 +40,31 @@ public class  AutonomousActions {
 	{
 		if (gameData.charAt(0) == 'L') // left side is our switch
 		{
-			DropPickup();
-			//autoOrder = myDriveTrain.autonomousMove(68, 1, autoOrder, distanceInches);
-			//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, rawNavxData);
+//			DropPickup();
+			autoOrder = myDriveTrain.autonomousMove(36.0, 1, autoOrder);
+//			autoOrder = myDriveTrain.autonomousTurn(90.0f, 1, autoOrder);
 			//autoOrder = myDriveTrain.autonomousMove(67, 3, autoOrder, distanceInches);
 			//autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
 			//autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
-			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
+//			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
+//			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
-		else // right side is our switch 
+		else // right side is our switch
 		{
-			DropPickup();
-			/*autoOrder = myDriveTrain.autonomousMove(68, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder);
-			autoOrder = myArm.autonomousDepositeCube(7, autoOrder); */
+//			DropPickup();
+			autoOrder = myDriveTrain.autonomousMove(36.0, 1, autoOrder);
+//			autoOrder = myDriveTrain.autonomousTurn(-90.0f, 1, autoOrder);
+//			autoOrder = myDriveTrain.autonomousTurn(180.0f, 2, autoOrder);
+//			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder);
+//			autoOrder = myArm.autonomousDepositeCube(7, autoOrder);
 			//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, rawNavxData);
-			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
-			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
+//			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
+//			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		}
@@ -78,23 +74,23 @@ public class  AutonomousActions {
 	{
 		if (gameData.charAt(0) == 'L') // left side is our switch
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder, .1);
-			autoOrder = myArm.autonomousDepositeCube(7, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder, .1);
+//			autoOrder = myArm.autonomousDepositeCube(7, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
 		else // right side is our switch 
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, .1);
-			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(24, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(24, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder, .1);
+//			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 		}
 	}
@@ -104,23 +100,23 @@ public class  AutonomousActions {
 	{
 		if (gameData.charAt(1) == 'L') // left side is our scale
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
-			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
+//			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
 		else // right side is our scale
 		{
-			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
-			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
-			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
-			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
+//			DropPickup();
+//			autoOrder = myDriveTrain.autonomousMove(36, 1, autoOrder, distanceInches);
+//			autoOrder = myDriveTrain.autonomousTurn(-90, 2, autoOrder, rawNavxData);
+//			autoOrder = myDriveTrain.autonomousMove(36, 3, autoOrder, distanceInches);
+//			autoOrder = myElevator.autonomousRaiseToScale(4, autoOrder, .25);
+//			autoOrder = myArm.autonomousDepositeCube(5, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		}
@@ -136,40 +132,35 @@ public class  AutonomousActions {
 		}
 	}
 
-	private void DropPickup() {
-		// drop pickup
-	}
+//	private void DropPickup() {
+//		// drop pickup
+//	}
 	
 	public double trackEncoder() {
 		// 4096 = a rotation
 		// a rotation = 4pi inches moved
 
-		rawEncoderData = myDriveTrain.leftTalonEncoderData();
-		double remainder = rawEncoderData % 4096;
-
+		double rawEncoderData = myDriveTrain.rightTalonEncoderData();
+		double rotations = rawEncoderData / 4096;
+		double distanceInches = 18.84955 * rotations;
+		
 		SmartDashboard.putNumber("Rotations: ", rotations);
 		SmartDashboard.putNumber("Distance in Inches: ", distanceInches);
 		SmartDashboard.putNumber("Raw Encoder Output: ", rawEncoderData);
-
-		if (remainder < 200) {
-			rotations += 1 + (remainder / 4096);
-			distanceInches += 12.56631 * (1 + (remainder / 4096));
-
-		}
 		
 		return distanceInches;
 
 	}
 	
-	public double trackNavx() {
-		// do meme here
-		rawNavxData = myDriveTrain.getNavXAngle();
-		if (rawNavxData > 180) {
-			rawNavxData = (360 - rawNavxData) * -1;
-		}
-		SmartDashboard.putNumber("NAVX", rawNavxData);
-		return rawNavxData;
-
-	}
+//	public double trackNavx() {
+//		// do meme here
+//		rawNavxData = myDriveTrain.getNavXAngle();
+//		if (rawNavxData > 180) {
+//			rawNavxData = (360 - rawNavxData) * -1;
+//		}
+//		SmartDashboard.putNumber("NAVX", rawNavxData);
+//		return rawNavxData;
+//
+//	}
 	
 }

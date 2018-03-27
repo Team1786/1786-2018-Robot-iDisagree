@@ -8,20 +8,24 @@ package org.usfirst.frc.team1786.robot;
 import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import static org.usfirst.frc.team1786.robot.RobotUtilities.*;
 
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.DriverStation;
 //import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
-public class DriveTrain {
+public class DriveTrain implements PIDOutput{
 	
 	//Wroble Drive variables
 	// for smart dashboard
@@ -39,25 +43,23 @@ public class DriveTrain {
 	WPI_TalonSRX talonR2 = new WPI_TalonSRX(numTalonR2);
 	WPI_TalonSRX talonR3 = new WPI_TalonSRX(numTalonR3);
 	
-	//for shifting gears
+	/**
+	 * solenoid used for drivetrain gear shifting
+	 */
 	Solenoid solenoid1;// = new Solenoid(0);
 	
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
-	
+		
 	// NavX MXP 
-	AHRS navx = new AHRS(SPI.Port.kMXP);
+	AHRS navx;
+	PIDController turnController;
+	double rotateToAngleRate;
 	
 	// throttle and turn speed for teleop controls
 	double throttle = 0;
 	double turn = 0;
 	// current speed being sent use to limit throttle increases
 	double sendSpeed = 0;
-	
-	// turn speed for autonomous controls
-	double turnSpeed = autoTurnSpeed;
-	
-	// something for turning in autonomous
-	int iTurn = 1;
 	
 	public DriveTrain()
 	{
@@ -97,7 +99,41 @@ public class DriveTrain {
 		{
 			initProductionRobot();
 		}
+		
+		//set up turning auto objects
+		navx = new AHRS(SPI.Port.kMXP);
+		navx.reset();
+		turnController = new PIDController(kTurnP,kTurnI,kTurnD,kTurnF,navx, this);
+		turnController.setInputRange(-180.0f, 180.0f);
+		turnController.setOutputRange(-1.0, 1.0);
+		turnController.setAbsoluteTolerance(kTurnToleranceDegrees);
+		turnController.setContinuous(true);
+		turnController.disable(); // Don't forget this!!
+		
+		// set min and peak output values for the move forward auto pid loop
+		talonR1.configNominalOutputForward(0, 0);
+		talonR1.configNominalOutputReverse(0, 0);
+		talonR1.configPeakOutputForward(1, 0);
+		talonR1.configPeakOutputReverse(-1, 0);
+		
+		talonR1.configAllowableClosedloopError(0, 0, 0);
+		
+		talonR1.config_kP(0, kMoveP, 0);
+		talonR1.config_kI(0, kMoveI, 0);
+		talonR1.config_kD(0, kMoveD, 0);
+		talonR1.config_kF(0, kMoveF, 0);
+		
 		resetSensors();
+		/*
+		 * lets grab the 360 degree position of the MagEncoder's absolute
+		 * position, and intitally set the relative sensor to match.
+		 */
+		int absolutePosition = talonR1.getSensorCollection().getPulseWidthPosition();
+		/* mask out overflows, keep bottom 12 bits */
+		absolutePosition &= 0xFFF;
+		/* set the quadrature (relative) sensor to match absolute */
+		talonR1.setSelectedSensorPosition(absolutePosition, 0, 0);
+		// setup and zero out encoders, etc.	
 		
 	}
 	
@@ -138,8 +174,17 @@ public class DriveTrain {
 		
 	}
 	
+	/**
+	 * move the drive train according to axis 
+	 * @param y - [-1,1] axis
+	 * @param x - [-1,1] axis
+	 * @param z - [-1,1] axis
+	 */
 	public void go(double y, double x, double z)
 	{
+		double currentAngle = navx.getAngle();
+		SmartDashboard.putNumber("current navx reading -- auto --", currentAngle);
+		
 		throttle = y;
 		turn = z;
 		
@@ -147,8 +192,8 @@ public class DriveTrain {
 		throttle = exponentialModify(throttle);
 		turn = exponentialModify(turn);
 		
-		// limit how fast we can attempt to accelerate
-		throttle = throttleSpeedIncrease(throttle);
+		// limit how fast we can attempt to accelerate (NOT WORKING)
+//		throttle = throttleSpeedIncrease(throttle);
 				
 		switch(myDriveSystem) {
 			case ARCADE_DRIVE_SQUARED:
@@ -228,56 +273,68 @@ public class DriveTrain {
 		}
 	}
 	
-	public int autonomousMove(double distance, int order, int autoOrder, double distanceInches) {
-
+	/**
+	 * move the robot to a given position autonomously, must be called periodically.
+	 * @param distance - distance in inches you'd like to move
+	 * @param order
+	 * @param autoOrder
+	 * @return
+	 */
+	public int autonomousMove(double distance, int order, int autoOrder) {
 		//check to see what command we are on. If they don't match, do nothing. 
 		if (order == autoOrder) {
+			// get how many wheel rotations we need, using 2(pi)r formula
+			double targetRotations = distance / (6 * Math.PI);
+			double targetPosition = targetRotations * 4096;
 			
-			// some sort of error correction code should go here encase each side is moving at a different speed.
-			talonL1.set(autoDriveSpeed);
-			talonR1.set(-autoDriveSpeed);
-			if (distanceInches >= distance) {
+			//active the pid loop
+			talonR1.set(ControlMode.Position, targetPosition);
+			
+			//match the left talon to the right without the permanant follow mode
+			talonL1.set(talonR1.getMotorOutputPercent());
+			
+			// deadzone of 200 quadrature ticks (out of total 4096 per rotation)
+			if(rightTalonEncoderData() >= (targetPosition - 200) && rightTalonEncoderData() <= (targetPosition + 200)) {
+				talonR1.set(ControlMode.PercentOutput, 0);
 				talonL1.set(0);
-				talonR1.set(0);
-				autoOrder++;//we are done, increment autoOrder so that the next command can run. 
-				navx.zeroYaw(); //set yaw to zero so we can begin our turn
+				autoOrder++;
 			}
 		}
 		return autoOrder;
 	}
 	
-
-	
-	public int autonomousTurn(double direction, int order, int autoOrder, double rawNavxData) {
+	/**
+	 * turn to a given angle autonomously, must be called periodically
+	 * @param direction - [-180f,180f] the range must be that
+	 * @param order
+	 * @param autoOrder
+	 * @return
+	 */
+	public int autonomousTurn(double direction, int order, int autoOrder) {
 		if (order == autoOrder) {
+			// init check
+			if(!turnController.isEnabled()) {
+				navx.reset();
+				turnController.setSetpoint(direction);
+				rotateToAngleRate = 0;
+				turnController.enable();
+			}
+			double currentAngle = navx.getAngle();
 			
-			// if direction is negative we turn in the oposite direction
-			if (direction < 0) {
-				direction *= -1;
-				turnSpeed *= -1;
+			leftTalonPulse(); // get encoder data for fun
+			// turn based on the outputed rotateToAngleRate
+			// given by the turn controller
+			go(0.0, 0.0, rotateToAngleRate * 0.98);
+			
+			//are we done yet? if so, turn it off and move on to the next action
+			// check if the angle is within a tolerance, say 5 degress +-
+			// allowing for a little over and under shoot
+			if(currentAngle >= (direction - 2) && currentAngle <= (direction + 2)) {
+				turnController.disable();
+				autoOrder++;
 			}
-
-			talonL1.set(-turnSpeed);
-			talonR1.set(turnSpeed);
-
-			// checks to see if it should slow down
-			if (rawNavxData > ((direction / interval) * iTurn)) {
-				iTurn++;
-				// error += rawNavxData - ((direction/interval)*i);
-				double scale = ((direction / interval) * iTurn) / rawNavxData;
-				turnSpeed *= scale;
-				if (iTurn == interval) {
-					talonL1.set(0);
-					talonR1.set(0);
-
-					turnSpeed = 1;
-					iTurn = 1;
-					autoOrder++;
-					talonL1.getSensorCollection().setPulseWidthPosition(0, 100000);
-
-				}
-			}
-		}
+			
+		} // upon action completion, increment autoOrder++
 		return autoOrder;
 	}
 	
@@ -296,9 +353,10 @@ public class DriveTrain {
 	{
 		return talonL1.getSensorCollection().getPulseWidthPosition();
 	}
+	
 	public void leftTalonPulse()
 	{
-		SmartDashboard.putNumber("Left Position: ",talonL1.getSensorCollection().getPulseWidthPosition() );
+		SmartDashboard.putNumber("Right Position: ", talonR1.getSensorCollection().getPulseWidthPosition() );
 	}
 	
 	public double rightTalonEncoderData()
@@ -311,6 +369,7 @@ public class DriveTrain {
 		return navx.getAngle();
 	}
 	
+	// NOT FUNCTIONAL
 	private double throttleSpeedIncrease(double targetSpeed)
 	{
 		// amount to increase speed by. at .02 it will take 1 second to reach max speed
@@ -343,5 +402,7 @@ public class DriveTrain {
 		}
 	}
 	
-
+	public void pidWrite(double output) {
+		rotateToAngleRate = output;
+	}
 }
