@@ -17,8 +17,6 @@ package org.usfirst.frc.team1786.robot;
 import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import static org.usfirst.frc.team1786.robot.RobotUtilities.deadbandScaled;
 
-import java.rmi.server.ServerCloneException;
-
 import org.usfirst.frc.team1786.robot.DriveTrain;
 import org.usfirst.frc.team1786.robot.Arm;
 import org.usfirst.frc.team1786.robot.Elevator;
