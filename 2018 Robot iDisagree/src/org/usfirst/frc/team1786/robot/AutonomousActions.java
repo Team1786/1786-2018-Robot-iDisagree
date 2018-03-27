@@ -60,7 +60,7 @@ public class  AutonomousActions {
 		{
 //			DropPickup();
 //			autoOrder = myDriveTrain.autonomousMove(68, 1, autoOrder, distanceInches);
-			autoOrder = myDriveTrain.autonomousTurn(90, 2, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder);
 //			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
 //			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
 //			autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);

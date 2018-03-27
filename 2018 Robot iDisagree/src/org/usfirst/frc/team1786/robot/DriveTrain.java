@@ -283,6 +283,7 @@ public class DriveTrain implements PIDOutput{
 				turnController.enable();
 			}
 			double currentAngle = navx.getAngle();
+			SmartDashboard.putNumber("current navx reading -- auto --", currentAngle);
 			
 			// turn based on the outputed rotateToAngleRate
 			// given by the turn controller
