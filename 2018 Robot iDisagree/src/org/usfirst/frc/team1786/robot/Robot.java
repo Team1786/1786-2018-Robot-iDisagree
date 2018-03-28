@@ -130,6 +130,9 @@ public class Robot extends IterativeRobot {
 		
 		// start the autonomous timer and send it the game data
 		myAutonomousActions.autonomousInit(gameData);
+		
+		// make sure we are in low gear in autonomous
+		myDriveTrain.solenoid1.set(false);
 	}
 
 	/**

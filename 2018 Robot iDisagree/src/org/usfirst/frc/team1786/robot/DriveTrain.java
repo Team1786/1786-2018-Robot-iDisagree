@@ -407,6 +407,23 @@ public class DriveTrain implements PIDOutput{
 		return autoOrder;
 	}
 	
+	// use this in teleopPeriodic
+	public void autonomousTurn(double direction, boolean move) {
+		//while boolean move is true, the turn controller will attempt to rotate the robot to the desired angle
+		if (move) {
+			if (!turnController.isEnabled()) {
+				turnController.setSetpoint(direction);
+				turnController.enable();
+			}
+			go(0.0, 0.0, rotateToAngleRate * 0.98);
+		} else {
+			turnController.disable();
+		}
+	}
+	
+	/** 
+	 * resets ALL sensor readings
+	 */
 	public void resetSensors()
 	{
 		// configure encoder
@@ -434,9 +451,16 @@ public class DriveTrain implements PIDOutput{
 		return talonR1.getSensorCollection().getPulseWidthPosition();
 	}
 	
+	// get the current navx reading
 	public double getNavXAngle()
 	{
 		return navx.getAngle();
+	}
+	
+	//reset the navx readings
+	public void resetNavx() 
+	{
+		navx.reset();
 	}
 	
 	// NOT FUNCTIONAL
