@@ -95,13 +95,14 @@ public class Robot extends IterativeRobot {
 		// if we add invert and follow code to arms we will need an init for that as well
 		
 		// add the camera to the dashboard
-		CameraServer myCameraServer = CameraServer.getInstance();
-		myCameraServer.addAxisCamera("main", "10.17.86.209");
 
-		// initialize and turn the compressor on if we are not on the test robot
+		// initialize and turn the compressor and camera on if we are not on the test robot
 		if(!TESTBOT){
 			compressor1 = new Compressor(0);
 			compressor1.setClosedLoopControl(true);
+			
+			CameraServer myCameraServer = CameraServer.getInstance();
+			myCameraServer.addAxisCamera("main", "10.17.86.209");
 		}
 	}
 
@@ -137,8 +138,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		
-		myDriveTrain.leftTalonPulse();
 		myAutonomousActions.action1();
 		/*switch (m_autoSelected) {
 			case command1:
@@ -186,16 +185,14 @@ public class Robot extends IterativeRobot {
 		// myDriveTrain.shifted
 		myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
 		
-		myDriveTrain.leftTalonPulse();
-		
 		//handle elevator
 		myElevator.go(-joystickRight.getY());
 		
 		//handle arm
-//		myArm.go(joystickRight.getThrottle());
+		myArm.go(joystickRight.getThrottle());
 		
 		//switch gears
-		myDriveTrain.shiftToggle(shiftBtn.get());
+//		myDriveTrain.shiftToggle(shiftBtn.get());
 		
 		//any buttons for elevator and arm presets
 		

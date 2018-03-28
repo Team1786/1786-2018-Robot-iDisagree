@@ -77,10 +77,10 @@ public final class RobotConstants {
     static final double kTurnF = 0.00; // (TEST RBT: 0.00)
     
 	// used to turn autonomous turning routine
-    static final double kMoveP = 0.03; // tune until you have a little oscillation (TEST RBT: 0.08)
-    static final double kMoveI = 0.00; // tune if the system consistently over or under shoots setpoint (TEST RBT: 0.00)
-    static final double kMoveD = 0.00; // dampen the oscillation a bit(TEST RBT: 0.07)
-    static final double kMoveF = 0.00; // (TEST RBT: 0.00)
+    static final double kMoveP = 0.15; // tune until you have a little oscillation
+    static final double kMoveI = 0.00; // tune if the system consistently over or under shoots setpoint
+    static final double kMoveD = 0.00; // dampen the oscillation a bit
+    static final double kMoveF = 0.00; // 
     
     static final double kMoveToleranceDegrees = 2.0f;
     static final double kTurnToleranceDegrees = 2.0f;

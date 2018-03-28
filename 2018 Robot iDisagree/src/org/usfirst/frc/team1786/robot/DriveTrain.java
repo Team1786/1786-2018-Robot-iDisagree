@@ -329,20 +329,27 @@ public class DriveTrain implements PIDOutput{
 			double targetRotations = distance / (6 * Math.PI);
 			double targetPosition = targetRotations * 4096;
 			
+			//logging
+			SmartDashboard.putNumber("target pos", -targetPosition);
+			SmartDashboard.putNumber("raw encoder data right", talonR1.getSensorCollection().getPulseWidthPosition());
+			SmartDashboard.putNumber("auto stage", autoOrder);
 			//active the pid loop
-			talonR1.set(ControlMode.Position, targetPosition);
+			talonR1.set(ControlMode.Position, -targetPosition);
 			
 			//match the left talon to the right without the permanant follow mode
-			talonL1.set(talonR1.getMotorOutputPercent());
+			talonL1.set(-talonR1.getMotorOutputPercent());
 			
 			// deadzone of 200 quadrature ticks (out of total 4096 per rotation)
-			if(rightTalonEncoderData() >= (targetPosition - 200) && rightTalonEncoderData() <= (targetPosition + 200)) {
+			if(rightTalonEncoderData() >= (-targetPosition - 200) && rightTalonEncoderData() <= (-targetPosition + 200)) {
 				talonR1.set(ControlMode.PercentOutput, 0);
 				talonL1.set(0);
 				
+				System.out.print("move to next stage!");
 				// exit routine and re-enable motor safety (auto turn uses motor safety)
 				myRobot.setSafetyEnabled(true);
+//				resetSensors();
 				autoOrder++;
+				SmartDashboard.putNumber("auto stage", autoOrder);
 			}
 		}
 		return autoOrder;
@@ -365,6 +372,7 @@ public class DriveTrain implements PIDOutput{
 				turnController.enable();
 			}
 			double currentAngle = navx.getAngle();
+			SmartDashboard.putNumber("auto stage", autoOrder);
 			
 			leftTalonPulse(); // get encoder data for fun
 			// turn based on the outputed rotateToAngleRate
@@ -375,6 +383,7 @@ public class DriveTrain implements PIDOutput{
 			// check if the angle is within a tolerance, say 5 degress +-
 			// allowing for a little over and under shoot
 			if(currentAngle >= (direction - 2) && currentAngle <= (direction + 2)) {
+				System.out.print("move to next stage!");
 				turnController.disable();
 				autoOrder++;
 			}
@@ -391,6 +400,7 @@ public class DriveTrain implements PIDOutput{
 		// reset encoder
 		talonL1.getSensorCollection().setPulseWidthPosition(0, 100000);
 		talonR1.getSensorCollection().setPulseWidthPosition(0, 100000);
+		SmartDashboard.putNumber("raw encoder data right", talonR1.getSensorCollection().getPulseWidthPosition());
 		navx.zeroYaw();
 	}
 	
@@ -415,37 +425,37 @@ public class DriveTrain implements PIDOutput{
 	}
 	
 	// NOT FUNCTIONAL
-	private double throttleSpeedIncrease(double targetSpeed)
-	{
-		// amount to increase speed by. at .02 it will take 1 second to reach max speed
-		double maxIncrease = .01; //at .01 it will take 2 second to reach max speed
-		double extra = 0; //speed won't increase by exactly maxIncrease so lets allow slightly more by rounding up
-		
-		// Set targetSpeed to 3 decimal place precision
-		// not the best method to use but being off by 1/1000 every so often won't matter
-		targetSpeed = (double)Math.round(targetSpeed * 1000d) / 1000d;
-		
-		if(sendSpeed == targetSpeed)
-		{
-			return sendSpeed;
-		}
-		else if(sendSpeed < targetSpeed)
-		{
-			extra = targetSpeed-(((int)(targetSpeed/maxIncrease))*maxIncrease);
-			// make extra increase can only be half of the maxIncrease
-			if(extra > maxIncrease/2)
-			{
-				extra = maxIncrease/2;
-			}
-			sendSpeed = sendSpeed + maxIncrease + extra;
-			return sendSpeed;
-		}
-		else //drop speed as fast as you want???
-		{
-			sendSpeed = targetSpeed;
-			return sendSpeed;
-		}
-	}
+//	private double throttleSpeedIncrease(double targetSpeed)
+//	{
+//		// amount to increase speed by. at .02 it will take 1 second to reach max speed
+//		double maxIncrease = .01; //at .01 it will take 2 second to reach max speed
+//		double extra = 0; //speed won't increase by exactly maxIncrease so lets allow slightly more by rounding up
+//		
+//		// Set targetSpeed to 3 decimal place precision
+//		// not the best method to use but being off by 1/1000 every so often won't matter
+//		targetSpeed = (double)Math.round(targetSpeed * 1000d) / 1000d;
+//		
+//		if(sendSpeed == targetSpeed)
+//		{
+//			return sendSpeed;
+//		}
+//		else if(sendSpeed < targetSpeed)
+//		{
+//			extra = targetSpeed-(((int)(targetSpeed/maxIncrease))*maxIncrease);
+//			// make extra increase can only be half of the maxIncrease
+//			if(extra > maxIncrease/2)
+//			{
+//				extra = maxIncrease/2;
+//			}
+//			sendSpeed = sendSpeed + maxIncrease + extra;
+//			return sendSpeed;
+//		}
+//		else //drop speed as fast as you want???
+//		{
+//			sendSpeed = targetSpeed;
+//			return sendSpeed;
+//		}
+//	}
 	
 	public void pidWrite(double output) {
 		rotateToAngleRate = output;
