@@ -52,7 +52,7 @@ public class DriveTrain implements PIDOutput{
 
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
 		
-	// NavX MXP 
+	// NavX MXP and turning PID loop controller
 	AHRS navx;
 	PIDController turnController;
 	double rotateToAngleRate;
@@ -104,6 +104,11 @@ public class DriveTrain implements PIDOutput{
 		
 		// enable motor safety by default
 		myRobot.setSafetyEnabled(true);
+		
+		//limit instantaneous throttle changes 
+		//first parameter is time it takes to ramp up to full speed, second is timeout
+		talonL1.configOpenloopRamp(1, 0);
+		talonR1.configOpenloopRamp(1, 0);
 		
 		//set up turning auto objects
 		navx = new AHRS(SPI.Port.kMXP);
@@ -193,14 +198,14 @@ public class DriveTrain implements PIDOutput{
 		throttle = y;
 		turn = z;
 		
-		// apply curve to joystick input to give better control at lower speed
+		// apply curve to joy stick input to give better control at lower speed
 		throttle = exponentialModify(throttle);
 		turn = exponentialModify(turn);
 		
 		// limit how fast we can attempt to accelerate (NOT WORKING)
 //		throttle = throttleSpeedIncrease(throttle);
 		
-		// force low gear when turing
+		// force low gear when turning
 		if (Math.abs(turn) > deadband) {
 			solenoid1.set(false);
 			shiftable = false;
@@ -322,6 +327,13 @@ public class DriveTrain implements PIDOutput{
 	public int autonomousMove(double distance, int order, int autoOrder) {		
 		//check to see what command we are on. If they don't match, do nothing. 
 		if (order == autoOrder) {
+			if (talonR1.getControlMode() != ControlMode.Position) {
+				// routine initialization stuff can go here
+				
+				// reset the encoder at the start of the routine
+				// done so that each movement command acts independently
+				resetSensors();
+			}
 			// disable safety before we start
 			myRobot.setSafetyEnabled(false);
 			
@@ -333,23 +345,26 @@ public class DriveTrain implements PIDOutput{
 			SmartDashboard.putNumber("target pos", -targetPosition);
 			SmartDashboard.putNumber("raw encoder data right", talonR1.getSensorCollection().getPulseWidthPosition());
 			SmartDashboard.putNumber("auto stage", autoOrder);
-			//active the pid loop
+			
+			//activate the pid loop
 			talonR1.set(ControlMode.Position, -targetPosition);
 			
-			//match the left talon to the right without the permanant follow mode
+			//match the left talon to the right without the permanent follow mode, making sure
+			// to flip output
 			talonL1.set(-talonR1.getMotorOutputPercent());
 			
-			// deadzone of 200 quadrature ticks (out of total 4096 per rotation)
+			// dead zone of 200 quadrature ticks (out of total 4096 per rotation)
 			if(rightTalonEncoderData() >= (-targetPosition - 200) && rightTalonEncoderData() <= (-targetPosition + 200)) {
+				// neutralize outputs
 				talonR1.set(ControlMode.PercentOutput, 0);
 				talonL1.set(0);
 				
+				// log
 				System.out.print("move to next stage!");
+				
 				// exit routine and re-enable motor safety (auto turn uses motor safety)
 				myRobot.setSafetyEnabled(true);
-//				resetSensors();
 				autoOrder++;
-				SmartDashboard.putNumber("auto stage", autoOrder);
 			}
 		}
 		return autoOrder;

@@ -6,7 +6,7 @@ public final class RobotConstants {
 
 	//***Leave this as the top Constant***
 	/** running on the test robot? Test robot only has for motors, production has 6 for drive train */
-	final static boolean TESTBOT = true;
+	final static boolean TESTBOT = false;
 	
 	//Select witch drive code to use
 	// this should be switched to an mChooser on smart dashboard
@@ -70,13 +70,13 @@ public final class RobotConstants {
 	final static int numLeftArmTalon = 8;
 	final static int numElevatorTalon1 = 7;
 	
-	// used to turn autonomous turning routine
+	// used to tune autonomous turning routine
     static final double kTurnP = 0.15; // tune until you have a little oscillation (TEST RBT: 0.08)
     static final double kTurnI = 0.00; // tune if the system consistently over or under shoots setpoint (TEST RBT: 0.00)
     static final double kTurnD = 0.05; // dampen the oscillation a bit(TEST RBT: 0.07)
     static final double kTurnF = 0.00; // (TEST RBT: 0.00)
     
-	// used to turn autonomous turning routine
+	// used to tune autonomous moving routine
     static final double kMoveP = 0.15; // tune until you have a little oscillation
     static final double kMoveI = 0.00; // tune if the system consistently over or under shoots setpoint
     static final double kMoveD = 0.00; // dampen the oscillation a bit

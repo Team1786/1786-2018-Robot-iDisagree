@@ -51,9 +51,9 @@ public class Robot extends IterativeRobot {
 	private static final String command2 = "Switch Position 2";
 	private static final String command3 = "Scale Position 3";
 	private static final String command4 = "Move Forward";//defualt acation
-	//
+
 	private String m_autoSelected;
-	//
+
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
 	public String gameData; // used to get game data information at the start of a match
@@ -93,14 +93,13 @@ public class Robot extends IterativeRobot {
 		//initialize systems
 		myDriveTrain.init();
 		// if we add invert and follow code to arms we will need an init for that as well
-		
-		// add the camera to the dashboard
 
 		// initialize and turn the compressor and camera on if we are not on the test robot
 		if(!TESTBOT){
 			compressor1 = new Compressor(0);
 			compressor1.setClosedLoopControl(true);
 			
+			// add the camera to the dashboard
 			CameraServer myCameraServer = CameraServer.getInstance();
 			myCameraServer.addAxisCamera("main", "10.17.86.209");
 		}
@@ -180,9 +179,6 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		//handle driving
-		// this handles teleop driving, including shifting. 
-		// just pass the desired value of the shifter to 
-		// myDriveTrain.shifted
 		myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
 		
 		//handle elevator
@@ -192,7 +188,7 @@ public class Robot extends IterativeRobot {
 		myArm.go(joystickRight.getThrottle());
 		
 		//switch gears
-//		myDriveTrain.shiftToggle(shiftBtn.get());
+		myDriveTrain.shiftToggle(shiftBtn.get());
 		
 		//any buttons for elevator and arm presets
 		
