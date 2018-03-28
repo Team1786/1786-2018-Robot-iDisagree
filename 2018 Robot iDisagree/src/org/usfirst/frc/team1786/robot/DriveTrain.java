@@ -35,6 +35,7 @@ public class DriveTrain implements PIDOutput{
 	
 	// boolean for tracking shifted state
 	boolean shifted;
+	boolean shiftable;
 	
 	// drive train talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(numTalonL1);
@@ -196,13 +197,16 @@ public class DriveTrain implements PIDOutput{
 		// limit how fast we can attempt to accelerate (NOT WORKING)
 //		throttle = throttleSpeedIncrease(throttle);
 		
-		// update the shifter
-		if (shifted == true) {
-			shift(true);
+		// force low gear when turing
+		if (Math.abs(turn) > deadband) {
+			solenoid1.set(false);
+			shiftable = false;
 		} else {
-			shift(false);
+			// if we aren't turning, switch back to last used state
+			shiftable = true;
+			solenoid1.set(shifted);
 		}
-				
+		
 		switch(myDriveSystem) {
 			case ARCADE_DRIVE_SQUARED:
 				// Aracade drive
@@ -282,11 +286,22 @@ public class DriveTrain implements PIDOutput{
 	}
 	
 	/**
-	 * pass through for whether to shift or not
-	 * @param shiftState - true for high gear, false for low gear
+	 * pass through for whether to shift or not.
+	 * Will only shift if drivetrain.shiftable = true
+	 * @param button - true if you want to toggle it.
+	 * 				   you need to debounce this 
+	 * 				   state change
 	 */
-	public void shift(boolean shiftState) {
-		solenoid1.set(shiftState);
+	public void shiftToggle(boolean button) {
+		if(shiftable) {
+			if (button && shifted) {
+				shifted = false;
+			} else if (button && !shifted) {
+				shifted = true;
+			}
+			
+			solenoid1.set(shifted);
+		}
 	}
 	
 	/**

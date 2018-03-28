@@ -171,6 +171,8 @@ public class Robot extends IterativeRobot {
 	public void teleopInit() {
 		// low gear by default
 		myDriveTrain.shifted = false;
+		// can shift by default
+		myDriveTrain.shiftable = true;
 	}
 	
 	/**
@@ -194,14 +196,7 @@ public class Robot extends IterativeRobot {
 //		myArm.go(joystickRight.getThrottle());
 		
 		//switch gears
-		boolean shiftBtnState = shiftBtn.get();
-		
-		if (shiftBtnState && myDriveTrain.shifted) {
-			myDriveTrain.shifted = false;
-		} else if (shiftBtnState && !myDriveTrain.shifted) {
-			myDriveTrain.shifted = true;
-		}
-		
+		myDriveTrain.shiftToggle(shiftBtn.get());
 		
 		//any buttons for elevator and arm presets
 		
