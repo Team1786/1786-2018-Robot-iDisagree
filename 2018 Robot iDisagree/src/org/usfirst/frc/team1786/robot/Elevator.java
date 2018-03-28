@@ -11,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class Elevator {
 	
 	WPI_TalonSRX elevatorTalon1 = new WPI_TalonSRX(numElevatorTalon1);
-	
+
 	// Timer used in autonomous
 	private Timer timer = new Timer();
 	

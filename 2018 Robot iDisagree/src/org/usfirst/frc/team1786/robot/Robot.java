@@ -17,13 +17,11 @@ package org.usfirst.frc.team1786.robot;
 import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import static org.usfirst.frc.team1786.robot.RobotUtilities.deadbandScaled;
 
-import java.rmi.server.ServerCloneException;
-
 import org.usfirst.frc.team1786.robot.DriveTrain;
 import org.usfirst.frc.team1786.robot.Arm;
 import org.usfirst.frc.team1786.robot.Elevator;
 import org.usfirst.frc.team1786.robot.AutonomousActions;
-//import org.usfirst.frc.team1786.robot.ButtonDebouncer;
+import org.usfirst.frc.team1786.robot.ButtonDebouncer;
 
 
 import edu.wpi.first.wpilibj.Compressor;
@@ -34,7 +32,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CameraServer;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.drive.*;
 //import edu.wpi.first.wpilibj.Solenoid;
 
@@ -54,9 +51,9 @@ public class Robot extends IterativeRobot {
 	private static final String command2 = "Switch Position 2";
 	private static final String command3 = "Scale Position 3";
 	private static final String command4 = "Move Forward";//defualt acation
-	//
+
 	private String m_autoSelected;
-	//
+
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	
 	public String gameData; // used to get game data information at the start of a match
@@ -64,6 +61,8 @@ public class Robot extends IterativeRobot {
 	//controllers for the robot
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
+	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, 5, 0.5);
+	
 	Compressor compressor1;// = new Compressor(0);
 	
 	// create robot systems
@@ -76,6 +75,7 @@ public class Robot extends IterativeRobot {
 	//for use in testPeriodic only for testing autonomous actions 1 at a time
 	int autoOrder = 1;
 	boolean timerDelayed = false;
+	
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -93,15 +93,15 @@ public class Robot extends IterativeRobot {
 		//initialize systems
 		myDriveTrain.init();
 		// if we add invert and follow code to arms we will need an init for that as well
-		
-		// add the camera to the dashboard
-		CameraServer myCameraServer = CameraServer.getInstance();
-		myCameraServer.addAxisCamera("main", "10.17.86.209");
 
-		// initialize and turn the compressor on if we are not on the test robot
+		// initialize and turn the compressor and camera on if we are not on the test robot
 		if(!TESTBOT){
 			compressor1 = new Compressor(0);
 			compressor1.setClosedLoopControl(true);
+			
+			// add the camera to the dashboard
+			CameraServer myCameraServer = CameraServer.getInstance();
+			myCameraServer.addAxisCamera("main", "10.17.86.209");
 		}
 	}
 
@@ -130,6 +130,9 @@ public class Robot extends IterativeRobot {
 		
 		// start the autonomous timer and send it the game data
 		myAutonomousActions.autonomousInit(gameData);
+		
+		// make sure we are in low gear in autonomous
+		myDriveTrain.solenoid1.set(false);
 	}
 
 	/**
@@ -137,8 +140,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		
-		myDriveTrain.leftTalonPulse();
 		myAutonomousActions.action1();
 		/*switch (m_autoSelected) {
 			case command1:
@@ -166,6 +167,14 @@ public class Robot extends IterativeRobot {
 
 	}
 
+	@Override
+	public void teleopInit() {
+		// low gear by default
+		myDriveTrain.shifted = false;
+		// can shift by default
+		myDriveTrain.shiftable = true;
+	}
+	
 	/**
 	 * This function is called periodically during operator control.
 	 */
@@ -175,15 +184,14 @@ public class Robot extends IterativeRobot {
 		//handle driving
 		myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
 		
-		myDriveTrain.leftTalonPulse();
-		
 		//handle elevator
 		myElevator.go(-joystickRight.getY());
 		
 		//handle arm
-//		myArm.go(joystickRight.getThrottle());
+		myArm.go(joystickRight.getThrottle());
 		
 		//switch gears
+		myDriveTrain.shiftToggle(shiftBtn.get());
 		
 		//any buttons for elevator and arm presets
 		

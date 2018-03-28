@@ -13,11 +13,9 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.DriverStation;
-//import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -35,6 +33,10 @@ public class DriveTrain implements PIDOutput{
 	final double refreshPeriod = 0.5;
 	final int interval = 9;
 	
+	// boolean for tracking shifted state
+	boolean shifted;
+	boolean shiftable;
+	
 	// drive train talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(numTalonL1);
 	WPI_TalonSRX talonL2 = new WPI_TalonSRX(numTalonL2);
@@ -47,10 +49,10 @@ public class DriveTrain implements PIDOutput{
 	 * solenoid used for drivetrain gear shifting
 	 */
 	Solenoid solenoid1;// = new Solenoid(0);
-	
+
 	DifferentialDrive myRobot = new DifferentialDrive(talonL1, talonR1);
 		
-	// NavX MXP 
+	// NavX MXP and turning PID loop controller
 	AHRS navx;
 	PIDController turnController;
 	double rotateToAngleRate;
@@ -99,6 +101,14 @@ public class DriveTrain implements PIDOutput{
 		{
 			initProductionRobot();
 		}
+		
+		// enable motor safety by default
+		myRobot.setSafetyEnabled(true);
+		
+		//limit instantaneous throttle changes 
+		//first parameter is time it takes to ramp up to full speed, second is timeout
+		talonL1.configOpenloopRamp(1, 0);
+		talonR1.configOpenloopRamp(1, 0);
 		
 		//set up turning auto objects
 		navx = new AHRS(SPI.Port.kMXP);
@@ -188,33 +198,48 @@ public class DriveTrain implements PIDOutput{
 		throttle = y;
 		turn = z;
 		
-		// apply curve to joystick input to give better control at lower speed
+		// apply curve to joy stick input to give better control at lower speed
 		throttle = exponentialModify(throttle);
 		turn = exponentialModify(turn);
 		
 		// limit how fast we can attempt to accelerate (NOT WORKING)
 //		throttle = throttleSpeedIncrease(throttle);
-				
+		
+		// force low gear when turning
+		if (Math.abs(turn) > deadband) {
+			solenoid1.set(false);
+			shiftable = false;
+		} else {
+			// if we aren't turning, switch back to last used state
+			shiftable = true;
+			solenoid1.set(shifted);
+		}
+		
 		switch(myDriveSystem) {
 			case ARCADE_DRIVE_SQUARED:
 				// Aracade drive
+				myRobot.setSafetyEnabled(true);
 				myRobot.arcadeDrive(-throttle, turn);
 				break;
 			case ARCADE_DRIVE:
 				// Aracade drive, don't square inputs
+				myRobot.setSafetyEnabled(true);
 				myRobot.arcadeDrive(-throttle, turn, false);
 				break;
 			case CURVATURE_DRIVE_SQUARED:
 				//Curvature Drive
+				myRobot.setSafetyEnabled(true);
 				myRobot.curvatureDrive(-throttle, turn, true);
 				break;
 			// Wroble drive with x turn
 			case WROBLE_DRIVE:
 				//wroble drive
+				myRobot.setSafetyEnabled(false);
 				wrobleDrive(x, -throttle, z);
 				break;
 			// Wroble drive with z turn
 			case WROBLE_DRIVE_TURN_INVERTED:
+				myRobot.setSafetyEnabled(false);
 				wrobleDrive(z, -throttle, x);
 				break;
 		}
@@ -274,29 +299,71 @@ public class DriveTrain implements PIDOutput{
 	}
 	
 	/**
+	 * pass through for whether to shift or not.
+	 * Will only shift if drivetrain.shiftable = true
+	 * @param button - true if you want to toggle it.
+	 * 				   you need to debounce this 
+	 * 				   state change
+	 */
+	public void shiftToggle(boolean button) {
+		if(shiftable) {
+			if (button && shifted) {
+				shifted = false;
+			} else if (button && !shifted) {
+				shifted = true;
+			}
+			
+			solenoid1.set(shifted);
+		}
+	}
+	
+	/**
 	 * move the robot to a given position autonomously, must be called periodically.
 	 * @param distance - distance in inches you'd like to move
 	 * @param order
 	 * @param autoOrder
 	 * @return
 	 */
-	public int autonomousMove(double distance, int order, int autoOrder) {
+	public int autonomousMove(double distance, int order, int autoOrder) {		
 		//check to see what command we are on. If they don't match, do nothing. 
 		if (order == autoOrder) {
+			if (talonR1.getControlMode() != ControlMode.Position) {
+				// routine initialization stuff can go here
+				
+				// reset the encoder at the start of the routine
+				// done so that each movement command acts independently
+				resetSensors();
+			}
+			// disable safety before we start
+			myRobot.setSafetyEnabled(false);
+			
 			// get how many wheel rotations we need, using 2(pi)r formula
 			double targetRotations = distance / (6 * Math.PI);
 			double targetPosition = targetRotations * 4096;
 			
-			//active the pid loop
-			talonR1.set(ControlMode.Position, targetPosition);
+			//logging
+			SmartDashboard.putNumber("target pos", -targetPosition);
+			SmartDashboard.putNumber("raw encoder data right", talonR1.getSensorCollection().getPulseWidthPosition());
+			SmartDashboard.putNumber("auto stage", autoOrder);
 			
-			//match the left talon to the right without the permanant follow mode
-			talonL1.set(talonR1.getMotorOutputPercent());
+			//activate the pid loop
+			talonR1.set(ControlMode.Position, -targetPosition);
 			
-			// deadzone of 200 quadrature ticks (out of total 4096 per rotation)
-			if(rightTalonEncoderData() >= (targetPosition - 200) && rightTalonEncoderData() <= (targetPosition + 200)) {
+			//match the left talon to the right without the permanent follow mode, making sure
+			// to flip output
+			talonL1.set(-talonR1.getMotorOutputPercent());
+			
+			// dead zone of 200 quadrature ticks (out of total 4096 per rotation)
+			if(rightTalonEncoderData() >= (-targetPosition - 200) && rightTalonEncoderData() <= (-targetPosition + 200)) {
+				// neutralize outputs
 				talonR1.set(ControlMode.PercentOutput, 0);
 				talonL1.set(0);
+				
+				// log
+				System.out.print("move to next stage!");
+				
+				// exit routine and re-enable motor safety (auto turn uses motor safety)
+				myRobot.setSafetyEnabled(true);
 				autoOrder++;
 			}
 		}
@@ -320,6 +387,7 @@ public class DriveTrain implements PIDOutput{
 				turnController.enable();
 			}
 			double currentAngle = navx.getAngle();
+			SmartDashboard.putNumber("auto stage", autoOrder);
 			
 			leftTalonPulse(); // get encoder data for fun
 			// turn based on the outputed rotateToAngleRate
@@ -330,6 +398,7 @@ public class DriveTrain implements PIDOutput{
 			// check if the angle is within a tolerance, say 5 degress +-
 			// allowing for a little over and under shoot
 			if(currentAngle >= (direction - 2) && currentAngle <= (direction + 2)) {
+				System.out.print("move to next stage!");
 				turnController.disable();
 				autoOrder++;
 			}
@@ -338,6 +407,23 @@ public class DriveTrain implements PIDOutput{
 		return autoOrder;
 	}
 	
+	// use this in teleopPeriodic
+	public void autonomousTurn(double direction, boolean move) {
+		//while boolean move is true, the turn controller will attempt to rotate the robot to the desired angle
+		if (move) {
+			if (!turnController.isEnabled()) {
+				turnController.setSetpoint(direction);
+				turnController.enable();
+			}
+			go(0.0, 0.0, rotateToAngleRate * 0.98);
+		} else {
+			turnController.disable();
+		}
+	}
+	
+	/** 
+	 * resets ALL sensor readings
+	 */
 	public void resetSensors()
 	{
 		// configure encoder
@@ -346,6 +432,7 @@ public class DriveTrain implements PIDOutput{
 		// reset encoder
 		talonL1.getSensorCollection().setPulseWidthPosition(0, 100000);
 		talonR1.getSensorCollection().setPulseWidthPosition(0, 100000);
+		SmartDashboard.putNumber("raw encoder data right", talonR1.getSensorCollection().getPulseWidthPosition());
 		navx.zeroYaw();
 	}
 	
@@ -364,43 +451,50 @@ public class DriveTrain implements PIDOutput{
 		return talonR1.getSensorCollection().getPulseWidthPosition();
 	}
 	
+	// get the current navx reading
 	public double getNavXAngle()
 	{
 		return navx.getAngle();
 	}
 	
-	// NOT FUNCTIONAL
-	private double throttleSpeedIncrease(double targetSpeed)
+	//reset the navx readings
+	public void resetNavx() 
 	{
-		// amount to increase speed by. at .02 it will take 1 second to reach max speed
-		double maxIncrease = .01; //at .01 it will take 2 second to reach max speed
-		double extra = 0; //speed won't increase by exactly maxIncrease so lets allow slightly more by rounding up
-		
-		// Set targetSpeed to 3 decimal place precision
-		// not the best method to use but being off by 1/1000 every so often won't matter
-		targetSpeed = (double)Math.round(targetSpeed * 1000d) / 1000d;
-		
-		if(sendSpeed == targetSpeed)
-		{
-			return sendSpeed;
-		}
-		else if(sendSpeed < targetSpeed)
-		{
-			extra = targetSpeed-(((int)(targetSpeed/maxIncrease))*maxIncrease);
-			// make extra increase can only be half of the maxIncrease
-			if(extra > maxIncrease/2)
-			{
-				extra = maxIncrease/2;
-			}
-			sendSpeed = sendSpeed + maxIncrease + extra;
-			return sendSpeed;
-		}
-		else //drop speed as fast as you want???
-		{
-			sendSpeed = targetSpeed;
-			return sendSpeed;
-		}
+		navx.reset();
 	}
+	
+	// NOT FUNCTIONAL
+//	private double throttleSpeedIncrease(double targetSpeed)
+//	{
+//		// amount to increase speed by. at .02 it will take 1 second to reach max speed
+//		double maxIncrease = .01; //at .01 it will take 2 second to reach max speed
+//		double extra = 0; //speed won't increase by exactly maxIncrease so lets allow slightly more by rounding up
+//		
+//		// Set targetSpeed to 3 decimal place precision
+//		// not the best method to use but being off by 1/1000 every so often won't matter
+//		targetSpeed = (double)Math.round(targetSpeed * 1000d) / 1000d;
+//		
+//		if(sendSpeed == targetSpeed)
+//		{
+//			return sendSpeed;
+//		}
+//		else if(sendSpeed < targetSpeed)
+//		{
+//			extra = targetSpeed-(((int)(targetSpeed/maxIncrease))*maxIncrease);
+//			// make extra increase can only be half of the maxIncrease
+//			if(extra > maxIncrease/2)
+//			{
+//				extra = maxIncrease/2;
+//			}
+//			sendSpeed = sendSpeed + maxIncrease + extra;
+//			return sendSpeed;
+//		}
+//		else //drop speed as fast as you want???
+//		{
+//			sendSpeed = targetSpeed;
+//			return sendSpeed;
+//		}
+//	}
 	
 	public void pidWrite(double output) {
 		rotateToAngleRate = output;

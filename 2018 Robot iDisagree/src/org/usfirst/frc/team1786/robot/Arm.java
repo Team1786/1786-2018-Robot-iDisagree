@@ -6,12 +6,9 @@ import static org.usfirst.frc.team1786.robot.RobotConstants.*;
 import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix.motorcontrol.can.*;
-import edu.wpi.first.wpilibj.Joystick;
 
 import static org.usfirst.frc.team1786.robot.RobotConstants.autoSpeedForElevator;
 import static org.usfirst.frc.team1786.robot.RobotConstants.autoTimeToSwitchHeight;
-
-import java.lang.Math;
 
 /*
  * A class for controlling team 1786's power-cube holding arms.
