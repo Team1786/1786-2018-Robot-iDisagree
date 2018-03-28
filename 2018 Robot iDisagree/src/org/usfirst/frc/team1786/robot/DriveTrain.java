@@ -102,6 +102,9 @@ public class DriveTrain implements PIDOutput{
 			initProductionRobot();
 		}
 		
+		// enable motor safety by default
+		myRobot.setSafetyEnabled(true);
+		
 		//set up turning auto objects
 		navx = new AHRS(SPI.Port.kMXP);
 		navx.reset();
@@ -210,23 +213,28 @@ public class DriveTrain implements PIDOutput{
 		switch(myDriveSystem) {
 			case ARCADE_DRIVE_SQUARED:
 				// Aracade drive
+				myRobot.setSafetyEnabled(true);
 				myRobot.arcadeDrive(-throttle, turn);
 				break;
 			case ARCADE_DRIVE:
 				// Aracade drive, don't square inputs
+				myRobot.setSafetyEnabled(true);
 				myRobot.arcadeDrive(-throttle, turn, false);
 				break;
 			case CURVATURE_DRIVE_SQUARED:
 				//Curvature Drive
+				myRobot.setSafetyEnabled(true);
 				myRobot.curvatureDrive(-throttle, turn, true);
 				break;
 			// Wroble drive with x turn
 			case WROBLE_DRIVE:
 				//wroble drive
+				myRobot.setSafetyEnabled(false);
 				wrobleDrive(x, -throttle, z);
 				break;
 			// Wroble drive with z turn
 			case WROBLE_DRIVE_TURN_INVERTED:
+				myRobot.setSafetyEnabled(false);
 				wrobleDrive(z, -throttle, x);
 				break;
 		}
@@ -311,9 +319,12 @@ public class DriveTrain implements PIDOutput{
 	 * @param autoOrder
 	 * @return
 	 */
-	public int autonomousMove(double distance, int order, int autoOrder) {
+	public int autonomousMove(double distance, int order, int autoOrder) {		
 		//check to see what command we are on. If they don't match, do nothing. 
 		if (order == autoOrder) {
+			// disable safety before we start
+			myRobot.setSafetyEnabled(false);
+			
 			// get how many wheel rotations we need, using 2(pi)r formula
 			double targetRotations = distance / (6 * Math.PI);
 			double targetPosition = targetRotations * 4096;
@@ -328,6 +339,9 @@ public class DriveTrain implements PIDOutput{
 			if(rightTalonEncoderData() >= (targetPosition - 200) && rightTalonEncoderData() <= (targetPosition + 200)) {
 				talonR1.set(ControlMode.PercentOutput, 0);
 				talonL1.set(0);
+				
+				// exit routine and re-enable motor safety (auto turn uses motor safety)
+				myRobot.setSafetyEnabled(true);
 				autoOrder++;
 			}
 		}
