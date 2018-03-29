@@ -36,7 +36,7 @@ public class Elevator {
 				timer.start();
 			}
 			if(timer.get() < autoTimeToSwitchHeight) {
-				elevatorTalon1.set(autoSpeedForElevator);
+				elevatorTalon1.set(-autoSpeedForElevator);
 			}
 			else {
 				elevatorTalon1.set(0);
