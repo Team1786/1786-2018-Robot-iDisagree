@@ -30,8 +30,8 @@ public class Arm {
 	public void go(double speed)
 	{
 		// should probably use follow and invert but this is fine for now
-		rightArmTalon.set(deadbandScaled(speed, armDeadband));
-		leftArmTalon.set(-deadbandScaled(speed, armDeadband));
+		rightArmTalon.set(-deadbandScaled(speed, armDeadband));
+		leftArmTalon.set(deadbandScaled(speed, armDeadband));
 	}
 	
 	public int autonomousDepositeCube(int order, int autoOrder)
@@ -42,8 +42,8 @@ public class Arm {
 			}
 			if(timer.get() < autoTimeForArm) {
 				//think these are going in the correct direction...
-				rightArmTalon.set(autoSpeedForArm);
-				leftArmTalon.set(-autoSpeedForArm);
+				rightArmTalon.set(-autoSpeedForArm);
+				leftArmTalon.set(autoSpeedForArm);
 			}
 			else {
 				rightArmTalon.set(0);
