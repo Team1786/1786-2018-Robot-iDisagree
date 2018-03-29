@@ -15,8 +15,8 @@ import static org.usfirst.frc.team1786.robot.RobotConstants.autoTimeToSwitchHeig
  */
 public class Arm {
 
-	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(7);
-	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(8);
+	WPI_TalonSRX rightArmTalon = new WPI_TalonSRX(numRightArmTalon);
+	WPI_TalonSRX leftArmTalon = new WPI_TalonSRX(numLeftArmTalon	);
 	
 	// Timer used in autonomous
 	private Timer timer = new Timer();
