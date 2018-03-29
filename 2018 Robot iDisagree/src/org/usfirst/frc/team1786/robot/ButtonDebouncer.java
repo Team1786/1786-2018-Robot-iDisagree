@@ -22,6 +22,7 @@ public class ButtonDebouncer {
 	 * @param waitPeriod - how long to wait in between presses to debounce in seconds
 	 */
 	public ButtonDebouncer(Joystick joy, int btnChannel, double waitPeriod) {
+		joystick = joy;
 		button = btnChannel;
 		period = waitPeriod;
 		
