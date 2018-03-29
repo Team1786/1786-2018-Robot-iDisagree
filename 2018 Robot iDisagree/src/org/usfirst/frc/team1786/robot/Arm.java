@@ -42,8 +42,8 @@ public class Arm {
 			}
 			if(timer.get() < autoTimeForArm) {
 				//think these are going in the correct direction...
-				rightArmTalon.set(-autoSpeedForArm);
-				leftArmTalon.set(autoSpeedForArm);
+				rightArmTalon.set(autoSpeedForArm);
+				leftArmTalon.set(-autoSpeedForArm);
 			}
 			else {
 				rightArmTalon.set(0);
