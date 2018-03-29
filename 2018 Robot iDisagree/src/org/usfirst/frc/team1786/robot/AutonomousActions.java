@@ -35,36 +35,36 @@ public class  AutonomousActions {
 		myDriveTrain.resetSensors();
 	}
 	
-	// go to switch
+	// go to switch from center
 	public void action1()
 	{
 		if (gameData.charAt(0) == 'L') // left side is our switch
 		{
 //			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(28.0, 1, autoOrder);
-			autoOrder = myDriveTrain.autonomousTurn(-30.0f, 2, autoOrder);
-			//autoOrder = myDriveTrain.autonomousMove(67, 3, autoOrder, distanceInches);
-			//autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
-			//autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
-//			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
-//			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
+			autoOrder = myDriveTrain.autonomousMove(24.0, 1, autoOrder);
+			autoOrder = myArm.autonomousGetCube(2, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(36.0, 3, autoOrder);
+			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(-30.0f, 5, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(72.0, 6, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(30.0f, 7, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(80, 8, autoOrder);
+			autoOrder = myArm.autonomousDepositeCube(9, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		} 
 		else // right side is our switch
 		{
 //			DropPickup();
-			autoOrder = myDriveTrain.autonomousMove(28, 1, autoOrder);
-			autoOrder = myDriveTrain.autonomousTurn(-90.0f, 2, autoOrder);
-//			autoOrder = myDriveTrain.autonomousTurn(30.0f, 2, autoOrder);
-//			autoOrder = myDriveTrain.autonomousMove(55, 3, autoOrder, distanceInches);
-//			autoOrder = myDriveTrain.autonomousTurn(90, 4, autoOrder, rawNavxData);
-//			autoOrder = myDriveTrain.autonomousMove(74, 5, autoOrder, distanceInches);
-//			autoOrder = myElevator.autonomousRaiseToSwitch(6, autoOrder);
-//			autoOrder = myArm.autonomousDepositeCube(7, autoOrder);
-			//autoOrder = myDriveTrain.autonomousTurn(90, 1, autoOrder, rawNavxData);
-//			autoOrder = myElevator.autonomousRaiseToSwitch(1, autoOrder);
-//			autoOrder = myArm.autonomousDepositeCube(2, autoOrder); 
+			autoOrder = myDriveTrain.autonomousMove(24.0, 1, autoOrder);
+			autoOrder = myArm.autonomousGetCube(2, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(36.0, 3, autoOrder);
+			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(30.0f, 5, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(96.0, 6, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(-30.0f, 7, autoOrder);
+			autoOrder = myDriveTrain.autonomousMove(80, 8, autoOrder);
+			autoOrder = myArm.autonomousDepositeCube(9, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		}
@@ -120,6 +120,12 @@ public class  AutonomousActions {
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
 			
 		}
+	}
+	
+	// alternate baseline code
+	public void action4()
+	{
+		autoOrder = myDriveTrain.autonomousMove(102.0, 1, autoOrder);
 	}
 	
 	public void actionDefault()

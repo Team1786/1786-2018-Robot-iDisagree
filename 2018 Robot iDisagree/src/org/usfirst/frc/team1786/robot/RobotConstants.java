@@ -29,16 +29,16 @@ public final class RobotConstants {
 	final static double autoDriveSpeed = 1;
 	
 	// Autonomous Elevator action constants
-	final static double autoTimeToSwitchHeight = 1.5;
-	final static double autoTimeToScaleHeight = 3;
+	final static double autoTimeToSwitchHeight = 4;
+	final static double autoTimeToScaleHeight = 8;
 	final static double autoSpeedForElevator = .5;
 	
 	// Autonomous Arm action constants
-	final static double autoSpeedForArm = .5;
+	final static double autoSpeedForArm = .7;
 	final static double autoTimeForArm = 3;
 	
 	// joystick dead bands
-	final static double armDeadband = .25;
+	final static double armDeadband = .5;
 	final static double elevatorDeadband = .15;
 	
 	/** deadzone for the drivetrain */

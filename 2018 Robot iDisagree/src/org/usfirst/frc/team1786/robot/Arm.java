@@ -42,8 +42,8 @@ public class Arm {
 			}
 			if(timer.get() < autoTimeForArm) {
 				//think these are going in the correct direction...
-				rightArmTalon.set(-autoSpeedForArm);
-				leftArmTalon.set(autoSpeedForArm);
+				rightArmTalon.set(autoSpeedForArm);
+				leftArmTalon.set(-autoSpeedForArm);
 			}
 			else {
 				rightArmTalon.set(0);
@@ -54,6 +54,28 @@ public class Arm {
 			}
 		}
 		
+		return autoOrder;
+	}
+	
+	public int autonomousGetCube(int order, int autoOrder)
+	{
+		if (order == autoOrder) {
+			if(timer.get() == 0){
+				timer.start();
+			}
+			if(timer.get() < .5) {// pull in for half a second to make sure we have the cube
+				//think these are going in the correct direction...
+				rightArmTalon.set(autoSpeedForArm);
+				leftArmTalon.set(-autoSpeedForArm);
+			}
+			else {
+				rightArmTalon.set(0);
+				leftArmTalon.set(0);
+				autoOrder++;
+				timer.stop();
+				timer.reset();
+			}
+		}
 		return autoOrder;
 	}
 	
