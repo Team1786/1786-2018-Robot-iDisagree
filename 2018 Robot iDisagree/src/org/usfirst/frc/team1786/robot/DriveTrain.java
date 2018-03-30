@@ -204,6 +204,8 @@ public class DriveTrain implements PIDOutput{
 		
 		// limit how fast we can attempt to accelerate (NOT WORKING)
 //		throttle = throttleSpeedIncrease(throttle);
+		talonR1.configOpenloopRamp(0, 0);
+		talonL1.configOpenloopRamp(0, 0);
 		
 		// force low gear when turning
 		if (Math.abs(turn) > deadband) {
@@ -342,19 +344,19 @@ public class DriveTrain implements PIDOutput{
 			double targetPosition = targetRotations * 4096;
 			
 			//logging
-			SmartDashboard.putNumber("target pos", -targetPosition);
+			SmartDashboard.putNumber("target pos", targetPosition);
 			SmartDashboard.putNumber("raw encoder data right", talonR1.getSensorCollection().getPulseWidthPosition());
 			SmartDashboard.putNumber("auto stage", autoOrder);
 			
 			//activate the pid loop
-			talonR1.set(ControlMode.Position, -targetPosition);
+			talonR1.set(ControlMode.Position, targetPosition);
 			
 			//match the left talon to the right without the permanent follow mode, making sure
 			// to flip output
 			talonL1.set(-talonR1.getMotorOutputPercent());
 			
 			// dead zone of 200 quadrature ticks (out of total 4096 per rotation)
-			if(rightTalonEncoderData() >= (-targetPosition - 200) && rightTalonEncoderData() <= (-targetPosition + 200)) {
+			if(rightTalonEncoderData() >= (targetPosition - 200)) {
 				// neutralize outputs
 				talonR1.set(ControlMode.PercentOutput, 0);
 				talonL1.set(0);
