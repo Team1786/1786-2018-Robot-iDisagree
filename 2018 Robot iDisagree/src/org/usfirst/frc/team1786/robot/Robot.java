@@ -90,6 +90,8 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject(command3, command3);// Scale Position 3
 		m_chooser.addObject(command4, command4);// drive forward
 		
+		SmartDashboard.putData("auto choices: ", m_chooser);
+		
 		//initialize systems
 		myDriveTrain.init();
 		// if we add invert and follow code to arms we will need an init for that as well
@@ -140,8 +142,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		myAutonomousActions.action1();
-		/*switch (m_autoSelected) {
+		//myAutonomousActions.action1();
+		switch (m_autoSelected) {
 			case command1:
 				myAutonomousActions.action1();
 				break;
@@ -160,11 +162,6 @@ public class Robot extends IterativeRobot {
 				break;
 		}
 		
-		//check to see how far we have moved or turned
-		myAutonomousActions.trackEncoder();
-		myAutonomousActions.trackNavx();
-		*/
-
 	}
 
 	@Override
