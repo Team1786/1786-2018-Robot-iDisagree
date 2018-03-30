@@ -36,6 +36,7 @@ public class DriveTrain implements PIDOutput{
 	// boolean for tracking shifted state
 	boolean shifted;
 	boolean shiftable;
+	boolean buttonControlOn = false;
 	
 	// drive train talons
 	WPI_TalonSRX talonL1 = new WPI_TalonSRX(numTalonL1);
@@ -410,18 +411,49 @@ public class DriveTrain implements PIDOutput{
 	}
 	
 	// use this in teleopPeriodic
-	public void autonomousTurn(double direction, boolean move) {
-		//while boolean move is true, the turn controller will attempt to rotate the robot to the desired angle
-		if (move) {
-			if (!turnController.isEnabled()) {
-				turnController.setSetpoint(direction);
-				turnController.enable();
-			}
-			go(0.0, 0.0, rotateToAngleRate * 0.98);
-		} else {
-			turnController.disable();
+	public void autonomousTurn(double direction) {
+		
+		buttonControlOn = true;
+		// init check
+		if(!turnController.isEnabled()) {
+			navx.reset();
+			turnController.setSetpoint(direction);
+			rotateToAngleRate = 0;
+			turnController.enable();
 		}
+		double currentAngle = navx.getAngle();
+			
+			
+		leftTalonPulse(); // get encoder data for fun
+		// turn based on the outputed rotateToAngleRate
+		// given by the turn controller
+		go(0.0, 0.0, -rotateToAngleRate * 0.98);
+		
+		//are we done yet? if so, turn it off and move on to the next action
+		// check if the angle is within a tolerance, say 5 degress +-
+		// allowing for a little over and under shoot
+		if(currentAngle >= (direction - 2) && currentAngle <= (direction + 2)) {
+				
+			buttonControlOn = false;
+			turnController.disable();
+				
+		}
+			
 	}
+	public boolean buttonControls(boolean turnLeft, boolean turnRight)
+	{
+		if(turnLeft)
+		{
+			autonomousTurn(-90);
+		}
+		else if(turnRight)
+		{
+			autonomousTurn(90);
+		}
+		return buttonControlOn;
+	}
+		
+	
 	
 	/** 
 	 * resets ALL sensor readings

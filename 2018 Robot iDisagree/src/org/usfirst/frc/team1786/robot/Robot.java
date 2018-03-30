@@ -61,7 +61,10 @@ public class Robot extends IterativeRobot {
 	//controllers for the robot
 	Joystick joystickLeft = new Joystick(0);
 	Joystick joystickRight = new Joystick(1);
+	
 	ButtonDebouncer shiftBtn = new ButtonDebouncer(joystickLeft, 5, 0.5);
+	ButtonDebouncer turn90Left = new ButtonDebouncer(joystickLeft, 8, 0.5);
+	ButtonDebouncer turn90Right = new ButtonDebouncer(joystickLeft, 7, 0.5);
 	
 	Compressor compressor1;// = new Compressor(0);
 	
@@ -177,8 +180,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
+		
+		
 		//handle driving
-		myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
+		if(!myDriveTrain.buttonControls(turn90Left.get(), turn90Right.get()))
+			myDriveTrain.go(-joystickLeft.getY(), joystickLeft.getX(), joystickLeft.getZ());
 		
 		//handle elevator
 		myElevator.go(-joystickRight.getY());
