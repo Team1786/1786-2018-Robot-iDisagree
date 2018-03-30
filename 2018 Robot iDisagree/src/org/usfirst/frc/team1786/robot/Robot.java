@@ -142,7 +142,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		//myAutonomousActions.action1();
+		myAutonomousActions.action1();
+		/*
 		switch (m_autoSelected) {
 			case command1:
 				myAutonomousActions.action1();
@@ -161,6 +162,7 @@ public class Robot extends IterativeRobot {
 				myAutonomousActions.actionDefault();
 				break;
 		}
+		*/
 		
 	}
 
