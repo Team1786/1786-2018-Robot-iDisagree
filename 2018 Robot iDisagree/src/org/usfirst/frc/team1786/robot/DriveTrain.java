@@ -394,7 +394,7 @@ public class DriveTrain implements PIDOutput{
 			leftTalonPulse(); // get encoder data for fun
 			// turn based on the outputed rotateToAngleRate
 			// given by the turn controller
-			go(0.0, 0.0, rotateToAngleRate * 0.98);
+			go(0.0, 0.0, -rotateToAngleRate * 0.98);
 			
 			//are we done yet? if so, turn it off and move on to the next action
 			// check if the angle is within a tolerance, say 5 degress +-
