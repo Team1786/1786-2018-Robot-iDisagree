@@ -83,13 +83,11 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		
 		// add autonomous options
-		m_chooser.addObject(command1, command1);// Switch Position 1
-		m_chooser.addObject(command2, command2);// Switch Position 2
-		m_chooser.addObject(command3, command3);// Scale Position 3
-		
-		m_chooser.addObject(command4, command4);// drive forward
+		m_chooser.addDefault("drive forward", command4);// drive forward
+		m_chooser.addObject("switch position 1", command1);// Switch Position 1
+		m_chooser.addObject("switch position 2", command2);// Switch Position 2
+		m_chooser.addObject("scale position 3", command3);// Scale Position 3
 		
 		SmartDashboard.putData("auto choices: ", m_chooser);
 		
@@ -143,8 +141,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		myAutonomousActions.action1();
-		/*
+		//myAutonomousActions.action1();
 		switch (m_autoSelected) {
 			case command1:
 				myAutonomousActions.action1();
@@ -163,7 +160,6 @@ public class Robot extends IterativeRobot {
 				myAutonomousActions.actionDefault();
 				break;
 		}
-		*/
 		
 	}
 
