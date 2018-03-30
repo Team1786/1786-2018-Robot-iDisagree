@@ -319,6 +319,12 @@ public class DriveTrain implements PIDOutput{
 		}
 	}
 	
+	
+	public void motorSafety()
+	{
+		myRobot.setSafetyEnabled(true);
+	}
+	
 	/**
 	 * move the robot to a given position autonomously, must be called periodically.
 	 * @param distance - distance in inches you'd like to move

@@ -173,6 +173,7 @@ public class Robot extends IterativeRobot {
 		myDriveTrain.shifted = false;
 		// can shift by default
 		myDriveTrain.shiftable = true;
+		myDriveTrain.motorSafety();
 	}
 	
 	/**
