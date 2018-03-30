@@ -88,6 +88,7 @@ public class Robot extends IterativeRobot {
 		m_chooser.addObject(command1, command1);// Switch Position 1
 		m_chooser.addObject(command2, command2);// Switch Position 2
 		m_chooser.addObject(command3, command3);// Scale Position 3
+		
 		m_chooser.addObject(command4, command4);// drive forward
 		
 		SmartDashboard.putData("auto choices: ", m_chooser);
