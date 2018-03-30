@@ -45,9 +45,9 @@ public class  AutonomousActions {
 			autoOrder = myArm.autonomousGetCube(2, autoOrder);
 			autoOrder = myDriveTrain.autonomousMove(36.0, 3, autoOrder);
 			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder);
-			autoOrder = myDriveTrain.autonomousTurn(-30.0f, 5, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(-90.0f, 5, autoOrder);
 			autoOrder = myDriveTrain.autonomousMove(72.0, 6, autoOrder);
-			autoOrder = myDriveTrain.autonomousTurn(30.0f, 7, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(90.0f, 7, autoOrder);
 			autoOrder = myDriveTrain.autonomousMove(80, 8, autoOrder);
 			autoOrder = myArm.autonomousDepositeCube(9, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
@@ -60,9 +60,9 @@ public class  AutonomousActions {
 			autoOrder = myArm.autonomousGetCube(2, autoOrder);
 			autoOrder = myDriveTrain.autonomousMove(36.0, 3, autoOrder);
 			autoOrder = myElevator.autonomousRaiseToSwitch(4, autoOrder);
-			autoOrder = myDriveTrain.autonomousTurn(30.0f, 5, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(90.0f, 5, autoOrder);
 			autoOrder = myDriveTrain.autonomousMove(96.0, 6, autoOrder);
-			autoOrder = myDriveTrain.autonomousTurn(-30.0f, 7, autoOrder);
+			autoOrder = myDriveTrain.autonomousTurn(-90.0f, 7, autoOrder);
 			autoOrder = myDriveTrain.autonomousMove(80, 8, autoOrder);
 			autoOrder = myArm.autonomousDepositeCube(9, autoOrder); 
 			// attempt to line us up to get another cube??? Would need vision processing to get another cube
