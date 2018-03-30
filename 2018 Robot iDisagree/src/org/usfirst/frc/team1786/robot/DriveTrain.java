@@ -442,11 +442,11 @@ public class DriveTrain implements PIDOutput{
 	}
 	public boolean buttonControls(boolean turnLeft, boolean turnRight)
 	{
-		if(turnLeft)
+		if(turnLeft || buttonControlOn)
 		{
 			autonomousTurn(-90);
 		}
-		else if(turnRight)
+		else if(turnRight || buttonControlOn)
 		{
 			autonomousTurn(90);
 		}
